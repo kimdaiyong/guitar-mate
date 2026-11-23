@@ -49,19 +49,19 @@ body{
 }
 /* ---------- header ---------- */
 header{
-  flex:none; display:flex; align-items:center; gap:8px;
-  padding:8px 12px; background:var(--panel);
+  flex:none; display:flex; align-items:center; gap:6px;
+  padding:5px 10px; background:var(--panel);
   border-bottom:1px solid var(--line);
-  padding-top:calc(8px + env(safe-area-inset-top));
+  padding-top:calc(5px + env(safe-area-inset-top));
 }
-.brand{flex:1; min-width:0; display:flex; align-items:baseline; gap:7px; font-weight:800; font-size:17px; letter-spacing:-.3px; white-space:nowrap; overflow:hidden}
-.brand .emoji{font-size:20px}
-.brand small{font-weight:600; font-size:11px; color:var(--muted); letter-spacing:0}
+.brand{flex:1; min-width:0; display:flex; align-items:baseline; gap:6px; font-weight:800; font-size:16px; letter-spacing:-.3px; white-space:nowrap; overflow:hidden}
+.brand .emoji{font-size:17px}
+.brand small{font-weight:600; font-size:10.5px; color:var(--muted); letter-spacing:0}
 .hbtn{
-  flex:none; min-width:44px; height:40px; padding:0 10px;
-  border:1px solid var(--line); border-radius:11px;
+  flex:none; min-width:36px; height:32px; padding:0 8px;
+  border:1px solid var(--line); border-radius:9px;
   background:var(--panel2); color:var(--ink);
-  font-size:14px; font-weight:700; font-family:inherit;
+  font-size:12.5px; font-weight:700; font-family:inherit;
 }
 .hbtn:active{background:var(--bg2)}
 /* ---------- panes ---------- */
@@ -70,35 +70,35 @@ main{flex:1; min-height:0; display:flex; flex-direction:column; position:relativ
 .pane.on{display:flex}
 /* ---------- sheets: bars ---------- */
 .bar{
-  flex:none; display:flex; align-items:center; gap:8px;
-  padding:7px 12px; background:var(--bg);
+  flex:none; display:flex; align-items:center; gap:6px;
+  padding:5px 10px; background:var(--bg);
   border-bottom:1px solid var(--line);
 }
 .sel{
-  flex:1; min-width:0; height:44px; padding:0 12px;
-  font-family:inherit; font-size:16px; font-weight:700;
+  flex:1; min-width:0; height:34px; padding:0 26px 0 10px;
+  font-family:inherit; font-size:13.5px; font-weight:700;
   color:var(--ink); background:var(--panel);
-  border:1px solid var(--line2); border-radius:11px;
+  border:1px solid var(--line2); border-radius:9px;
   appearance:none; -webkit-appearance:none;
   background-image:linear-gradient(45deg,transparent 50%,var(--ink2) 50%),linear-gradient(135deg,var(--ink2) 50%,transparent 50%);
-  background-position:calc(100% - 18px) 20px,calc(100% - 12px) 20px;
+  background-position:calc(100% - 16px) 14px,calc(100% - 11px) 14px;
   background-size:6px 6px,6px 6px;
   background-repeat:no-repeat;
 }
-.lbl{flex:none; font-size:13px; font-weight:800; color:var(--muted); letter-spacing:-.2px}
-.chips{display:grid; grid-template-columns:1.35fr repeat(7,minmax(0,1fr)); gap:5px; flex:1}
+.lbl{flex:none; font-size:12px; font-weight:800; color:var(--muted); letter-spacing:-.2px}
+.chips{display:grid; grid-template-columns:1.35fr repeat(7,minmax(0,1fr)); gap:4px; flex:1}
 .chip{
-  min-width:0; height:38px; padding:0 2px;
-  border:1px solid var(--line2); border-radius:10px;
+  min-width:0; height:32px; padding:0 2px;
+  border:1px solid var(--line2); border-radius:9px;
   background:var(--panel); color:var(--ink2);
-  font-family:inherit; font-size:13px; font-weight:700;
+  font-family:inherit; font-size:12px; font-weight:700;
   display:inline-flex; align-items:center; justify-content:center;
   white-space:nowrap;
 }
 .chip.on{background:var(--accent); border-color:var(--accent); color:#fff}
 .keys{gap:6px}
 .btn{
-  min-height:44px; padding:0 14px;
+  min-height:38px; padding:0 12px;
   border:1px solid var(--line2); border-radius:11px;
   background:var(--panel); color:var(--ink);
   font-family:inherit; font-size:15px; font-weight:700;
@@ -107,7 +107,7 @@ main{flex:1; min-height:0; display:flex; flex-direction:column; position:relativ
 }
 .btn:active{background:var(--bg2); transform:translateY(1px)}
 .btn:disabled{opacity:.45}
-.btn.sm{min-height:40px; padding:0 11px; font-size:14px; border-radius:10px}
+.btn.sm{min-height:34px; padding:0 9px; font-size:13px; border-radius:9px}
 .btn.primary{background:var(--accent); border-color:var(--accent); color:#fff}
 .btn.primary:active{background:var(--accent2)}
 .btn.big{min-height:56px; font-size:18px; border-radius:14px; flex:1}
@@ -122,12 +122,42 @@ main{flex:1; min-height:0; display:flex; flex-direction:column; position:relativ
   flex:1; min-height:40px; border:1px solid var(--line2); border-radius:10px;
   background:var(--panel); color:var(--ink2); font-family:inherit; font-weight:700; font-size:12.5px;
 }
+/* ---------- 접이식 설정(카포·키·글씨) ---------- */
+.settings-wrap{position:relative; flex:none; z-index:41}
+.setrow{
+  width:100%; display:flex; align-items:center; gap:6px;
+  padding:0 10px; min-height:35px;
+  background:var(--bg); border:0; border-bottom:1px solid var(--line);
+  font-family:inherit; color:var(--ink2); text-align:left;
+}
+.setrow .st{flex:none; font-size:12.5px; font-weight:800; letter-spacing:-.3px}
+.setrow .sv{flex:1; min-width:0; text-align:right; font-size:11px; font-weight:700; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.setrow .sc{flex:none; font-size:11px; color:var(--muted); transition:transform .15s}
+.setrow[aria-expanded="true"] .sc{transform:rotate(180deg)}
+.setrow[aria-expanded="true"]{background:var(--panel2)}
+.setpanel{
+  position:absolute; top:100%; left:0; right:0; z-index:40;
+  background:var(--panel); border:1px solid var(--line); border-top:0;
+  border-radius:0 0 14px 14px; box-shadow:0 10px 22px rgba(60,40,15,.22);
+  padding:8px 10px 10px; display:flex; flex-direction:column; gap:7px;
+}
+.setpanel[hidden]{display:none}
+.setrowin{display:flex; align-items:center; gap:6px}
+.setrowin .lbl{font-size:11.5px}
+.setpanel .chips{gap:3px}
+.setpanel .chip{height:30px; font-size:11.5px; border-radius:8px}
+.setpanel .keyinfo .k1{font-size:16px}
+.setpanel .keyinfo .k2{font-size:10.5px}
+.setpanel .btn.sm{min-height:32px; font-size:12px; padding:0 8px}
+.setpanel .fsb{min-height:30px; font-size:11.5px; border-radius:8px}
+.setveil{position:fixed; inset:0; z-index:39; background:rgba(25,17,8,.18)}
+.setveil[hidden]{display:none}
 .fsb.on{background:var(--accent); border-color:var(--accent); color:#fff}
 /* ---------- sheet body ---------- */
-.sheet-scroll{flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:10px 12px 28px; background:var(--bg)}
+.sheet-scroll{flex:1 1 auto; min-height:160px; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; padding:6px 10px 22px; background:var(--bg)}
 .sheet-scroll::-webkit-scrollbar{width:0}
-.songhead{margin:2px 0 14px; padding-bottom:10px; border-bottom:2px solid var(--line)}
-.songhead h1{margin:0; font-size:21px; font-weight:800; letter-spacing:-.6px}
+.songhead{margin:0 0 10px; padding-bottom:7px; border-bottom:2px solid var(--line)}
+.songhead h1{margin:0; font-size:19px; font-weight:800; letter-spacing:-.6px}
 .songhead .meta{margin-top:3px; font-size:12.5px; font-weight:600; color:var(--muted)}
 .section{
   margin:20px 0 8px; padding:5px 10px; border-radius:9px;
@@ -159,26 +189,29 @@ main{flex:1; min-height:0; display:flex; flex-direction:column; position:relativ
 .endnote{text-align:center; color:var(--muted); font-size:13px; padding:18px 0 4px}
 /* ---------- scroll control ---------- */
 .scrollctl{
-  flex:none; display:flex; align-items:center; gap:7px;
-  padding:8px 12px; background:var(--panel); border-top:1px solid var(--line);
+  flex:none; display:flex; align-items:center; gap:6px;
+  padding:4px 8px; background:var(--panel); border-top:1px solid var(--line);
 }
-.scrollctl .btn{flex:1; min-width:0; font-size:14px; padding:0 8px; white-space:nowrap}
+.scrollctl .btn{flex:1; min-width:0; font-size:12px; padding:0 6px; white-space:nowrap; min-height:34px}
+#pane-sheet.nosong .accompctl,#pane-sheet.nosong .scrollctl,#pane-sheet.nosong .guidebar{display:none}
+/* 오선지 화면에서는 노래·반주 진행을 따라가므로 자동 스크롤 줄을 숨겨 악보 자리를 넓힌다 */
+html[data-view="staff"] .scrollctl{display:none}
 .spd{display:flex; align-items:center; gap:4px; flex:1.05}
-.spd .btn{min-width:40px; padding:0; flex:none; width:40px}
-.spd span{flex:1; text-align:center; font-size:12.5px; font-weight:800; color:var(--ink2); white-space:nowrap}
+.spd .btn{min-width:34px; padding:0; flex:none; width:34px}
+.spd span{flex:1; text-align:center; font-size:11.5px; font-weight:800; color:var(--ink2); white-space:nowrap}
 /* ---------- accompaniment ---------- */
 .accompctl{
-  flex:none; display:grid; grid-template-columns:1.25fr 1fr 1.2fr; gap:6px;
-  padding:6px 10px; background:var(--panel); border-top:1px solid var(--line);
+  flex:none; display:grid; grid-template-columns:1.15fr 1fr 1.15fr; gap:5px;
+  padding:4px 8px; background:var(--panel); border-top:1px solid var(--line);
 }
-.accompctl .btn{min-width:0; white-space:nowrap; padding:0 4px; min-height:40px}
+.accompctl .btn{min-width:0; white-space:nowrap; padding:0 4px; min-height:34px; border-radius:9px}
 .accompctl > *{min-width:0}
-#btnAccomp{font-size:13.5px}
+#btnAccomp{font-size:12.5px}
 #btnAccomp.on{background:var(--accent); border-color:var(--accent); color:#fff}
-#btnAccStyle{font-size:12.5px; color:var(--ink2)}
+#btnAccStyle{font-size:11.5px; color:var(--ink2)}
 .accbpm{gap:3px}
-.accbpm .btn{flex:0 0 30px; width:30px; min-width:30px; padding:0; font-size:15px}
-.accbpm span{flex:1; font-size:11.5px; overflow:hidden; text-overflow:ellipsis}
+.accbpm .btn{flex:0 0 26px; width:26px; min-width:26px; padding:0; font-size:13px}
+.accbpm span{flex:1; font-size:11px; overflow:hidden; text-overflow:ellipsis}
 .pair.playing{background:var(--panel2); border-radius:5px; box-shadow:inset 3px 0 0 var(--accent)}
 .chd.playing{background:var(--accent); border-color:var(--accent); color:#fff}
 .songlinks{margin-top:9px; display:flex; flex-wrap:wrap; gap:8px}
@@ -282,11 +315,11 @@ main{flex:1; min-height:0; display:flex; flex-direction:column; position:relativ
   padding-bottom:env(safe-area-inset-bottom);
 }
 #nav button{
-  flex:1; background:none; border:0; padding:7px 0 8px; font-family:inherit;
-  display:flex; flex-direction:column; align-items:center; gap:2px;
-  color:var(--muted); font-size:11.5px; font-weight:800; letter-spacing:-.2px;
+  flex:1; background:none; border:0; padding:4px 0 5px; font-family:inherit;
+  display:flex; flex-direction:column; align-items:center; gap:1px;
+  color:var(--muted); font-size:10.5px; font-weight:800; letter-spacing:-.2px;
 }
-#nav button .ic{font-size:21px; line-height:1.1}
+#nav button .ic{font-size:18px; line-height:1.15}
 #nav button.on{color:var(--accent)}
 #nav button.on .ic{transform:translateY(-1px)}
 /* ---------- modal ---------- */
@@ -331,20 +364,30 @@ main{flex:1; min-height:0; display:flex; flex-direction:column; position:relativ
   max-width:86vw; text-align:center;
 }
 .toast.on{opacity:1; transform:translate(-50%,0)}
-@media (max-width:365px){
+@media (max-width:400px){
   .brand small{display:none}
-  .brand{font-size:16px}
-  .chips{gap:3px}
-  .chip{font-size:11.5px; padding:0 1px; letter-spacing:-.4px}
-  .scrollctl .btn{font-size:12.5px; padding:0 5px}
-  .spd span{font-size:11.5px}
-  #btnAccomp{font-size:12.5px}
-  #btnAccStyle{font-size:11.5px}
-  .accbpm .btn{flex:0 0 26px; width:26px; min-width:26px}
-  .accbpm span{font-size:11px}
-  .fsb{font-size:11.5px}
-  .btn.sm{font-size:13px; padding:0 8px}
-  .hbtn{font-size:13px; padding:0 8px; min-width:40px}
+}
+@media (max-width:365px){
+  .brand{font-size:15px}
+  .chips{gap:2px}
+  .chip{font-size:11px; padding:0 1px; letter-spacing:-.4px}
+  .scrollctl .btn{font-size:11.5px; padding:0 4px}
+  .spd span{font-size:11px}
+  #btnAccomp{font-size:11.5px}
+  #btnAccStyle{font-size:11px}
+  .accbpm .btn{flex:0 0 24px; width:24px; min-width:24px; font-size:12px}
+  .accbpm span{font-size:10.5px}
+  .fsb{font-size:11px}
+  .setrow .st{font-size:11.5px}
+  .setrow .sv{font-size:10.5px}
+  .songacts .btn{font-size:11.5px; padding:0 6px}
+  .hbtn{font-size:12px; padding:0 7px; min-width:34px}
+  .guide{font-size:11px; padding:0 7px}
+}
+/* 짧은 화면(가로 회전 등)에서 하단 컨트롤이 잘리지 않도록 */
+@media (max-height:560px){
+  #pane-sheet{overflow-y:auto}
+  .sheet-scroll{min-height:220px}
 }
 @media (min-width:520px){
   body{padding:0}
@@ -360,20 +403,20 @@ main{flex:1; min-height:0; display:flex; flex-direction:column; position:relativ
 .chordsvg .mark{fill:var(--muted);font-size:13px;font-weight:700;text-anchor:middle;dominant-baseline:central}
 .chordsvg .fretno{fill:var(--muted);font-size:10px;font-weight:700;text-anchor:start}
 /* ---------- 보기 전환 · 내 음악 ---------- */
-.viewbar{flex:none;display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--bg);border-bottom:1px solid var(--line)}
+.viewbar{flex:none;display:flex;align-items:center;gap:5px;padding:4px 8px;background:var(--bg);border-bottom:1px solid var(--line)}
 .vtabs{display:flex;gap:5px;flex:1;min-width:0}
 .vt{
-  flex:1; min-width:0; min-height:36px; padding:0 6px;
-  border:1px solid var(--line2); border-radius:10px; background:var(--panel); color:var(--ink2);
-  font-family:inherit; font-size:12.5px; font-weight:800; letter-spacing:-.3px; white-space:nowrap;
+  flex:1; min-width:0; min-height:30px; padding:0 6px;
+  border:1px solid var(--line2); border-radius:9px; background:var(--panel); color:var(--ink2);
+  font-family:inherit; font-size:11.5px; font-weight:800; letter-spacing:-.3px; white-space:nowrap;
 }
 .vt.on{background:var(--accent); border-color:var(--accent); color:#fff}
-.pickbtn{flex:none; min-height:36px; padding:0 9px; font-size:12.5px}
+.pickbtn{flex:none; min-height:30px; padding:0 8px; font-size:11.5px}
 /* ---------- 곡 선택 줄(노래 가져오기·악보 추가) ---------- */
-.bar.songbar{display:grid; grid-template-columns:1fr 1fr; gap:6px; padding:7px 12px}
-.songbar .sel{grid-column:1 / -1; width:100%; height:42px}
-.songacts{grid-column:1 / -1; display:flex; gap:6px}
-.songacts .btn{flex:1; min-width:0; min-height:40px; padding:0 4px; font-size:13.5px; white-space:nowrap; letter-spacing:-.3px}
+.bar.songbar{display:flex; align-items:center; gap:5px; padding:4px 8px}
+.songbar .sel{flex:1; min-width:0; width:auto; height:34px; font-size:13px; padding:0 24px 0 9px; background-position:calc(100% - 14px) 14px,calc(100% - 9px) 14px}
+.songacts{display:flex; gap:5px; flex:none}
+.songacts .btn{flex:none; min-width:0; min-height:34px; padding:0 8px; font-size:12px; white-space:nowrap; letter-spacing:-.3px; border-radius:9px}
 #btnPickAudio{background:var(--chordbg); border-color:var(--line2); color:var(--chord)}
 #btnPickAudio:active{background:var(--accent); border-color:var(--accent); color:#fff}
 /* ---------- 빈 화면(악보 없음) ---------- */
@@ -385,39 +428,46 @@ main{flex:1; min-height:0; display:flex; flex-direction:column; position:relativ
 .esbtns{display:flex; flex-direction:row; gap:8px; margin:0 auto}
 .esbtns .btn{flex:1; min-width:0; min-height:46px; font-size:14.5px; border-radius:12px; padding:0 4px; letter-spacing:-.4px}
 .eshint{margin:8px auto 0; max-width:310px; font-size:11.5px; color:var(--muted); line-height:1.5; white-space:normal; word-break:keep-all}
-.player{display:none; flex:none; padding:6px 10px 8px; background:var(--panel); border-bottom:1px solid var(--line)}
+.player{display:none; flex:none; padding:3px 8px 4px; background:var(--panel); border-bottom:1px solid var(--line)}
 .player.on{display:block}
-.prow{display:flex; align-items:center; gap:6px}
-.prow + .prow{margin-top:4px}
+.prow{display:flex; align-items:center; gap:5px}
+.prow + .prow{margin-top:3px}
 .pbtn{
-  flex:none; width:40px; height:32px; border:1px solid var(--line2); border-radius:9px;
-  background:var(--panel2); color:var(--ink); font-family:inherit; font-size:14px; font-weight:800;
+  flex:none; width:32px; height:26px; border:1px solid var(--line2); border-radius:8px;
+  background:var(--panel2); color:var(--ink); font-family:inherit; font-size:12px; font-weight:800;
 }
 .pbtn.on{background:var(--accent); border-color:var(--accent); color:#fff}
-.pname{flex:1; min-width:0; font-size:12.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.pname{flex:1; min-width:0; font-size:11.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .pxbtn{
-  flex:none; width:34px; height:32px; border:1px solid var(--line); border-radius:9px;
-  background:var(--panel2); color:var(--ink2); font-family:inherit; font-size:13px; font-weight:800;
+  flex:none; width:28px; height:26px; border:1px solid var(--line); border-radius:8px;
+  background:var(--panel2); color:var(--ink2); font-family:inherit; font-size:11px; font-weight:800;
 }
-.ptime{flex:none; min-width:32px; text-align:center; font-size:11px; font-weight:700; color:var(--muted); font-variant-numeric:tabular-nums}
-.prange{-webkit-appearance:none; appearance:none; flex:1; min-width:0; height:26px; background:transparent}
-.prange::-webkit-slider-runnable-track{height:6px; border-radius:4px; background:var(--line); border:1px solid var(--line2)}
-.prange::-webkit-slider-thumb{-webkit-appearance:none; appearance:none; width:18px; height:18px; margin-top:-7px; border-radius:50%; background:var(--accent); border:2px solid var(--panel)}
-.prange::-moz-range-track{height:6px; border-radius:4px; background:var(--line)}
-.prange::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:var(--accent); border:2px solid var(--panel)}
-.plbl{flex:none; font-size:11px; font-weight:800; color:var(--muted)}
-.pspeeds{display:flex; gap:4px; flex:1; min-width:0}
+.ptime{flex:none; min-width:26px; text-align:center; font-size:9.5px; font-weight:700; color:var(--muted); font-variant-numeric:tabular-nums}
+.prange{-webkit-appearance:none; appearance:none; flex:1; min-width:0; height:20px; background:transparent}
+.prange::-webkit-slider-runnable-track{height:5px; border-radius:4px; background:var(--line); border:1px solid var(--line2)}
+.prange::-webkit-slider-thumb{-webkit-appearance:none; appearance:none; width:14px; height:14px; margin-top:-6px; border-radius:50%; background:var(--accent); border:2px solid var(--panel)}
+.prange::-moz-range-track{height:5px; border-radius:4px; background:var(--line)}
+.prange::-moz-range-thumb{width:13px; height:13px; border-radius:50%; background:var(--accent); border:2px solid var(--panel)}
+.plbl{flex:none; font-size:9.5px; font-weight:800; color:var(--muted)}
+.pspeeds{display:flex; gap:3px; flex:1; min-width:0}
 .psb{
-  flex:1; min-width:0; height:26px; border:1px solid var(--line2); border-radius:7px;
-  background:var(--panel2); color:var(--ink2); font-family:inherit; font-size:11.5px; font-weight:800; padding:0;
+  flex:1; min-width:0; height:22px; border:1px solid var(--line2); border-radius:6px;
+  background:var(--panel2); color:var(--ink2); font-family:inherit; font-size:10.5px; font-weight:800; padding:0;
 }
 .psb.on{background:var(--accent); border-color:var(--accent); color:#fff}
+/* 오선지 화면에서는 곡 정보 줄을 줄여 악보가 더 많이 보이게 */
+html[data-view="staff"] .songhead{display:flex; align-items:baseline; gap:6px; margin:0 0 4px; padding-bottom:3px; border-bottom-width:1px}
+html[data-view="staff"] .songhead h1{font-size:14px; letter-spacing:-.4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:58%}
+html[data-view="staff"] .songhead .meta{font-size:10.5px; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+html[data-view="staff"] .staffinfo{margin:0 0 6px; padding:4px 8px; font-size:10.5px; line-height:1.4}
+html[data-view="staff"] .staffnote{display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; margin-top:1px}
 /* ---------- 멜로디 가이드음 ---------- */
-.guidebar{display:none; flex:none; align-items:center; gap:8px; padding:5px 10px; background:var(--bg); border-top:1px solid var(--line)}
+.guidebar{display:none; flex:none; align-items:center; gap:6px; padding:3px 8px; background:var(--bg); border-top:1px solid var(--line)}
 .guidebar.on{display:flex}
-.guide{flex:none; min-height:34px; padding:0 10px; font-size:12px}
+.guide{flex:none; min-height:30px; padding:0 8px; font-size:11.5px}
+.guidebar .btn.guide{min-height:28px; font-size:11px}
 .guide.on{background:var(--accent); border-color:var(--accent); color:#fff}
-.gpos{flex:1; text-align:right; font-size:11.5px; font-weight:800; color:var(--muted); font-variant-numeric:tabular-nums}
+.gpos{flex:1; text-align:right; font-size:10.5px; font-weight:800; color:var(--muted); font-variant-numeric:tabular-nums}
 /* ---------- 오선지 악보 ---------- */
 .staffinfo{margin:-4px 0 10px; padding:8px 10px; border:1px solid var(--line); border-radius:10px; background:var(--panel2); font-size:12px; color:var(--ink2); line-height:1.5}
 .staffk{font-weight:800; color:var(--ink)}
@@ -465,6 +515,12 @@ html[data-theme="dark"] .staffsys .msr.cur .barhl{fill:rgba(224,138,68,.18)}
 .ap-meta{flex:1; min-width:0; font-size:12px; font-weight:700; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .ap-track{position:relative; height:56px; border-radius:10px; background:var(--panel2); border:1px solid var(--line); overflow:hidden; padding:6px 7px; cursor:pointer}
 .audiopanel.compact .ap-track{height:42px}
+/* 재생 막대(플레이어)를 펼쳐 두면 가사·코드 안의 파형·시간 줄은 겹치므로 접는다 */
+#app[data-player="on"] .audiopanel .ap-track,
+#app[data-player="on"] .audiopanel .ap-time{display:none}
+#app[data-player="on"] .audiopanel{padding:8px 10px 9px; margin-bottom:10px}
+/* 가사가 있는 곡은 위 재생 막대가 같은 기능을 하므로 음원 카드 자체를 접는다 */
+#app[data-player="on"] .audiopanel.compact{display:none}
 .ap-wave{display:flex; align-items:center; gap:1px; height:100%; width:100%; overflow:hidden}
 .ap-wave i{flex:1 1 0; min-width:1px; max-width:7px; height:12%; border-radius:2px; background:var(--line2); display:block; transition:background .12s}
 .ap-wave i.on{background:var(--accent)}
@@ -478,7 +534,7 @@ html[data-theme="dark"] .staffsys .msr.cur .barhl{fill:rgba(224,138,68,.18)}
 .apcard span{font-size:10.5px; color:var(--muted); font-weight:700; font-variant-numeric:tabular-nums}
 .apcard.cur{background:var(--accent); border-color:var(--accent); color:#fff}
 .apcard.cur span{color:#ffe}
-.pedit{flex:none; min-height:26px; padding:0 7px; font-size:11px; white-space:nowrap; border-radius:7px; letter-spacing:-.3px}
+.pedit{flex:none; min-height:22px; padding:0 6px; font-size:10px; white-space:nowrap; border-radius:6px; letter-spacing:-.3px}
 </style>
 </head>
 <body>
@@ -524,30 +580,41 @@ html[data-theme="dark"] .staffsys .msr.cur .barhl{fill:rgba(224,138,68,.18)}
       <div class="bar songbar">
         <select class="sel" id="songSelect" aria-label="곡 선택"></select>
         <div class="songacts">
-          <button class="btn pickbtn" type="button" id="btnPickAudio">📂 노래 가져오기</button>
-          <button class="btn" type="button" id="btnSongMgr">➕ 악보 추가</button>
+          <button class="btn pickbtn" type="button" id="btnPickAudio">📂 노래</button>
+          <button class="btn" type="button" id="btnSongMgr">＋ 악보</button>
         </div>
         <input type="file" id="audioFile" accept="audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.opus" hidden>
       </div>
-      <div class="bar">
-        <span class="lbl">카포</span>
-        <div class="chips" id="capoBtns"></div>
-      </div>
-      <div class="bar keys">
-        <button class="btn sm" id="btnKeyDown" aria-label="키 내리기">− 반음</button>
-        <div class="keyinfo">
-          <div class="k1" id="keyNow">D키</div>
-          <div class="k2" id="keySub">카포 없음 · 원키 그대로</div>
+      <div class="settings-wrap">
+        <button class="setrow" id="btnSettings" type="button" aria-expanded="false" aria-controls="settingsPanel">
+          <span class="st">🎛️ 카포 · 키 · 글씨</span>
+          <span class="sv" id="settingsSummary">카포 없음 · 원키 · 보통</span>
+          <span class="sc" aria-hidden="true">▾</span>
+        </button>
+        <div class="setpanel" id="settingsPanel" hidden>
+          <div class="setrowin">
+            <span class="lbl">카포</span>
+            <div class="chips" id="capoBtns"></div>
+          </div>
+          <div class="setrowin keys">
+            <button class="btn sm" id="btnKeyDown" aria-label="키 내리기">− 반음</button>
+            <div class="keyinfo">
+              <div class="k1" id="keyNow">D키</div>
+              <div class="k2" id="keySub">카포 없음 · 원키 그대로</div>
+            </div>
+            <button class="btn sm" id="btnKeyUp" aria-label="키 올리기">+ 반음</button>
+          </div>
+          <div class="setrowin">
+            <button class="btn sm" id="btnKeyReset">원키로</button>
+            <span class="lbl">글씨</span>
+            <div class="fsgrp" id="fontGrp">
+              <button class="fsb on" data-font="1">보통</button>
+              <button class="fsb" data-font="2">크게</button>
+              <button class="fsb" data-font="3">아주 크게</button>
+            </div>
+          </div>
         </div>
-        <button class="btn sm" id="btnKeyUp" aria-label="키 올리기">+ 반음</button>
-      </div>
-      <div class="bar keys2">
-        <button class="btn sm" id="btnKeyReset">원키로</button>
-        <div class="fsgrp" id="fontGrp">
-          <button class="fsb on" data-font="1">보통</button>
-          <button class="fsb" data-font="2">크게</button>
-          <button class="fsb" data-font="3">아주 크게</button>
-        </div>
+        <div class="setveil" id="setVeil" hidden></div>
       </div>
       <div class="sheet-scroll" id="sheetScroll">
         <div id="sheetBody"></div>
@@ -1236,6 +1303,8 @@ function renderPair(b){
 }
 var sheetCi = 0;
 function renderSheet(){
+  var paneS = $("#pane-sheet");
+  if (paneS) paneS.classList.toggle("nosong", !currentSong());
   if (state.view === "staff"){ renderStaffSheet(); return; }
   if (typeof staffStopTick === "function") staffStopTick();
   var song = currentSong();
@@ -1295,7 +1364,7 @@ function renderEmptySheet(body){
   box.appendChild(el("div", "esicon", "🎸"));
   box.appendChild(el("h1", null, "아직 저장된 악보가 없어요"));
   var p = el("p");
-  p.innerHTML = "위에서 <b>📂 노래 가져오기</b>로 폰의 음악 파일을 열어 연습하거나, <b>➕ 악보 추가</b>로 새 코드 악보를 만들어 보세요.";
+  p.innerHTML = "위에서 <b>📂 노래</b>를 눌러 폰의 음악 파일을 열어 연습하거나, <b>＋ 악보</b>로 새 코드 악보를 만들어 보세요.";
   box.appendChild(p);
   var btns = el("div", "esbtns");
   var b1 = el("button", "btn primary", "📂 노래 가져오기");
@@ -1323,6 +1392,7 @@ function updateKeyInfo(){
   else if (state.keyShift !== 0 && orig){ sub = "원곡 " + orig + "키에서 " + (state.keyShift > 0 ? "+" : "") + state.keyShift + "반음"; }
   else { sub = orig ? "카포 없음 · 원키 그대로" : "키 정보 없음 · 화면 코드 그대로"; }
   $("#keySub").textContent = sub;
+  updateSettingsSummary();
 }
 
 /* ================= 코드 운지표(SVG) ================= */
@@ -2214,6 +2284,8 @@ function setAudioBtn(on){
 function showPlayer(on){
   var box = $("#player");
   if (box) box.classList.toggle("on", !!on);
+  var app = $("#app");
+  if (app) app.setAttribute("data-player", on ? "on" : "off");
   if (on) player.hidden = false;
 }
 function audioPlaying(){
@@ -3215,11 +3287,18 @@ function updateGuideUI(){
   b.setAttribute("aria-pressed", state.guideOn ? "true" : "false");
   var gb = $("#guideBar");
   if (gb) gb.classList.toggle("on", state.view === "staff");
+  document.documentElement.setAttribute("data-view", state.view);
   var gp = $("#guidePos");
-  if (gp && !accomp.playing) gp.textContent = "마디 — / " + (staffData ? staffData.measures.length : 0);
+  if (gp){
+    var nMs = staffData ? staffData.measures.length : 0;
+    if (staffView.cur >= 0 && (accomp.playing || audioPlaying())) gp.textContent = "마디 " + (staffView.cur + 1) + " / " + nMs;
+    else gp.textContent = "마디 — / " + nMs;
+  }
 }
 function setView(v){
   state.view = (v === "staff") ? "staff" : "lyric";
+  /* 오선지에서는 자동 스크롤 줄을 숨기므로, 켜져 있었다면 멈춘다 */
+  if (state.view === "staff" && state.scrollOn) stopScroll();
   saveSettings();
   $$("#viewTabs .vt").forEach(function(b){ b.classList.toggle("on", b.getAttribute("data-view") === state.view); });
   updateGuideUI();
@@ -3298,6 +3377,27 @@ function applyFont(){
   var scales = [1, 1.12, 1.26];
   document.documentElement.style.setProperty("--fs", String(scales[state.fontSize - 1] || 1));
   $$("#fontGrp .fsb").forEach(function(b){ b.classList.toggle("on", parseInt(b.getAttribute("data-font"), 10) === state.fontSize); });
+  updateSettingsSummary();
+}
+/* ---------- 접이식 설정(카포·키·글씨) ---------- */
+function setSettingsOpen(open){
+  var panel = $("#settingsPanel"), btn = $("#btnSettings"), veil = $("#setVeil");
+  if (!panel || !btn) return;
+  panel.hidden = !open;
+  if (veil) veil.hidden = !open;
+  btn.setAttribute("aria-expanded", open ? "true" : "false");
+}
+function updateSettingsSummary(){
+  var out = $("#settingsSummary");
+  if (!out) return;
+  var song = currentSong();
+  var capo = state.capo > 0 ? ("카포 " + state.capo) : "카포 없음";
+  var key = "원키";
+  if (song && song.key){
+    key = transposeName(song.key, state.keyShift, useFlats()) + "키";
+  }
+  var fs = ["보통", "크게", "아주 크게"][(state.fontSize || 1) - 1] || "보통";
+  out.textContent = capo + " · " + key + " · " + fs;
 }
 function showTab(name){
   $$("#nav button").forEach(function(b){ b.classList.toggle("on", b.getAttribute("data-tab") === name); });
@@ -3646,6 +3746,16 @@ function bindUI(){
     state.keyShift = 0; state.capo = 0;
     saveSettings(); buildCapo(); renderSheet();
     toast("원키로 돌아왔어요");
+  });
+  /* 접이식 설정 열고 닫기 */
+  var setBtn = $("#btnSettings");
+  if (setBtn) setBtn.addEventListener("click", function(){
+    setSettingsOpen(setBtn.getAttribute("aria-expanded") !== "true");
+  });
+  var veil = $("#setVeil");
+  if (veil) veil.addEventListener("click", function(){ setSettingsOpen(false); });
+  document.addEventListener("keydown", function(e){
+    if (e.key === "Escape") setSettingsOpen(false);
   });
   /* 글자 크기 */
   $("#fontGrp").addEventListener("click", function(e){
