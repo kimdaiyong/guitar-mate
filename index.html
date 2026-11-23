@@ -71,6 +71,8 @@ header{
   font-size:12.5px; font-weight:700; font-family:inherit;
 }
 .hbtn:active{background:var(--bg2)}
+.hbtn.hquit{display:inline-flex; align-items:center; gap:3px; padding:0 8px; font-weight:800; color:var(--ink2)}
+.hbtn.hquit .qi{font-size:13px; line-height:1}
 /* ---------- panes ---------- */
 main{flex:1; min-height:0; display:flex; flex-direction:column; position:relative}
 .pane{display:none; flex:1; min-height:0; flex-direction:column}
@@ -343,6 +345,19 @@ html[data-view="staff"] .scrollctl{display:none}
   animation:up .18s ease-out;
 }
 @keyframes up{from{transform:translateY(30px);opacity:.4}to{transform:none;opacity:1}}
+/* ---------- 앱 종료 안내 ---------- */
+.quit{position:fixed; inset:0; z-index:96; display:none; align-items:center; justify-content:center; padding:18px; background:rgba(20,14,8,.6)}
+.quit.on{display:flex}
+.quit-card{
+  width:100%; max-width:360px; text-align:center; background:var(--panel);
+  border:1px solid var(--line); border-radius:18px;
+  padding:22px 18px calc(18px + env(safe-area-inset-bottom));
+  box-shadow:0 10px 40px rgba(0,0,0,.3); animation:up .18s ease-out;
+}
+.quit-card .qe{font-size:34px; line-height:1}
+.quit-card h2{margin:10px 0 6px; font-size:17px; font-weight:800; letter-spacing:-.4px; color:var(--ink)}
+.quit-card p{margin:0 0 16px; font-size:13px; line-height:1.6; font-weight:600; color:var(--ink2); word-break:keep-all}
+.quit-card .btn{width:100%; min-height:44px; font-weight:800}
 .modal-head{display:flex; align-items:center; gap:10px; margin-bottom:10px}
 .modal-head h2{flex:1; margin:0; font-size:19px; font-weight:800; letter-spacing:-.5px}
 .xbtn{width:44px; height:44px; border-radius:12px; border:1px solid var(--line); background:var(--panel2); color:var(--ink2); font-size:19px; font-weight:800; font-family:inherit}
@@ -389,7 +404,14 @@ html[data-view="staff"] .scrollctl{display:none}
   .setrow .sv{font-size:10.5px}
   .songacts .btn{font-size:11.5px; padding:0 6px}
   .hbtn{font-size:12px; padding:0 7px; min-width:34px}
+  header{gap:4px}
+  .hbtn.hquit{padding:0 6px; letter-spacing:-.6px}
   .guide{font-size:11px; padding:0 7px}
+}
+@media (max-width:340px){
+  .brand{font-size:14px; gap:4px}
+  .hbtn{padding:0 5px; min-width:30px}
+  .hbtn.hquit{padding:0 5px; font-size:11.5px}
 }
 /* 짧은 화면(가로 회전 등)에서 하단 컨트롤이 잘리지 않도록 */
 @media (max-height:560px){
@@ -581,6 +603,8 @@ html[data-view="staff"] .lyprog{display:none !important}
 .lyprog .lpsrc{flex:1; min-width:0; text-align:right; font-size:10px; font-weight:700; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .lyprog .lpbar{position:absolute; left:0; right:0; bottom:0; height:3px; background:var(--line); overflow:hidden}
 .lyprog .lpbar i{display:block; height:100%; width:0; background:var(--accent); border-radius:0 2px 2px 0; transition:width .12s linear}
+.lyprog.pause{color:var(--muted)}
+.lyprog.pause .lpbar i{background:var(--line2)}
 /* 가사 시작(전주) 맞추기 · ±1초 미세 조정 */
 .lysync{
   display:none; flex:none; align-items:center; flex-wrap:wrap; gap:4px;
@@ -629,6 +653,7 @@ html[data-view="staff"] .lysync{display:none !important}
     <div class="brand"><span class="emoji">🎸</span>기타 메이트<small>연습 도우미</small></div>
     <button class="hbtn" id="btnHelp" aria-label="도움말">도움말</button>
     <button class="hbtn" id="btnTheme" aria-label="화면 테마 바꾸기">🌙 밤</button>
+    <button class="hbtn hquit" id="btnQuit" type="button" aria-label="기타 메이트 종료하기" title="재생을 멈추고 기타 메이트를 종료합니다"><span class="qi" aria-hidden="true">🚪</span> 종료</button>
   </header>
 
   <main>
@@ -953,6 +978,15 @@ html[data-view="staff"] .lysync{display:none !important}
       · 근음을 고르면 그 근음의 코드 6가지가 나옵니다. 누르면 소리도 들을 수 있어요.<br>
       · <b>곡 관리 &gt; 이 곡 수정하기</b>에서 곡마다 원곡 유튜브 링크를 넣어 둘 수 있습니다(선택).
     </div>
+  </div>
+</div>
+
+<div class="quit" id="quitVeil" role="dialog" aria-modal="true" aria-labelledby="quitTitle" aria-describedby="quitMsg">
+  <div class="quit-card">
+    <div class="qe" aria-hidden="true">🚪</div>
+    <h2 id="quitTitle">기타 메이트를 종료했어요</h2>
+    <p id="quitMsg">기타 메이트를 안전하게 종료했어요. 이제 뒤로가기(◀)나 홈 버튼을 눌러 앱을 닫으실 수 있어요.</p>
+    <button class="btn primary" id="btnQuitBack" type="button">다시 열기</button>
   </div>
 </div>
 
@@ -2266,7 +2300,7 @@ function accompStop(){
   }
   accomp.voices.length = 0;
   clearAccompHighlight();
-  lyricProgHide();
+  lyricProgRest();
   if (typeof staffStopTick === "function") staffStopTick();
   updateAccompUI();
   syncWake();
@@ -4619,7 +4653,8 @@ function staffAudioFollow(ratio, immediate){
 /* ---------- 가사·코드 화면 실시간 진행 표시(진행 바·줄/마디 강조·이동) ---------- */
 var lyricProg = {
   songId: "", mode: "", rows: [], steps: [], chords: [], total: 0, bpb: 4,
-  cur: -1, curMi: -1, dur: 0, mDur: 2, startSec: 0, firstMi: 0, timed: false
+  cur: -1, curMi: -1, dur: 0, mDur: 2, startSec: 0, firstMi: 0, timed: false,
+  ratio: 0, src: ""
 };
 
 /* ---------- 가사 시작(전주) 시각 · LRC([mm:ss.xx]) 시각 ---------- */
@@ -4825,10 +4860,26 @@ function lyIntroBadge(song, sec){
 
 function lyricProgHide(){
   var box = $("#lyricProg");
-  if (box) box.classList.remove("on");
+  if (box){ box.classList.remove("on"); box.classList.remove("pause"); }
   var a = $("#lpArrow");
   if (a) a.classList.remove("on");
   lyricSetIntroBadge(false);
+}
+/* 재생 중인지(음원·코드 반주). 정지 상태에서도 진행 바는 ⏸ 로 계속 보여 준다 */
+function lyricProgPlaying(){
+  try { return !!(audioPlaying() || accomp.playing); } catch (e) { return false; }
+}
+/* 정지·일시정지 상태: 마지막(또는 처음) 위치를 ⏸ 로 그대로 보여 준다.
+   ratio 를 주면 그 위치로 맞춘다(음원을 옮겼을 때). */
+function lyricProgRest(ratio){
+  var P = lyricProg, box = $("#lyricProg");
+  if (!box) return;
+  if (!currentSong() || state.view === "staff" || !(P.total > 0)){ lyricProgHide(); return; }
+  if (ratio != null) P.ratio = clamp(ratio, 0, 1);
+  else if (!(P.ratio > 0)) P.ratio = clamp((P.curMi >= 0 ? P.curMi : 0) / P.total, 0, 1);
+  var mi = clamp(Math.floor((P.ratio || 0) * P.total), 0, Math.max(0, P.total - 1));
+  var src = P.src || (P.dur > 0 ? "🎧 음원" : "");
+  lyricProgPaint(mi, P.ratio || 0, "", src, false);
 }
 function lyricProgClear(){
   var P = lyricProg, i;
@@ -4842,6 +4893,7 @@ function lyricProgClear(){
   lyricSetIntroBadge(false);
   P.songId = ""; P.mode = ""; P.rows = []; P.steps = []; P.chords = []; P.total = 0; P.bpb = 4;
   P.cur = -1; P.curMi = -1; P.dur = 0; P.startSec = 0; P.firstMi = 0; P.timed = false;
+  P.ratio = 0; P.src = "";
   lyricProgHide();
   updateLyricSyncBar();
 }
@@ -4852,12 +4904,17 @@ function lyricProgChordAt(mi){
 }
 function lyricProgPaint(mi, ratio, chord, src, intro){
   var P = lyricProg, box = $("#lyricProg");
-  if (!box) return;
+  if (!box || !(P.total > 0)) return;
+  var playing = lyricProgPlaying();
+  ratio = clamp(ratio || 0, 0, 1);
+  mi = clamp(mi || 0, 0, Math.max(0, P.total - 1));
+  P.curMi = mi; P.ratio = ratio; P.src = src || "";
   box.classList.add("on");
+  box.classList.toggle("pause", !playing);
   var fill = $("#lpFill");
-  if (fill) fill.style.width = (clamp(ratio, 0, 1) * 100).toFixed(2) + "%";
+  if (fill) fill.style.width = (ratio * 100).toFixed(2) + "%";
   var t = $("#lpText");
-  if (t) t.textContent = P.total ? ("▶ 마디 " + (mi + 1) + " / " + P.total + (intro ? " · 🎸 전주 중" : "")) : "▶ 마디 — / —";
+  if (t) t.textContent = (playing ? "▶ " : "⏸ ") + "마디 " + (mi + 1) + " / " + P.total + (intro ? " · 🎸 전주 중" : "");
   var c = $("#lpChord"), nm = chord || lyricProgChordAt(mi);
   if (c){
     c.textContent = nm ? "[" + nm + "]" : "";
@@ -4951,7 +5008,7 @@ function lyricProgActivate(mi, immediate, tSec){
 function lyricProgFromRatio(ratio, immediate, force){
   var P = lyricProg;
   if (!P.rows.length || !P.total) return false;
-  if (!(force || audioPlaying() || accomp.playing)){ lyricProgHide(); return true; }
+  if (!(force || lyricProgPlaying())){ lyricProgRest(ratio); return true; }
   ratio = clamp(ratio || 0, 0, 1);
   var mi = clamp(Math.floor(ratio * P.total), 0, P.total - 1);
   var t = P.dur > 0 ? ratio * P.dur : null;
@@ -5010,11 +5067,12 @@ function buildLyricProg(song, autoMode){
     P.startSec = (lyricFirstSec(song) > 0.05) ? Math.max(P.firstMi * mDur, lyricFirstSec(song)) : 0;
     P.timed = false;
     updateLyricSyncBar();
+    lyricProgRest();
     return;
   }
 
   var rows = $$("#sheetBody .pair");
-  if (!rows.length){ updateLyricSyncBar(); return; }
+  if (!rows.length){ updateLyricSyncBar(); lyricProgRest(); return; }
   P.mode = "lines";
   var w = [], sum = 0, texts = [], txt;
   for (i = 0; i < rows.length; i++){
@@ -5108,7 +5166,16 @@ function buildLyricProg(song, autoMode){
   for (i = 0; i < P.rows.length; i++) if (P.rows[i].lyric) P.steps.push(i);
   P.firstMi = P.steps.length ? P.rows[P.steps[0]].mi0 : 0;
   P.timed = (P.dur > 0);
+  /* 줄마다 첫 코드를 기억해 두어 정지 상태에서도 코드 칩을 보여 준다 */
+  for (i = 0; i < P.rows.length; i++){
+    var cells2 = P.rows[i].el.querySelectorAll(".chd");
+    for (k = 0; k < cells2.length; k++){
+      var cn = (cells2[k].textContent || "").replace(/\u00a0/g, " ").trim();
+      if (cn){ if (!P.chords[P.rows[i].mi0]) P.chords[P.rows[i].mi0] = cn; break; }
+    }
+  }
   updateLyricSyncBar();
+  lyricProgRest();
 }
 
 /* 코드 반주를 그 마디부터 이어 간다 */
@@ -5378,11 +5445,11 @@ function initPlayerUI(){
     startAudioSync();
     syncWake();
   });
-  ae.addEventListener("pause", function(){ setAudioBtn(false); stopAudioSync(); lyricProgHide(); });
+  ae.addEventListener("pause", function(){ setAudioBtn(false); stopAudioSync(); lyricProgRest(); });
   ae.addEventListener("ended", function(){
     setAudioBtn(false);
     stopAudioSync();
-    lyricProgHide();
+    lyricProgRest(1);
     applyAudioSync(true);
   });
   ae.addEventListener("loadedmetadata", function(){
@@ -6058,6 +6125,55 @@ function syncWake(){
   } catch (e) {}
 }
 
+/* ================= 🚪 앱 종료 ================= */
+function quitAllSound(){
+  var ae = $("#audioEl");
+  if (ae){ try { ae.pause(); } catch (e) {} }
+  stopAudioSync();
+  try { setAudioBtn(false); } catch (e) {}
+  if (accomp.playing) accompStop();
+  if (typeof staffStopTick === "function") staffStopTick();
+  metroStop();
+  if (tuner.on) tunerStop();
+  if (state.scrollOn) stopScroll();
+  if (wakeLock){ try { wakeLock.release(); } catch (e) {} wakeLock = null; }
+  saveSettings();
+  store.set("gm_songs_v1", songs);
+  lyricProgRest();
+  try { syncWake(); } catch (e) {}
+}
+function quitApp(){
+  quitAllSound();
+  var veil = $("#quitVeil");
+  if (veil){
+    veil.classList.add("on");
+    var back = $("#btnQuitBack");
+    if (back){ try { back.focus(); } catch (e) {} }
+  }
+  /* 설치형 앱(TWA·홈 화면 앱)이나 스크립트로 열린 창은 window.close() 로 닫히고,
+     일반 브라우저 탭은 브라우저가 닫기를 막으므로 위 안내 화면을 그대로 둔다.
+     (닫을 수 없는 탭에서 부를 때만 되는 호출은 콘솔 경고만 남기므로 부를 때만 부른다) */
+  if (quitCanClose()) setTimeout(function(){ try { window.close(); } catch (e) {} }, 80);
+}
+function quitCanClose(){
+  try {
+    if (window.opener) return true;                         /* 스크립트로 열린 창 */
+    if (navigator.standalone === true) return true;         /* iOS 홈 화면 앱 */
+    if (window.matchMedia){
+      if (window.matchMedia("(display-mode: standalone)").matches) return true;
+      if (window.matchMedia("(display-mode: fullscreen)").matches) return true;
+      if (window.matchMedia("(display-mode: minimal-ui)").matches) return true;
+    }
+  } catch (e) {}
+  return false;
+}
+function quitBack(){
+  var veil = $("#quitVeil");
+  if (veil) veil.classList.remove("on");
+  try { syncWake(); } catch (e) {}
+  toast("기타 메이트를 다시 열었어요");
+}
+
 /* ================= 공통 UI ================= */
 function toast(msg){
   var t = $("#toast");
@@ -6371,6 +6487,8 @@ function bindUI(){
     applyTheme(); saveSettings();
   });
   $("#btnHelp").addEventListener("click", function(){ openModal("helpModal"); });
+  $("#btnQuit").addEventListener("click", quitApp);
+  $("#btnQuitBack").addEventListener("click", quitBack);
 
   /* 하단 탭 */
   $("#nav").addEventListener("click", function(e){
@@ -6635,7 +6753,11 @@ function bindUI(){
     m.addEventListener("click", function(e){ if (e.target === m) m.classList.remove("on"); });
   });
   document.addEventListener("keydown", function(e){
-    if (e.key === "Escape") $$(".modal").forEach(function(m){ m.classList.remove("on"); });
+    if (e.key === "Escape"){
+      var qv = $("#quitVeil");
+      if (qv && qv.classList.contains("on")){ quitBack(); return; }
+      $$(".modal").forEach(function(m){ m.classList.remove("on"); });
+    }
   });
 }
 
@@ -6704,7 +6826,9 @@ else init();
 /* PWA: 오프라인 실행 + 최신 버전 반영 */
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function(){
-    navigator.serviceWorker.register("./sw.js").catch(function(){});
+    navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" }).then(function(reg){
+      try { reg.update(); } catch (e) {}
+    }).catch(function(){});
   });
 }
 </script>
