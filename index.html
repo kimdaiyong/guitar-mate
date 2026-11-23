@@ -369,6 +369,22 @@ main{flex:1; min-height:0; display:flex; flex-direction:column; position:relativ
 }
 .vt.on{background:var(--accent); border-color:var(--accent); color:#fff}
 .pickbtn{flex:none; min-height:36px; padding:0 9px; font-size:12.5px}
+/* ---------- 곡 선택 줄(노래 가져오기·악보 추가) ---------- */
+.bar.songbar{display:grid; grid-template-columns:1fr 1fr; gap:6px; padding:7px 12px}
+.songbar .sel{grid-column:1 / -1; width:100%; height:42px}
+.songacts{grid-column:1 / -1; display:flex; gap:6px}
+.songacts .btn{flex:1; min-width:0; min-height:40px; padding:0 4px; font-size:13.5px; white-space:nowrap; letter-spacing:-.3px}
+#btnPickAudio{background:var(--chordbg); border-color:var(--line2); color:var(--chord)}
+#btnPickAudio:active{background:var(--accent); border-color:var(--accent); color:#fff}
+/* ---------- 빈 화면(악보 없음) ---------- */
+.emptystate{margin:2px 0 0; padding:12px 12px 13px; background:var(--panel); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); text-align:center}
+.emptystate .esicon{font-size:30px; line-height:1.1}
+.emptystate h1{margin:3px 0 5px; font-size:17px; font-weight:800; letter-spacing:-.6px}
+.emptystate p{margin:0 auto 10px; max-width:330px; font-size:13.5px; line-height:1.55; color:var(--ink2); white-space:normal; word-break:keep-all}
+.emptystate p b{color:var(--chord)}
+.esbtns{display:flex; flex-direction:row; gap:8px; margin:0 auto}
+.esbtns .btn{flex:1; min-width:0; min-height:46px; font-size:14.5px; border-radius:12px; padding:0 4px; letter-spacing:-.4px}
+.eshint{margin:8px auto 0; max-width:310px; font-size:11.5px; color:var(--muted); line-height:1.5; white-space:normal; word-break:keep-all}
 .player{display:none; flex:none; padding:6px 10px 8px; background:var(--panel); border-bottom:1px solid var(--line)}
 .player.on{display:block}
 .prow{display:flex; align-items:center; gap:6px}
@@ -459,8 +475,6 @@ html[data-theme="dark"] .staffsys .msr.cur .barhl{fill:rgba(224,138,68,.18)}
           <button class="vt on" type="button" data-view="lyric">가사·코드</button>
           <button class="vt" type="button" data-view="staff">🎼 오선지 악보</button>
         </div>
-        <button class="btn sm pickbtn" type="button" id="btnPickAudio">📂 내 음악 불러오기</button>
-        <input type="file" id="audioFile" accept="audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.opus" hidden>
       </div>
       <div class="player" id="player">
         <audio id="audioEl" preload="metadata"></audio>
@@ -484,9 +498,13 @@ html[data-theme="dark"] .staffsys .msr.cur .barhl{fill:rgba(224,138,68,.18)}
           </div>
         </div>
       </div>
-      <div class="bar">
+      <div class="bar songbar">
         <select class="sel" id="songSelect" aria-label="곡 선택"></select>
-        <button class="btn sm" id="btnSongMgr">곡 관리</button>
+        <div class="songacts">
+          <button class="btn pickbtn" type="button" id="btnPickAudio">📂 노래 가져오기</button>
+          <button class="btn" type="button" id="btnSongMgr">➕ 악보 추가</button>
+        </div>
+        <input type="file" id="audioFile" accept="audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.opus" hidden>
       </div>
       <div class="bar">
         <span class="lbl">카포</span>
@@ -640,20 +658,20 @@ html[data-theme="dark"] .staffsys .msr.cur .barhl{fill:rgba(224,138,68,.18)}
 <!-- 곡 관리 -->
 <div class="modal" id="songMgrModal">
   <div class="modal-card">
-    <div class="modal-head"><h2>곡 관리</h2><button class="xbtn" data-close="songMgrModal">✕</button></div>
+    <div class="modal-head"><h2>악보 관리</h2><button class="xbtn" data-close="songMgrModal">✕</button></div>
     <div class="menu-list">
-      <button class="btn" id="mgrNew">➕ 새 곡 만들기</button>
-      <button class="btn" id="mgrEdit">✏️ 이 곡 수정하기</button>
-      <button class="btn danger" id="mgrDelete">🗑️ 이 곡 지우기</button>
+      <button class="btn" id="mgrNew">➕ 새 악보 만들기</button>
+      <button class="btn" id="mgrEdit">✏️ 이 악보 수정하기</button>
+      <button class="btn danger" id="mgrDelete">🗑️ 이 악보 지우기</button>
     </div>
-    <p class="hint">기본으로 들어 있는 <b>시절인연</b>은 지울 수 없어요. 고치고 싶으면 '새 곡 만들기'로 복사해서 저장하면 됩니다.</p>
+    <p class="hint">악보는 이 폰에 저장돼 앱을 다시 열어도 그대로 남아요. 새 악보를 만들려면 <b>새 악보 만들기</b>를 누르세요.</p>
   </div>
 </div>
 
 <!-- 곡 편집 -->
 <div class="modal" id="songEditModal">
   <div class="modal-card">
-    <div class="modal-head"><h2 id="seTitle">새 곡 만들기</h2><button class="xbtn" data-close="songEditModal">✕</button></div>
+    <div class="modal-head"><h2 id="seTitle">새 악보 만들기</h2><button class="xbtn" data-close="songEditModal">✕</button></div>
     <label class="field"><span>곡 제목</span><input class="input" id="seName" placeholder="예: 어느 60대 노부부 이야기" autocomplete="off"></label>
     <label class="field"><span>가수 (없어도 됩니다)</span><input class="input" id="seArtist" placeholder="예: 김광석" autocomplete="off"></label>
     <label class="field"><span>원키 (예: D, C, Am) · 없어도 됩니다</span><input class="input" id="seKey" placeholder="D" autocomplete="off"></label>
@@ -680,7 +698,7 @@ html[data-theme="dark"] .staffsys .msr.cur .barhl{fill:rgba(224,138,68,.18)}
       · <b>📜 자동 스크롤</b>은 연주하는 동안 악보가 저절로 내려갑니다. 속도는 − + 로 맞추세요.<br>
       · <b>🎸 코드 반주</b>를 누르면 화면에 보이는 코드 순서대로 기타 반주가 저절로 연주되고, 지금 치는 코드가 표시되며 악보도 따라 내려갑니다. 카포·키를 바꾸면 바뀐 코드로 다시 연주해요. 빠르기는 옆의 − + (2씩)로 맞춥니다.<br>
       · <b>🎵 원곡 듣기</b>를 누르면 유튜브에서 원곡이 열립니다.<br>
-      · <b>📂 내 음악 불러오기</b>로 폰에 있는 MP3 파일을 열면 이 악보를 보며 같이 들을 수 있어요. 아래쪽 <b>연습 속도</b>로 0.75x~1.15x 느리게도 들립니다.<br>
+      · 맨 위 <b>📂 노래 가져오기</b>로 폰에 있는 MP3 파일을 열면 이 악보를 보며 같이 들을 수 있어요. 노래를 열면 나오는 <b>연습 속도</b>로 0.75x~1.15x 느리게도 들립니다.<br>
       · <b>🎼 오선지 악보</b> 탭에서는 오선지에 멜로디·코드·가사를 함께 보여 줍니다. 반주를 틀면 지금 연주하는 마디가 표시되고 화면도 따라 내려갑니다. <b>멜로디 가이드음</b>을 켜면 선율도 같이 들립니다.
     </div>
     <div class="hint" style="margin-bottom:10px">
@@ -713,183 +731,7 @@ function el(tag, cls, txt){ var d = document.createElement(tag); if(cls) d.class
 function clamp(v, a, b){ return v < a ? a : (v > b ? b : v); }
 
 /* ================= 기본 데이터 ================= */
-/* ============ 오선지 악보 데이터 (기본곡 '시절인연') ============
-   D키 · 4/4 · 슬로우 고고. 코드 진행과 가사에 맞춰 선율을 옮겨 적은 연습용 악보입니다.
-   n: "음이름:박자:가사" (r = 쉼표)  /  c: 코드 (배열이면 한 마디에 여러 코드) */
-var DEF_SCORE = {
-  key: "D",
-  meter: "4/4",
-  note: "선율은 코드 진행과 가사에 맞춰 옮겨 적은 연습용 악보입니다",
-  bars: [
-    { s: "전주", m: [
-      { c: "D" }, { c: "G" }, { c: "A7" }, { c: "D" },
-      { c: "Bm" }, { c: "F#m" }, { c: "G" }, { c: "A7" }, { c: "D" }
-    ]},
-    { s: "1절", m: [
-      { c: "D",   n: "A4:1:사 A4:.5:람 B4:.5:이 A4:1:떠 F#4:1:나" },
-      { c: "F#m", n: "F#4:1.5:간 E4:.5:다 F#4:2:고" },
-      { c: "G",   n: "B4:.5:그 B4:.5:대 A4:1:여 G4:1:울 G4:1:지" },
-      { c: "D",   n: "F#4:1:마 E4:1:세 F#4:2:요" },
-      { c: "Bm",  n: "F#4:1:오 F#4:.5:고 E4:.5:감 D4:1:때 D4:1:가" },
-      { c: "F#m", n: "E4:1:있 E4:.5:으 F#4:2.5:니" },
-      { c: "Em",  n: "G4:1:미 G4:1:련 F#4:.5:일 E4:.5:랑 E4:1:두" },
-      { c: "A7",  n: "E4:.5:지 E4:.5:마 F#4:1:세 A4:2:요" }
-    ]},
-    { s: "프리코러스", m: [
-      { c: "Bm",  n: "D5:1:좋 C#5:.5:았 B4:.5:던 B4:1:날 A4:1:생" },
-      { c: "F#m", n: "A4:1:각 G4:.5:을 A4:1:하 B4:1.5:고" },
-      { c: "G",   n: "B4:1:고 A4:.5:마 G4:.5:운 G4:1:맘 F#4:1:간" },
-      { c: "D",   n: "E4:1:직 D4:.5:을 E4:1:하 F#4:1.5:며" },
-      { c: [["Em", 2], ["F#m", 2]], n: "A4:2:아 A4:1:아 F#4:1:아" },
-      { c: [["G", 2], ["E7", 2]],   n: "B4:1:살 A4:1:아 G4:1:가 G4:1:야" },
-      { c: "A7",  n: "A4:2.5:지 r:1.5" }
-    ]},
-    { s: "후렴", m: [
-      { c: "D",  n: "A4:1:바 A4:.5:람 G4:.5:처 F#4:1:럼 E4:1:물" },
-      { c: "D",  n: "F#4:1:처 D4:3:럼" },
-      { c: "Bm", n: "F#4:1:가 F#4:.5:는 E4:.5:인 D4:1:연 D4:1:잡" },
-      { c: "Bm", n: "F#4:1:지 E4:1:를 F#4:1:말 B4:1:고" },
-      { c: "G",  n: "G4:1:오 G4:.5:는 F#4:.5:인 E4:1:연 D4:1:막" },
-      { c: "G",  n: "E4:1:지 F#4:1:마 G4:1:세 B4:1:요" },
-      { c: "Em", n: "G4:1:때 F#4:.5:가 E4:.5:되 E4:1:면 G4:1:찾" },
-      { c: "A7", n: "A4:1:아 B4:1:올 A4:1:거 A4:1:야" },
-      { c: "D",  n: "A4:1:새 F#4:1:로 E4:1:운 F#4:1:시" },
-      { c: "D",  n: "A4:1.5:절 B4:.5:인 A4:2:연" }
-    ]},
-    { s: "간주", m: [
-      { c: "D" }, { c: "G" }, { c: "A7" }, { c: "D" },
-      { c: "Bm" }, { c: "F#m" }, { c: "G" }, { c: "A7" }, { c: "D" }
-    ]},
-    { s: "2절", m: [
-      { c: "D",   n: "A4:1:친 A4:.5:구 B4:.5:가 A4:1:멀 F#4:1:어" },
-      { c: "F#m", n: "F#4:1.5:진 E4:.5:다 F#4:2:고" },
-      { c: "G",   n: "B4:.5:그 B4:.5:대 A4:1:여 G4:1:울 G4:1:지" },
-      { c: "D",   n: "F#4:1:마 E4:1:세 F#4:2:요" },
-      { c: "Bm",  n: "F#4:1:영 F#4:.5:원 E4:.5:한 D4:1:것 D4:1:은" },
-      { c: "F#m", n: "E4:1:없 E4:.5:으 F#4:2.5:니" },
-      { c: "Em",  n: "G4:1:이 G4:1:별 F#4:.5:에 E4:.5:도 E4:1:웃" },
-      { c: "A7",  n: "E4:.5:어 E4:.5:주 F#4:1:세 A4:2:요" }
-    ]},
-    { s: "프리코러스", m: [
-      { c: "Bm",  n: "D5:1:좋 C#5:.5:았 B4:.5:던 B4:1:날 A4:1:생" },
-      { c: "F#m", n: "A4:1:각 G4:.5:을 A4:1:하 B4:1.5:고" },
-      { c: "G",   n: "B4:1:고 A4:.5:마 G4:.5:운 G4:1:맘 F#4:1:간" },
-      { c: "D",   n: "E4:1:직 D4:.5:을 E4:1:하 F#4:1.5:며" },
-      { c: [["Em", 2], ["F#m", 2]], n: "A4:2:아 A4:1:아 F#4:1:아" },
-      { c: [["G", 2], ["E7", 2]],   n: "B4:1:살 A4:1:아 G4:1:가 G4:1:야" },
-      { c: "A7",  n: "A4:2.5:지 r:1.5" }
-    ]},
-    { s: "후렴", m: [
-      { c: "D",  n: "A4:1:바 A4:.5:람 G4:.5:처 F#4:1:럼 E4:1:물" },
-      { c: "D",  n: "F#4:1:처 D4:3:럼" },
-      { c: "Bm", n: "F#4:1:가 F#4:.5:는 E4:.5:인 D4:1:연 D4:1:잡" },
-      { c: "Bm", n: "F#4:1:지 E4:1:를 F#4:1:말 B4:1:고" },
-      { c: "G",  n: "G4:1:오 G4:.5:는 F#4:.5:인 E4:1:연 D4:1:막" },
-      { c: "G",  n: "E4:1:지 F#4:1:마 G4:1:세 B4:1:요" },
-      { c: "Em", n: "G4:1:때 F#4:.5:가 E4:.5:되 E4:1:면 G4:1:찾" },
-      { c: "A7", n: "A4:1:아 B4:1:올 A4:1:거 A4:1:야" },
-      { c: "D",  n: "A4:1:새 F#4:1:로 E4:1:운 F#4:1:시" },
-      { c: "D",  n: "A4:1.5:절 B4:.5:인 A4:2:연" }
-    ]},
-    { s: "아웃트로", m: [
-      { c: "Em",  n: "B4:1:새 A4:1:로 G4:.5:운 E4:.5:시 G4:1:절" },
-      { c: "A7",  n: "A4:1:인 A4:3:연" },
-      { c: "D",   n: "A4:1:사 A4:.5:람 B4:.5:이 A4:1:떠 F#4:1:나" },
-      { c: "F#m", n: "F#4:1.5:간 E4:.5:다 F#4:2:고" },
-      { c: "G",   n: "B4:.5:그 B4:.5:대 A4:1:여 G4:1:울 G4:1:지" },
-      { c: "D",   n: "F#4:1:마 E4:1:세 F#4:2:요" }
-    ]}
-  ]
-};
-
-var DEFAULT_SONG = {
-  id: "builtin-sijeolinyeon",
-  title: "시절인연",
-  artist: "이찬원",
-  key: "D",
-  bpm: 72,
-  builtin: true,
-  youtubeUrl: "https://www.youtube.com/watch?v=fV8tu-tPcJE",
-  note: "드라마 꼰대인턴 OST · 4/4 슬로우 고고",
-  score: DEF_SCORE,
-  sheet: [
-    "[전주 Intro]",
-    "D  | G  | A7 | D",
-    "Bm | F#m| G  | A7 | D",
-    "",
-    "[1절]",
-    "D               F#m",
-    " 사람이 떠나간다고",
-    "G             D",
-    " 그대여 울지 마세요",
-    "Bm            F#m",
-    " 오고 감 때가 있으니",
-    "Em            A7",
-    " 미련일랑 두지 마세요",
-    "",
-    "[프리코러스]",
-    "Bm            F#m",
-    " 좋았던 날 생각을 하고",
-    "G             D",
-    " 고마운 맘 간직을 하며",
-    "Em   F#m    G   E7   A7",
-    " 아 - 아 -  아 - 살아가야지",
-    "",
-    "[후렴]",
-    "D",
-    " 바람처럼 물처럼",
-    "Bm",
-    " 가는 인연 잡지를 말고",
-    "G",
-    " 오는 인연 막지 마세요",
-    "Em            A7",
-    " 때가 되면 찾아올 거야",
-    "D",
-    " 새로운 시절인연",
-    "",
-    "[간주]",
-    "D  | G  | A7 | D",
-    "Bm | F#m| G  | A7 | D",
-    "",
-    "[2절]",
-    "D               F#m",
-    " 친구가 멀어진다고",
-    "G             D",
-    " 그대여 울지 마세요",
-    "Bm            F#m",
-    " 영원한 것은 없으니",
-    "Em            A7",
-    " 이별에도 웃어주세요",
-    "",
-    "[프리코러스]",
-    "Bm            F#m",
-    " 좋았던 날 생각을 하고",
-    "G             D",
-    " 고마운 맘 간직을 하며",
-    "Em   F#m    G   E7   A7",
-    " 아 - 아 -  아 - 살아가야지",
-    "",
-    "[후렴]",
-    "D",
-    " 바람처럼 물처럼",
-    "Bm",
-    " 가는 인연 잡지를 말고",
-    "G",
-    " 오는 인연 막지 마세요",
-    "Em            A7",
-    " 때가 되면 찾아올 거야",
-    "D",
-    " 새로운 시절인연",
-    "",
-    "[아웃트로]",
-    "Em            A7",
-    " 새로운 시절인연",
-    "D               F#m",
-    " 사람이 떠나간다고",
-    "G             D",
-    " 그대여 울지 마세요"
-  ].join("\n")
-};
+/* 기본 수록곡은 없습니다. 곡은 사용자가 [📂 노래 가져오기]나 [➕ 악보 추가]로 직접 채웁니다. */
 
 /* 줄: index 0 = 6번 줄(가장 굵은 줄, 낮은 E) */
 var STRINGS = [
@@ -1073,13 +915,28 @@ var store = (function(){
 
 var songs = store.get("gm_songs_v1", []);
 if (!Array.isArray(songs)) songs = [];
-songs = songs.filter(function(s){ return s && typeof s === "object" && s.id && s.id !== DEFAULT_SONG.id; });
+/* 예전에 기본으로 들어 있던 곡(id: builtin-sijeolinyeon)이 브라우저에 남아 있으면 지운다.
+   사용자가 직접 새로 만든 곡은 그대로 둔다. */
+var LEGACY_BUILTIN_IDS = ["builtin-sijeolinyeon"];
+var songsBeforeClean = songs.length;
+songs = songs.filter(function(s){
+  return s && typeof s === "object" && s.id && LEGACY_BUILTIN_IDS.indexOf(s.id) < 0;
+});
+var cleanedLegacy = songs.length !== songsBeforeClean;
+if (cleanedLegacy) store.set("gm_songs_v1", songs);
 
 var settings = store.get("gm_settings_v1", {});
 if (!settings || typeof settings !== "object") settings = {};
 
+/* 마지막으로 보던 곡이 없거나 지워졌으면 있는 곡 중 첫 곡을 고른다. 곡이 없으면 빈 상태. */
+var initialSongId = "";
+for (var ps = 0; ps < songs.length; ps++){
+  if (songs[ps].id === settings.songId){ initialSongId = songs[ps].id; break; }
+}
+if (!initialSongId && songs.length) initialSongId = songs[0].id;
+
 var state = {
-  songId: settings.songId || DEFAULT_SONG.id,
+  songId: initialSongId,
   keyShift: typeof settings.keyShift === "number" ? settings.keyShift : 0,
   capo: typeof settings.capo === "number" ? settings.capo : 0,
   flat: !!settings.flat,
@@ -1103,11 +960,10 @@ function saveSettings(){
 
 /* ================= 곡 ================= */
 function currentSong(){
-  if (state.songId === DEFAULT_SONG.id) return DEFAULT_SONG;
   for (var i = 0; i < songs.length; i++) if (songs[i].id === state.songId) return songs[i];
-  return DEFAULT_SONG;
+  return songs.length ? songs[0] : null;      /* 곡이 없으면 null */
 }
-function allSongs(){ return [DEFAULT_SONG].concat(songs); }
+function allSongs(){ return songs.slice(); }
 
 /* 유튜브 주소만 골라 쓴다. 엉뚝한 값이면 빈 문자열 */
 function youtubeLink(v){
@@ -1271,6 +1127,7 @@ function renderSheet(){
   var keep = sc ? sc.scrollTop : 0;
   sheetCi = 0;
   body.innerHTML = "";
+  if (!song){ renderEmptySheet(body); updateKeyInfo(); renderSongChords(); return; }
   var head = el("div", "songhead");
   head.appendChild(el("h1", null, song.title || "제목 없음"));
   var bits = [];
@@ -1312,8 +1169,33 @@ function renderSheet(){
   updateKeyInfo();
   renderSongChords();
 }
+/* 곡이 하나도 없을 때 보여 주는 첫 화면 */
+function renderEmptySheet(body){
+  staffData = null;
+  if (accomp.playing) accompStop();
+  var box = el("div", "emptystate");
+  box.appendChild(el("div", "esicon", "🎸"));
+  box.appendChild(el("h1", null, "아직 저장된 악보가 없어요"));
+  var p = el("p");
+  p.innerHTML = "위에서 <b>📂 노래 가져오기</b>로 폰의 음악 파일을 열어 연습하거나, <b>➕ 악보 추가</b>로 새 코드 악보를 만들어 보세요.";
+  box.appendChild(p);
+  var btns = el("div", "esbtns");
+  var b1 = el("button", "btn primary", "📂 노래 가져오기");
+  b1.type = "button"; b1.setAttribute("data-emptypick", "1");
+  var b2 = el("button", "btn", "➕ 악보 추가");
+  b2.type = "button"; b2.setAttribute("data-emptadd", "1");
+  btns.appendChild(b1); btns.appendChild(b2);
+  box.appendChild(btns);
+  box.appendChild(el("div", "eshint", "폰에 있는 MP3·M4A 파일을 그대로 열 수 있고, 악보는 코드와 가사를 붙여넣어 만듭니다."));
+  body.appendChild(box);
+}
 function updateKeyInfo(){
   var song = currentSong();
+  if (!song){
+    $("#keyNow").textContent = "—";
+    $("#keySub").textContent = "곡을 먼저 골라 주세요";
+    return;
+  }
   var orig = song.key || "";
   var played = orig ? transposeName(orig, state.keyShift - state.capo, useFlats()) : "";
   var sounding = orig ? transposeName(orig, state.keyShift, useFlats()) : "";
@@ -1603,7 +1485,7 @@ function tapTempo(){
   }
 }
 var PRESETS = [
-  { name: "시절인연", sub: "슬로우 고고 · 72", bpm: 72 },
+  { name: "슬로우 고고", sub: "느린 곡 · 72", bpm: 72 },
   { name: "발라드", sub: "느긋하게 · 66", bpm: 66 },
   { name: "왈츠", sub: "3/4 · 90", bpm: 90, meter: "3/4" },
   { name: "미디엄", sub: "기본 · 100", bpm: 100 },
@@ -1827,7 +1709,8 @@ function sheetChips(song){
   return out;
 }
 function computeEvents(song){
-  if (song && song.score && song.score.bars){
+  if (!song) return [];
+  if (song.score && song.score.bars){
     var sc = compileScore(song);
     var chips = sheetChips(song), idx = 0, ev = [], lastCi = -1;
     sc.measures.forEach(function(m, mi){
@@ -1854,7 +1737,8 @@ function computeEvents(song){
   return legacyEvents(song);
 }
 function buildAccompEvents(){
-  accomp.events = computeEvents(currentSong());
+  var song = currentSong();
+  accomp.events = song ? computeEvents(song) : [];
   if (accomp.pos > accomp.events.length) accomp.pos = accomp.events.length;
   return accomp.events;
 }
@@ -1983,6 +1867,8 @@ function accompStop(){
   syncWake();
 }
 function accompStart(){
+  var song0 = currentSong();
+  if (!song0){ toast("먼저 노래를 가져오거나 악보를 추가해 주세요"); return; }
   var ctx = audio();
   if (!ctx){ toast("이 브라우저에서는 소리를 낼 수 없어요"); return; }
   /* 안드로이드 크롬: 버튼을 누른 그 순간 AudioContext를 깨워 둔다 */
@@ -1995,7 +1881,7 @@ function accompStart(){
   buildAccompEvents();
   if (!accomp.events.length){ toast("이 곡에는 반주할 코드가 없어요"); return; }
   accomp.playing = true;
-  accomp.songId = currentSong().id;
+  accomp.songId = song0.id;
   accomp.pos = 0;
   accomp.nextTime = ctx.currentTime + 0.3;
   accomp.t0 = accomp.nextTime;
@@ -2169,7 +2055,7 @@ function showPitch(f){
 }
 
 
-/* ================= 보기 전환 · 내 음악 불러오기 · 오선지 악보 ================= */
+/* ================= 보기 전환 · 노래 가져오기 · 오선지 악보 ================= */
 
 /* ---------- 내 음악 파일 플레이어 ---------- */
 var player = { url: "", name: "", rate: 1, dur: 0, dragging: false };
@@ -2240,14 +2126,17 @@ function clearAudio(){
   $("#audioDur").textContent = "0:00";
   $("#audioName").textContent = "—";
 }
+function pickAudioFile(){
+  var input = $("#audioFile");
+  if (!input) return;
+  try { input.value = ""; } catch (e) {}
+  input.click();
+}
 function initPlayerUI(){
   var input = $("#audioFile"), el = $("#audioEl");
   if (!input || !el || input._gmBound) return;
   input._gmBound = true;
-  $("#btnPickAudio").addEventListener("click", function(){
-    try { input.value = ""; } catch (e) {}
-    input.click();
-  });
+  $("#btnPickAudio").addEventListener("click", pickAudioFile);
   input.addEventListener("change", function(){
     var f = (input.files && input.files.length) ? input.files[0] : null;
     if (!f) return;                     /* 취소: 아무 일도 하지 않음 */
@@ -2463,7 +2352,8 @@ function svgRest(x, dur){
 }
 function compileScore(song){
   var bpb = 4, measures = [];
-  var p = parseChord(song && song.key ? song.key : "C") || { pc: 0, q: "maj", root: "C" };
+  if (!song) return { measures: [], ki: keyInfoFor(0), bpb: 4, scoreBased: false, totalBeats: 0 };
+  var p = parseChord(song.key || "C") || { pc: 0, q: "maj", root: "C" };
   var majorPc = p.q === "min" ? (p.pc + 3) % 12 : p.pc;
   /* 화면에 그리는 조(키) = 원국 키 + 반음 이동 - 카포 */
   var wpc = ((majorPc + (state.keyShift || 0) - (state.capo || 0)) % 12 + 12) % 12;
@@ -2589,6 +2479,7 @@ function systemSVG(score, start, nBars, sysI, W, showTime, isLast){
 }
 function staffInfoLine(song){
   var box = el("div", "staffinfo");
+  if (!song) return box;
   var opc = (parseChord(song.key || "C") || { pc: 0 }).pc;
   var wpc = ((opc + state.keyShift - state.capo) % 12 + 12) % 12;
   var wname = KEY_PC[wpc][0], sig = KEY_PC[wpc][1];
@@ -2617,6 +2508,12 @@ function renderStaffSheet(){
   var keep = sc ? sc.scrollTop : 0;
   body.innerHTML = "";
   staffView.map = []; staffView.sysEls = []; staffView.cur = -1; staffView.sys = -1;
+  if (!song){
+    renderEmptySheet(body);
+    if (sc) sc.scrollTop = 0;
+    updateKeyInfo(); renderSongChords(); updateGuideUI();
+    return;
+  }
   var head = el("div", "songhead");
   head.appendChild(el("h1", null, song.title || "제목 없음"));
   var bits = [];
@@ -2834,20 +2731,30 @@ function findSong(id){
 }
 function buildSongSelect(){
   var sel = $("#songSelect");
+  if (!sel) return;
   sel.innerHTML = "";
+  if (!songs.length){
+    var none = document.createElement("option");
+    none.value = "";
+    none.textContent = "저장된 악보 없음";
+    sel.appendChild(none);
+    sel.value = "";
+    state.songId = "";
+    return;
+  }
   allSongs().forEach(function(s){
     var o = document.createElement("option");
     o.value = s.id;
     o.textContent = (s.title || "제목 없음") + (s.artist ? " · " + s.artist : "");
     sel.appendChild(o);
   });
-  if (!findSong(state.songId) && state.songId !== DEFAULT_SONG.id) state.songId = DEFAULT_SONG.id;
+  if (!findSong(state.songId)) state.songId = songs[0].id;
   sel.value = state.songId;
 }
 var editingId = null;
 function openEditor(song){
   editingId = song ? song.id : null;
-  $("#seTitle").textContent = song ? "곡 수정하기" : "새 곡 만들기";
+  $("#seTitle").textContent = song ? "악보 수정하기" : "새 악보 만들기";
   $("#seName").value = song ? (song.title || "") : "";
   $("#seArtist").value = song ? (song.artist || "") : "";
   $("#seKey").value = song ? (song.key || "") : "";
@@ -2896,10 +2803,11 @@ function saveEditor(){
   saveSettings();
   buildSongSelect();
   $("#songSelect").value = state.songId;
+  if (!editingId && data.bpm >= 40 && data.bpm <= 200) setBpm(data.bpm);
   renderSheet();
   $("#sheetScroll").scrollTop = 0;
   closeModal("songEditModal");
-  toast((editingId ? "곡을 고쳤어요" : "새 곡을 저장했어요") + (ytBad ? " · 유튜브 주소가 아니라 링크는 뺐어요" : ""));
+  toast((editingId ? "악보를 고쳤어요" : "새 악보를 저장했어요") + (ytBad ? " · 유튜브 주소가 아니라 링크는 뺐어요" : ""));
   editingId = null;
 }
 
@@ -2941,6 +2849,7 @@ function setKeyShift(v){
 var scrollRAF = 0, scrollLast = 0;
 function startScroll(){
   var sc = $("#sheetScroll");
+  if (!currentSong()){ toast("먼저 노래를 가져오거나 악보를 추가해 주세요"); return; }
   if (sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 4) sc.scrollTop = 0;
   state.scrollOn = true;
   scrollLast = 0;
@@ -3006,6 +2915,12 @@ function renderSongChords(){
   var grid = $("#songChordGrid");
   if (!grid) return;
   var song = currentSong();
+  grid.innerHTML = "";
+  if (!song){
+    $("#songChordTitle").textContent = "이 곡에 나오는 코드";
+    grid.appendChild(el("div", "nodata", "악보를 고르면 이 곡에 나오는 코드가 보여요"));
+    return;
+  }
   $("#songChordTitle").textContent = "‘" + (song.title || "이 곡") + "’에 나오는 코드";
   var seen = {}, list = [];
   parseSheet(song.sheet).forEach(function(b){
@@ -3014,7 +2929,6 @@ function renderSongChords(){
       if (!seen[n] && parseChord(n)){ seen[n] = 1; list.push(n); }
     });
   });
-  grid.innerHTML = "";
   if (!list.length){ grid.appendChild(el("div", "nodata", "코드가 없어요")); return; }
   list.slice(0, 12).forEach(function(n){ grid.appendChild(chordCard(n, QUAL_KO[(parseChord(n) || {}).q] || "")); });
 }
@@ -3052,6 +2966,7 @@ function bindUI(){
   $("#mgrNew").addEventListener("click", function(){ openEditor(null); });
   $("#mgrEdit").addEventListener("click", function(){
     var s = currentSong();
+    if (!s){ closeModal("songMgrModal"); openEditor(null); return; }
     if (s.builtin){
       if (window.confirm("기본 곡은 그대로 두고, 복사본을 새로 만들어 고칠 수 있어요.\n복사본을 만들까요?")){
         var copy = { title: s.title + " (내 버전)", artist: s.artist, key: s.key, bpm: s.bpm, youtubeUrl: s.youtubeUrl, sheet: s.sheet };
@@ -3071,16 +2986,18 @@ function bindUI(){
   });
   $("#mgrDelete").addEventListener("click", function(){
     var s = currentSong();
+    if (!s){ toast("지울 악보가 없어요"); return; }
     if (s.builtin){ toast("기본 곡은 지울 수 없어요"); return; }
-    if (!window.confirm("‘" + s.title + "’ 곡을 지울까요? 되돌릴 수 없습니다.")) return;
+    if (!window.confirm("‘" + s.title + "’ 악보를 지울까요? 되돌릴 수 없습니다.")) return;
     songs = songs.filter(function(x){ return x.id !== s.id; });
     store.set("gm_songs_v1", songs);
-    state.songId = DEFAULT_SONG.id;
+    state.songId = songs.length ? songs[0].id : "";
+    if (accomp.playing) accompStop();
     saveSettings();
     buildSongSelect();
     renderSheet();
     closeModal("songMgrModal");
-    toast("곡을 지웠어요");
+    toast("악보를 지웠어요");
   });
   $("#seSave").addEventListener("click", saveEditor);
 
@@ -3197,6 +3114,8 @@ function bindUI(){
     if (play){ strumChord(play.getAttribute("data-play-chord")); return; }
     var close = t.closest("[data-close]");
     if (close){ closeModal(close.getAttribute("data-close")); return; }
+    if (t.closest("[data-emptypick]")){ pickAudioFile(); return; }
+    if (t.closest("[data-emptadd]")){ openEditor(null); return; }
   });
   $("#cmClose").addEventListener("click", function(){ closeModal("chordModal"); });
   $("#cmClose2").addEventListener("click", function(){ closeModal("chordModal"); });
@@ -3257,6 +3176,7 @@ function init(){
   bindUI();
   initStaffUI();
   updateGuideUI();
+  saveSettings();          /* 지워진 기본곡 id 등 설정을 현재 상태로 정리해 둔다 */
   if (!store.ok){
     setTimeout(function(){ toast("이 환경에서는 저장이 안 돼요. 앱 안에서는 그대로 쓸 수 있어요"); }, 800);
   }
