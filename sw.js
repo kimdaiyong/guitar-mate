@@ -3,7 +3,7 @@
    - Network-first: 온라인일 때는 항상 최신 버전을 받아오고, 실패하면 캐시로 대체
    - 화면(index.html)은 캐시를 건너뛰고(no-store) 언제나 새 파일을 먼저 받아온다
 */
-const CACHE = 'guitar-mate-v4';
+const CACHE = 'guitar-mate-v5';
 const SHELL = [
   './',
   './index.html',
