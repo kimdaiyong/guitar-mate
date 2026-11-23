@@ -563,6 +563,41 @@ html[data-theme="dark"] .staffsys .msr.cur .barhl{fill:rgba(224,138,68,.18)}
 .autom .chd{font-size:calc(12.5px * var(--fs)); padding:2px 5px; min-height:22px; margin:0; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.2}
 .autom .autoly{font-size:11.5px; line-height:1.35; font-weight:700; color:var(--ink2); word-break:keep-all; overflow-wrap:anywhere; max-width:100%}
 .autohint{margin:0 0 8px; font-size:11px; font-weight:800; color:var(--accent); letter-spacing:-.2px; word-break:keep-all}
+/* ---------- 가사·코드 실시간 진행 표시(진행 바·줄 강조) ---------- */
+.lyprog{
+  display:none; flex:none; position:relative; align-items:center; gap:6px;
+  padding:4px 10px 5px; background:var(--panel2); border-bottom:1px solid var(--line);
+  font-size:11.5px; font-weight:800; color:var(--ink2); letter-spacing:-.2px;
+  overflow:hidden;
+}
+.lyprog.on{display:flex}
+html[data-view="staff"] .lyprog{display:none !important}
+.lyprog .lpt{flex:none; white-space:nowrap; font-variant-numeric:tabular-nums}
+.lyprog .lpch{
+  flex:none; display:inline-flex; align-items:center; max-width:104px; min-height:18px; padding:0 6px;
+  border-radius:6px; background:var(--chordbg); color:var(--chord);
+  font-size:11px; font-weight:800; letter-spacing:-.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.lyprog .lpsrc{flex:1; min-width:0; text-align:right; font-size:10px; font-weight:700; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.lyprog .lpbar{position:absolute; left:0; right:0; bottom:0; height:3px; background:var(--line); overflow:hidden}
+.lyprog .lpbar i{display:block; height:100%; width:0; background:var(--accent); border-radius:0 2px 2px 0; transition:width .12s linear}
+#sheetBody{position:relative}
+.lparrow{
+  position:absolute; left:-8px; top:0; width:9px; display:none;
+  font-size:9px; line-height:1; font-weight:900; color:var(--accent); text-align:center;
+  pointer-events:none;
+}
+.lparrow.on{display:block}
+.pair{cursor:pointer}
+.pair.lycur{
+  background:rgba(233,168,72,.24); border-radius:7px;
+  box-shadow:inset 3px 0 0 var(--accent), inset 0 0 0 1.5px var(--accent);
+}
+.autom{cursor:pointer}
+.autom.mcur{
+  background:rgba(233,168,72,.24); border-radius:9px;
+  box-shadow:inset 0 0 0 2px var(--accent);
+}
 @media (max-width:365px){
   .autom .chd{font-size:calc(11.5px * var(--fs)); padding:1px 4px}
   .autom .autoly{font-size:10.5px}
@@ -652,6 +687,12 @@ html[data-theme="dark"] .staffsys .msr.cur .barhl{fill:rgba(224,138,68,.18)}
       <div class="anabar" id="anaBar" hidden aria-live="polite">
         <span class="t" id="anaText">🔍 소리 분석 중…</span>
         <span class="apb"><i id="anaFill"></i></span>
+      </div>
+      <div class="lyprog" id="lyricProg">
+        <span class="lpt" id="lpText">▶ 마디 — / —</span>
+        <span class="lpch" id="lpChord" style="display:none">[Am]</span>
+        <span class="lpsrc" id="lpSrc"></span>
+        <span class="lpbar" aria-hidden="true"><i id="lpFill"></i></span>
       </div>
       <div class="sheet-scroll" id="sheetScroll">
         <div id="sheetBody"></div>
@@ -859,6 +900,7 @@ html[data-theme="dark"] .staffsys .msr.cur .barhl{fill:rgba(224,138,68,.18)}
       · 이미 올려둔 MP3 곡에 악보 파일을 붙이려면 <b>악보 관리 &gt; 🎼 악보 파일(.mid·.xml) 연결</b>을 누르세요. 노래를 ▶로 틀면 정확한 오선지가 노래에 맞춰 함께 진행하며 흐릅니다.<br>
       · 음원만 있고 악보 파일이 없는 곡은 오선지 위 <b>🙈 추정 음표 숨기기</b>로 소리에서 찾은 음표를 가리고 코드·리듬만 볼 수 있어요.<br> 진행 바를 움직이면 그 지점으로 즉시 같이 이동하고, <b>⏸</b>하면 모두 멈춥니다. <b>연습 속도</b>로 0.75x~1.15x 느리게도 들립니다.<br>
       · <b>✏️ 가사·코드</b>를 누르면 그 곡에 가사를 적어 넣을 수 있고, 적은 뒤에는 노래에 맞춰 가사 화면도 저절로 내려갑니다.<br>
+      · <b>가사·코드</b> 탭에서 노래나 🎸 코드 반주를 틀면 맨 위에 <b>▶ 마디 X / Y · [코드]</b> 진행 줄이 나타나고, 지금 부르는 <b>가사 줄</b>이나 <b>마디</b>가 주황색으로 강조되며 화면 가운데로 따라 내려갑니다. 부르고 싶은 줄이나 마디를 누르면 그 지점으로 바로 이동해요.<br>
       · <b>🎼 오선지 악보</b> 탭에서는 오선지에 멜로디·코드·가사를 함께 보여 줍니다. 가사가 없는 음원 곡도 노래 길이와 BPM으로 마디를 만들어 흐르게 합니다. <b>🎸 코드 반주</b>를 틀면 지금 연주하는 마디가 표시되고 화면도 따라 내려갑니다. <b>멜로디 가이드음</b>을 켜면 선율도 같이 들립니다.<br>
       · MP3·M4A 같은 <b>음원을 넣으면 소리에서 코드와 음표를 추정</b>해 오선지에 채워 줍니다(기기 안에서만 계산하고 밖으로 보내지 않아요). 추정이라 실제 악보와 다를 수 있으니 <b>✏️ 가사·코드</b>로 고치면 됩니다.<br>
       · <b>✏️ 가사·코드</b>의 <b>🔍 가사 검색하기</b>는 구글에서 ‘곡 제목 + 가사 + 코드’를 새 탭으로 열어 줍니다. 찾은 가사를 붙여넣고 <b>가사 넣기</b>를 누르면 마디와 박자에 맞춰 음표 아래로 들어가고, <b>[D]가사</b>처럼 코드를 적으면 그 코드가 우선합니다. <b>🔄 소리 다시 분석</b>으로 코드·음표를 다시 찾을 수도 있어요.
@@ -1378,7 +1420,12 @@ function renderSheet(){
   var body = $("#sheetBody"), sc = $("#sheetScroll");
   var keep = sc ? sc.scrollTop : 0;
   sheetCi = 0;
+  lyricProgClear();
   body.innerHTML = "";
+  var larrow = el("span", "lparrow", "▶");
+  larrow.id = "lpArrow";
+  larrow.setAttribute("aria-hidden", "true");
+  body.appendChild(larrow);
   if (!song){ renderEmptySheet(body); updateKeyInfo(); renderSongChords(); return; }
   var head = el("div", "songhead");
   head.appendChild(el("h1", null, song.title || "제목 없음"));
@@ -1405,7 +1452,8 @@ function renderSheet(){
   var bn = lyricBanner(song, hasSheetTxt);
   if (bn) body.appendChild(bn);
   if (song.audio) body.appendChild(renderAudioPanel(song));
-  if (showAutoView(song, hasSheetTxt)){
+  var autoMode = showAutoView(song, hasSheetTxt);
+  if (autoMode){
     body.appendChild(autoLyricBody(song));
   } else {
     var blocks = parseSheet(song.sheet);
@@ -1422,6 +1470,7 @@ function renderSheet(){
   if (accomp.playing && accomp.songId && accomp.songId !== song.id) accompStop();
   var keepCi = accomp.curCi;
   buildAccompEvents();
+  buildLyricProg(song, autoMode);
   if (accomp.playing){
     clearAccompHighlight();
     if (keepCi >= 0) highlightChord(keepCi);
@@ -2124,12 +2173,14 @@ function highlightChord(ci){
   var pair = chip.closest ? chip.closest(".pair") : null;
   if (pair){ pair.classList.add("playing"); followSheet(pair); }
 }
-function accompVisualCue(ci, when){
+function accompVisualCue(ev, when, beats){
   var ctx = AC;
   if (!ctx) return;
   var delay = Math.max(0, (when - ctx.currentTime) * 1000 - 12);
   var id = setTimeout(function(){
-    if (accomp.playing) highlightChord(ci);
+    if (!accomp.playing) return;
+    highlightChord(ev.ci);
+    if (state.view !== "staff") lyricProgFromAccomp(beats, ev);
   }, delay);
   accomp.timers.push(id);
   if (accomp.timers.length > 240) accomp.timers.splice(0, 120);
@@ -2148,7 +2199,7 @@ function accompSchedule(){
     var when = accomp.nextTime;
     var beats = Math.max(0.5, ev.beats || 2);
     accScheduleEvent(ctx, ev, when, spb);
-    accompVisualCue(ev.ci, when);
+    accompVisualCue(ev, when, Math.max(0, (when - accomp.t0) / spb));
     accomp.nextTime += beats * spb;
     accomp.pos++;
   }
@@ -2180,6 +2231,7 @@ function accompStop(){
   }
   accomp.voices.length = 0;
   clearAccompHighlight();
+  lyricProgHide();
   if (typeof staffStopTick === "function") staffStopTick();
   updateAccompUI();
   syncWake();
@@ -3077,8 +3129,8 @@ function autoLyricBody(song){
   var isImp = !!(song.imp && song.imp.measures && song.imp.measures.length);
   var wrap = el("div", "autowrap");
   wrap.appendChild(el("div", "autohint", isImp
-    ? "🎼 악보 파일에서 읽은 정확한 코드·가사 · 코드를 누르면 운지표가 열립니다"
-    : "🎵 소리에서 찾은 추정 코드·가사 · 코드를 누르면 운지표가 열립니다"));
+    ? "🎼 악보 파일에서 읽은 코드·가사 · 마디를 누르면 그 마디로 이동합니다"
+    : "🎵 소리에서 찾은 코드·가사 · 마디를 누르면 그 마디로 이동합니다"));
   var ms = isImp ? song.imp.measures : ((song.auto && song.auto.measures) || []);
   var per = 4, ci = 0, i, k;
   for (i = 0; i < ms.length; i += per){
@@ -3087,6 +3139,10 @@ function autoLyricBody(song){
       var mm = ms[i + k];
       var cell = el("div", "autom");
       if (mm){
+        cell.setAttribute("data-mi", String(i + k));
+        cell.setAttribute("role", "button");
+        cell.setAttribute("tabindex", "-1");
+        cell.setAttribute("aria-label", "마디 " + (i + k + 1) + "로 이동");
         var chs = (mm.ch || []).filter(function(c){ return c && c.name; });
         if (chs.length){
           var crow = el("div", "chrow");
@@ -4315,6 +4371,7 @@ function applyAudioSync(immediate){
   else lyricAudioFollow(ratio, immediate);
 }
 function lyricAudioFollow(ratio, immediate){
+  if (lyricProgFromRatio(ratio, immediate, false)) return;
   var sc = $("#sheetScroll");
   if (!sc) return;
   var max = Math.max(0, sc.scrollHeight - sc.clientHeight);
@@ -4373,6 +4430,225 @@ function staffAudioFollow(ratio, immediate){
   var d = audioSync.followTarget - sc.scrollTop;
   if (Math.abs(d) >= 0.5) sc.scrollTop = sc.scrollTop + d * 0.16;
 }
+/* ---------- 가사·코드 화면 실시간 진행 표시(진행 바·줄/마디 강조·이동) ---------- */
+var lyricProg = { songId: "", mode: "", rows: [], chords: [], total: 0, bpb: 4, cur: -1, curMi: -1 };
+
+function lyricProgHide(){
+  var box = $("#lyricProg");
+  if (box) box.classList.remove("on");
+  var a = $("#lpArrow");
+  if (a) a.classList.remove("on");
+}
+function lyricProgClear(){
+  var P = lyricProg;
+  if (P.cur >= 0 && P.rows[P.cur] && P.rows[P.cur].el){
+    P.rows[P.cur].el.classList.remove("lycur");
+    P.rows[P.cur].el.classList.remove("mcur");
+  }
+  P.songId = ""; P.mode = ""; P.rows = []; P.chords = []; P.total = 0; P.bpb = 4; P.cur = -1; P.curMi = -1;
+  lyricProgHide();
+}
+function lyricProgChordAt(mi){
+  var P = lyricProg;
+  if (!P.chords || !(mi >= 0)) return "";
+  return P.chords[mi] || "";
+}
+function lyricProgPaint(mi, ratio, chord, src){
+  var P = lyricProg, box = $("#lyricProg");
+  if (!box) return;
+  box.classList.add("on");
+  var fill = $("#lpFill");
+  if (fill) fill.style.width = (clamp(ratio, 0, 1) * 100).toFixed(2) + "%";
+  var t = $("#lpText");
+  if (t) t.textContent = P.total ? ("▶ 마디 " + (mi + 1) + " / " + P.total) : "▶ 마디 — / —";
+  var c = $("#lpChord"), nm = chord || lyricProgChordAt(mi);
+  if (c){
+    c.textContent = nm ? "[" + nm + "]" : "";
+    c.style.display = nm ? "" : "none";
+  }
+  var s = $("#lpSrc");
+  if (s) s.textContent = src || "";
+}
+function lyricProgRowFor(mi){
+  var rows = lyricProg.rows, lo = 0, hi = rows.length - 1, ans = -1;
+  while (lo <= hi){
+    var md = (lo + hi) >> 1;
+    if (rows[md].mi0 <= mi){ ans = md; lo = md + 1; } else hi = md - 1;
+  }
+  return ans;
+}
+function lyricProgMark(node){
+  var a = $("#lpArrow");
+  if (!a || !node) return;
+  a.style.top = (node.offsetTop + 3) + "px";
+  a.classList.add("on");
+}
+function lyricProgFollow(node, immediate){
+  var sc = $("#sheetScroll");
+  if (!sc || !node) return;
+  var h = sc.clientHeight;
+  if (h <= 0) return;
+  var nr = node.getBoundingClientRect(), sr = sc.getBoundingClientRect();
+  var rel = nr.top - sr.top;
+  if (rel > h * 0.18 && nr.bottom < sr.bottom - h * 0.18) return;    /* 화면 안에 넉넉히 보이면 그대로 */
+  var max = Math.max(0, sc.scrollHeight - h);
+  var target = clamp(sc.scrollTop + rel - h * 0.40, 0, max);
+  if (immediate){ sc.scrollTop = target; return; }
+  try { sc.scrollTo({ top: target, behavior: "smooth" }); }
+  catch (e) { sc.scrollTop = target; }
+}
+function lyricProgActivate(mi, immediate){
+  var P = lyricProg;
+  if (!P.rows.length) return;
+  var idx = lyricProgRowFor(mi);
+  if (idx < 0) idx = 0;
+  P.curMi = mi;
+  if (idx === P.cur){
+    /* 같은 줄을 다시 재생할 때는 표식만 다시 붙인다 */
+    var same = P.rows[idx];
+    var bar = $("#lyricProg");
+    if (same && same.el && bar && bar.classList.contains("on")) lyricProgMark(same.el);
+    return;
+  }
+  var prev = P.rows[P.cur];
+  if (prev && prev.el){
+    prev.el.classList.remove("lycur");
+    prev.el.classList.remove("mcur");
+  }
+  P.cur = idx;
+  var row = P.rows[idx];
+  if (!row || !row.el) return;
+  row.el.classList.add(P.mode === "grid" ? "mcur" : "lycur");
+  lyricProgMark(row.el);
+  lyricProgFollow(row.el, immediate);
+}
+function lyricProgFromRatio(ratio, immediate, force){
+  var P = lyricProg;
+  if (!P.rows.length || !P.total) return false;
+  if (!(force || audioPlaying() || accomp.playing)){ lyricProgHide(); return true; }
+  ratio = clamp(ratio || 0, 0, 1);
+  var mi = clamp(Math.floor(ratio * P.total), 0, P.total - 1);
+  lyricProgPaint(mi, ratio, "", "🎧 음원");
+  lyricProgActivate(mi, immediate);
+  return true;
+}
+function lyricProgFromAccomp(beats, ev){
+  var P = lyricProg;
+  if (!P.rows.length || !P.total || !accomp.playing) return;
+  var bpb = P.bpb || 4;
+  beats = Math.max(0, beats || 0);
+  var mi = (ev && ev.mi != null) ? ev.mi : Math.floor(beats / bpb);
+  mi = clamp(mi, 0, P.total - 1);
+  lyricProgPaint(mi, clamp(beats / (P.total * bpb), 0, 1), (ev && ev.name) ? ev.name : "", "🎸 반주");
+  lyricProgActivate(mi, false);
+}
+/* 화면을 그릴 때마다 가사 줄·마디 카드와 재생 위치를 이어 준다 */
+function buildLyricProg(song, autoMode){
+  lyricProgClear();
+  if (!song || state.view === "staff" || !$("#sheetBody")) return;
+  var P = lyricProg;
+  P.songId = song.id;
+  var ms = autoMode ? ((song.imp && song.imp.measures && song.imp.measures.length) ? song.imp.measures : ((song.auto && song.auto.measures) || [])) : [];
+  if (autoMode && ms.length){
+    P.mode = "grid";
+    P.total = ms.length;
+    P.bpb = (song.imp && song.imp.bpb) ? song.imp.bpb : ((song.auto && song.auto.meter) || 4);
+    var cells = $$("#sheetBody .autom[data-mi]");
+    for (var c = 0; c < cells.length; c++){
+      var cmi = parseInt(cells[c].getAttribute("data-mi"), 10);
+      if (!(cmi >= 0)) continue;
+      P.rows.push({ el: cells[c], mi0: cmi, mi1: cmi + 1 });
+      var mm = ms[cmi];
+      if (mm && mm.ch && mm.ch[0] && mm.ch[0].name && !P.chords[cmi]) P.chords[cmi] = displayChord(mm.ch[0].name);
+    }
+    return;
+  }
+  var rows = $$("#sheetBody .pair");
+  if (!rows.length) return;
+  P.mode = "lines";
+  var i, w = [], sum = 0;
+  for (i = 0; i < rows.length; i++){
+    var txt = (rows[i].textContent || "").replace(/\s+/g, " ").trim();
+    w.push(Math.max(2, Math.min(60, txt.length)));
+    sum += w[i];
+  }
+  var total = 0;
+  if (songDur(song) > 0) total = audioMeasureCount(song);
+  if (!total){
+    var bt = 0;
+    (accomp.events || []).forEach(function(e){ bt += Math.max(0.5, e.beats || 2); });
+    if (bt > 0) total = Math.max(1, Math.ceil(bt / barBeats()));
+  }
+  if (!total) total = rows.length;
+  P.total = total;
+  P.bpb = barBeats();
+  var acc = 0, prev = 0;
+  for (i = 0; i < rows.length; i++){
+    acc += w[i];
+    var m1 = (i === rows.length - 1) ? total : Math.round(acc / sum * total);
+    if (m1 <= prev) m1 = Math.min(total, prev + 1);
+    rows[i].setAttribute("data-mi0", String(prev));
+    rows[i].setAttribute("data-mi1", String(m1));
+    P.rows.push({ el: rows[i], mi0: prev, mi1: m1 });
+    prev = m1;
+  }
+  var b = 0;
+  (accomp.events || []).forEach(function(e){
+    var em = Math.floor(b / P.bpb);
+    if (em >= 0 && em < total && !P.chords[em] && e.name) P.chords[em] = e.name;
+    b += Math.max(0.5, e.beats || 2);
+  });
+}
+/* 코드 반주를 그 마디부터 이어 간다 */
+function accompSeekMeasure(mi){
+  if (!accomp.playing) return false;
+  var ctx = AC;
+  if (!ctx) return false;
+  buildAccompEvents();
+  var evs = accomp.events, bpb = barBeats(), i, idx = -1, at = 0;
+  for (i = 0; i < evs.length; i++){
+    var em = (evs[i].mi != null) ? evs[i].mi : Math.floor(at / bpb);
+    if (em >= mi){ idx = i; break; }
+    at += Math.max(0.5, evs[i].beats || 2);
+  }
+  if (idx < 0) return false;
+  for (i = 0; i < accomp.voices.length; i++){ try { accomp.voices[i].stop(0); } catch (e) {} }
+  accomp.voices.length = 0;
+  accomp.timers.forEach(function(t){ clearTimeout(t); });
+  accomp.timers = [];
+  clearAccompHighlight();
+  accomp.pos = idx;
+  accomp.nextTime = ctx.currentTime + 0.08;
+  accomp.t0 = accomp.nextTime - at * (60 / (metro.bpm || 72));
+  accompSchedule();
+  return true;
+}
+/* 가사 줄·마디 카드를 누를 때 그 마디로 이동 */
+function lyricProgJump(mi){
+  var P = lyricProg;
+  if (!P.rows.length || !(mi >= 0)) return;
+  var song = currentSong();
+  if (accomp.playing && accompSeekMeasure(mi)){
+    toast("🎸 마디 " + (mi + 1) + "부터 반주를 이어 갑니다");
+    return;
+  }
+  if (song && (song.audio || player.url)){
+    var total = P.total || 1;
+    var ratio = clamp(mi / total, 0, 1);
+    ensureSongAudio(song, function(){
+      var dur = player.dur || songDur(song) || 0;
+      if (!(dur > 0)){ toast("음원 길이를 아직 읽지 못했어요"); return; }
+      showPlayer(true);
+      seekToTime(ratio * dur);
+      lyricProgFromRatio(ratio, true, true);
+      toast("마디 " + (mi + 1) + " 위치로 옮겼어요");
+    });
+    return;
+  }
+  lyricProgActivate(mi, true);
+  toast("▶ 재생이나 🎸 코드 반주를 켜면 그 마디로 이동해요");
+}
+
 function updateAudioPanel(ratio){
   var ui = audioPanelUI;
   if (!ui.bars.length || !ui.bars[0] || !ui.bars[0].isConnected) return;
@@ -4586,10 +4862,11 @@ function initPlayerUI(){
     startAudioSync();
     syncWake();
   });
-  ae.addEventListener("pause", function(){ setAudioBtn(false); stopAudioSync(); });
+  ae.addEventListener("pause", function(){ setAudioBtn(false); stopAudioSync(); lyricProgHide(); });
   ae.addEventListener("ended", function(){
     setAudioBtn(false);
     stopAudioSync();
+    lyricProgHide();
     applyAudioSync(true);
   });
   ae.addEventListener("loadedmetadata", function(){
@@ -5064,6 +5341,7 @@ function renderStaffSheet(){
   var body = $("#sheetBody"), sc = $("#sheetScroll");
   if (!body) return;
   staffStopTick();
+  lyricProgClear();
   var keep = sc ? sc.scrollTop : 0;
   body.innerHTML = "";
   staffView.map = []; staffView.sysEls = []; staffView.cur = -1; staffView.sys = -1;
@@ -5814,6 +6092,12 @@ function bindUI(){
         if (mtot > 0) seekToTime((mms[mmi].b0 / mtot) * player.dur);
       }
       return;
+    }
+    /* 가사·코드 화면: 가사 줄이나 마디 카드를 누르면 그 마디로 이동 */
+    var lrow = t.closest("#sheetBody .autom[data-mi], #sheetBody .pair");
+    if (lrow && !t.closest(".chd")){
+      var lmi = parseInt(lrow.getAttribute("data-mi") != null ? lrow.getAttribute("data-mi") : lrow.getAttribute("data-mi0"), 10);
+      if (lmi >= 0){ lyricProgJump(lmi); return; }
     }
     if (t.closest("[data-emptypick]")){ pickAudioFile("new"); return; }
     if (t.closest("[data-emptadd]")){ openEditor(null); return; }
