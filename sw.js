@@ -2,7 +2,7 @@
    - 앱 셸을 캐시해서 오프라인에서도 열림
    - Network-first: 온라인일 때는 항상 최신 버전을 받아오고, 실패하면 캐시로 대체
 */
-const CACHE = 'guitar-mate-v2';
+const CACHE = 'guitar-mate-v3';
 const SHELL = [
   './',
   './index.html',

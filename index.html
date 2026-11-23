@@ -581,6 +581,25 @@ html[data-view="staff"] .lyprog{display:none !important}
 .lyprog .lpsrc{flex:1; min-width:0; text-align:right; font-size:10px; font-weight:700; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 .lyprog .lpbar{position:absolute; left:0; right:0; bottom:0; height:3px; background:var(--line); overflow:hidden}
 .lyprog .lpbar i{display:block; height:100%; width:0; background:var(--accent); border-radius:0 2px 2px 0; transition:width .12s linear}
+/* 가사 시작(전주) 맞추기 · ±1초 미세 조정 */
+.lysync{
+  display:none; flex:none; align-items:center; flex-wrap:wrap; gap:4px;
+  padding:3px 8px 4px; background:var(--panel); border-bottom:1px solid var(--line);
+  font-size:11px; font-weight:800; color:var(--ink2); letter-spacing:-.2px;
+}
+.lysync.on{display:flex}
+html[data-view="staff"] .lysync{display:none !important}
+.lysync .btn{min-height:28px; padding:0 8px; font-size:11.5px; font-weight:800; border-radius:8px; white-space:nowrap; letter-spacing:-.3px}
+.lysync #lpsNow{background:var(--accent); border-color:var(--accent); color:#fff}
+.lysync #lpsNow:disabled{opacity:.4}
+.lysync .lsl{flex:1 1 auto; min-width:0; text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--muted); font-variant-numeric:tabular-nums}
+.lyintro{
+  margin:0 0 10px; padding:6px 10px; border-radius:9px; background:var(--panel2);
+  border-left:4px solid var(--line2); font-size:11.5px; font-weight:800; color:var(--muted);
+  letter-spacing:-.2px; word-break:keep-all; line-height:1.45;
+}
+.lyintro.now{border-left-color:var(--accent); color:var(--ink2); background:rgba(233,168,72,.14)}
+.pair.lynext{border-radius:7px; box-shadow:inset 3px 0 0 rgba(233,168,72,.45)}
 #sheetBody{position:relative}
 .lparrow{
   position:absolute; left:-8px; top:0; width:9px; display:none;
@@ -693,6 +712,13 @@ html[data-view="staff"] .lyprog{display:none !important}
         <span class="lpch" id="lpChord" style="display:none">[Am]</span>
         <span class="lpsrc" id="lpSrc"></span>
         <span class="lpbar" aria-hidden="true"><i id="lpFill"></i></span>
+      </div>
+      <div class="lysync" id="lyricSync">
+        <button class="btn" id="lpsNow" type="button" title="지금 재생 중인 곳을 첫 가사 시작으로 맞춥니다">🎤 지금부터 가사</button>
+        <button class="btn" id="lpsMinus" type="button" aria-label="가사를 1초 앞당기기">−1초</button>
+        <button class="btn" id="lpsPlus" type="button" aria-label="가사를 1초 늦추기">+1초</button>
+        <button class="btn" id="lpsZero" type="button" title="전주를 없애고 0초부터 시작">0초로</button>
+        <span class="lsl" id="lpsLabel">전주 없음</span>
       </div>
       <div class="sheet-scroll" id="sheetScroll">
         <div id="sheetBody"></div>
@@ -869,8 +895,13 @@ html[data-view="staff"] .lyprog{display:none !important}
     <div class="modal-head"><h2 id="lqTitle">📋 가사·코드 빠르게 넣기</h2><button class="xbtn" data-close="lyricModal" aria-label="닫기">✕</button></div>
     <p class="hint" id="lqInfo" style="margin:0 0 10px"></p>
     <label class="field"><span>가사 (코드는 없어도 됩니다)</span>
-      <textarea class="textarea" id="lqText" style="min-height:170px" placeholder="가사만 붙여넣어도 마디와 박자에 맞춰 오선지 음표 아래로 나눠 넣어 드려요.&#10;&#10;사람이 떠나간다고&#10;그대여 울지 마세요&#10;&#10;[D]사람이 처럼 코드를 앞에 붙이면 그 코드가 자동 분석 코드보다 우선합니다."></textarea>
+      <textarea class="textarea" id="lqText" style="min-height:170px" placeholder="가사만 붙여넣어도 마디와 박자에 맞춰 오선지 음표 아래로 나눠 넣어 드려요.&#10;&#10;사람이 떠나간다고&#10;그대여 울지 마세요&#10;&#10;[D]사람이 처럼 코드를 앞에 붙이면 그 코드가 자동 분석 코드보다 우선합니다.&#10;[00:18.50]첫 번째 가사 처럼 LRC 시각을 붙여 넣으면 그 시각에 정확히 맞춰 줍니다."></textarea>
     </label>
+    <div class="mrow" style="align-items:flex-end">
+      <label class="field" style="flex:1; margin:0"><span>전주 (첫 가사가 나오는 초)</span>
+        <input class="input" id="lqStart" type="number" min="0" step="0.5" inputmode="decimal" placeholder="0">
+      </label>
+    </div>
     <div class="mrow">
       <button class="btn" id="lqSearch" type="button">🔍 가사 검색하기</button>
       <button class="btn" id="lqReana" type="button">🔄 소리 다시 분석</button>
@@ -901,6 +932,8 @@ html[data-view="staff"] .lyprog{display:none !important}
       · 음원만 있고 악보 파일이 없는 곡은 오선지 위 <b>🙈 추정 음표 숨기기</b>로 소리에서 찾은 음표를 가리고 코드·리듬만 볼 수 있어요.<br> 진행 바를 움직이면 그 지점으로 즉시 같이 이동하고, <b>⏸</b>하면 모두 멈춥니다. <b>연습 속도</b>로 0.75x~1.15x 느리게도 들립니다.<br>
       · <b>✏️ 가사·코드</b>를 누르면 그 곡에 가사를 적어 넣을 수 있고, 적은 뒤에는 노래에 맞춰 가사 화면도 저절로 내려갑니다.<br>
       · <b>가사·코드</b> 탭에서 노래나 🎸 코드 반주를 틀면 맨 위에 <b>▶ 마디 X / Y · [코드]</b> 진행 줄이 나타나고, 지금 부르는 <b>가사 줄</b>이나 <b>마디</b>가 주황색으로 강조되며 화면 가운데로 따라 내려갑니다. 부르고 싶은 줄이나 마디를 누르면 그 지점으로 바로 이동해요.<br>
+      · <b>🎤 지금부터 가사</b>는 전주(인스트루멘탈 인트로)가 있는 노래에서 첫 가사가 나오는 순간에 누르면 그 초를 첫 가사 시작으로 맞춰 줍니다(타이밍이 조금 어긋나면 <b>−1초 / +1초</b>로 다듬고, <b>0초로</b>는 처음 상태). 맞춘 전주는 그 곡에 저장되고, 전주 동안에는 진행 줄에 <b>🎸 전주 중</b>이 뜨며 가사는 아직 넘어가지 않습니다.<br>
+      · <b>✏️ 가사·코드</b> 칸에 <b>[00:18.50]첫 번째 가사</b> 같은 LRC 시각을 붙여 넣으면 줄마다 그 시각에 정확히 강조되고, 줄을 누르면 그 초로 이동합니다. 전주 초를 직접 적어 넣을 수도 있어요.<br>
       · <b>🎼 오선지 악보</b> 탭에서는 오선지에 멜로디·코드·가사를 함께 보여 줍니다. 가사가 없는 음원 곡도 노래 길이와 BPM으로 마디를 만들어 흐르게 합니다. <b>🎸 코드 반주</b>를 틀면 지금 연주하는 마디가 표시되고 화면도 따라 내려갑니다. <b>멜로디 가이드음</b>을 켜면 선율도 같이 들립니다.<br>
       · MP3·M4A 같은 <b>음원을 넣으면 소리에서 코드와 음표를 추정</b>해 오선지에 채워 줍니다(기기 안에서만 계산하고 밖으로 보내지 않아요). 추정이라 실제 악보와 다를 수 있으니 <b>✏️ 가사·코드</b>로 고치면 됩니다.<br>
       · <b>✏️ 가사·코드</b>의 <b>🔍 가사 검색하기</b>는 구글에서 ‘곡 제목 + 가사 + 코드’를 새 탭으로 열어 줍니다. 찾은 가사를 붙여넣고 <b>가사 넣기</b>를 누르면 마디와 박자에 맞춰 음표 아래로 들어가고, <b>[D]가사</b>처럼 코드를 적으면 그 코드가 우선합니다. <b>🔄 소리 다시 분석</b>으로 코드·음표를 다시 찾을 수도 있어요.
@@ -1452,6 +1485,8 @@ function renderSheet(){
   var bn = lyricBanner(song, hasSheetTxt);
   if (bn) body.appendChild(bn);
   if (song.audio) body.appendChild(renderAudioPanel(song));
+  var firstLy = lyricFirstSec(song);
+  if (firstLy > 0.05 && (song.sheet || (song.auto && autoHasLyrics(song)) || (song.imp && song.imp.measures && song.imp.measures.length))) body.appendChild(lyIntroBadge(song, firstLy));
   var autoMode = showAutoView(song, hasSheetTxt);
   if (autoMode){
     body.appendChild(autoLyricBody(song));
@@ -2917,7 +2952,10 @@ function anaCommit(song, res, force){
   song.autoErr = "";
   if (!(song.bpm >= 40 && song.bpm <= 200)) song.bpm = res.bpm;
   var txt = song.lyrText || (song.sheetFromLyric ? song.sheet : "");
-  if (txt && String(txt).trim()) applyLyricsToAuto(song, txt, true);
+  if (txt && String(txt).trim()){
+    if (lyricOffsetSec(song) || songLrc(song)) layoutAutoLyrics(song, txt, true);
+    else applyLyricsToAuto(song, txt, true);
+  }
   if (!store.set("gm_songs_v1", songs)) toast("저장 공간이 부족해 분석 결과를 담지 못했어요");
   ana.running = false; ana.songId = "";
   anaSetBar(false);
@@ -3041,6 +3079,25 @@ function putWordsInRange(ms, m0, m1, words){
     if (txt) slots[k].l = txt;
   }
 }
+/* 시각을 아는 줄은 그 시각의 마디 앞쪽 음표부터 차례로 놓는다(줄이 한가운데로 밀리지 않게) */
+function putWordsFront(ms, m0, m1, words){
+  var slots = [], mi, i, k;
+  for (mi = m0; mi < Math.min(m1, ms.length); mi++){
+    var ns = ms[mi].notes || [];
+    for (i = 0; i < ns.length; i++) if (ns[i].midi != null) slots.push(ns[i]);
+  }
+  var n = words.length, s = slots.length;
+  if (!s || !n) return;
+  if (n <= s){
+    for (k = 0; k < n; k++) slots[k].l = words[k];
+    return;
+  }
+  for (k = 0; k < s; k++){
+    var a = Math.floor(k * n / s), b = Math.floor((k + 1) * n / s);
+    var txt = words.slice(a, b).join(" ");
+    if (txt) slots[k].l = txt;
+  }
+}
 /* 가사(와 코드)를 자동 분석 결과의 마디·박자에 맞춰 넣는다 */
 function applyLyricsToAuto(song, text, quiet){
   if (!song || !song.auto || !song.auto.measures || !song.auto.measures.length) return false;
@@ -3102,6 +3159,95 @@ function applyLyricsToAuto(song, text, quiet){
         cursor = m1;
         if (cursor >= ms.length) break;
       }
+    }
+  }
+  song.lyrText = String(text == null ? "" : text);
+  if (!quiet) store.set("gm_songs_v1", songs);
+  return true;
+}
+/* 전주(lyricStartSec)·LRC 시각을 반영해 자동 분석 격자에 가사를 다시 놓는다 */
+function layoutAutoLyrics(song, text, quiet){
+  if (!song || !song.auto || !song.auto.measures || !song.auto.measures.length) return false;
+  var ms = song.auto.measures, bpb = song.auto.meter || 4, nM = ms.length;
+  var mDur = measureDurFor(song) || 2;
+  var off = lyricOffsetSec(song), L = songLrc(song), dur = songDur(song);
+  var startMi = lyricStartMeasure(song, nM);
+  var i, k;
+  ms.forEach(function(mm){ (mm.notes || []).forEach(function(nt){ nt.l = ""; }); });
+  for (i = 0; i < nM; i++) if (typeof ms[i].ac === "string") ms[i].ch = ms[i].ac ? [{ name: ms[i].ac, beats: bpb }] : [];
+
+  var blocks = lyricBlocks(text), units = [], hasChords = false;
+  blocks.forEach(function(b){
+    if (!b.chords || !b.chords.length){
+      if (b.lyric && b.lyric.trim()) units.push({ name: "", words: lyricWords(b.lyric) });
+      return;
+    }
+    hasChords = true;
+    var cs = b.chords.slice().sort(function(a, c){ return a.col - c.col; });
+    var ly = String(b.lyric || "");
+    for (var k2 = 0; k2 < cs.length; k2++){
+      var i0 = colToIndex(ly, Math.max(0, cs[k2].col));
+      var i1 = (k2 + 1 < cs.length) ? colToIndex(ly, Math.max(0, cs[k2 + 1].col)) : ly.length;
+      units.push({ name: cs[k2].name, words: lyricWords(ly.slice(i0, Math.max(i0, i1))) });
+    }
+  });
+  /* 적어 둔 코드는 전주 뒤 첫 마디부터 차례로 놓는다 */
+  var chUnits = [], span = Math.max(1, nM - startMi), perM = [];
+  for (i = 0; i < nM; i++) perM.push([]);
+  for (k = 0; k < units.length; k++) if (units[k].name) chUnits.push(k);
+  if (hasChords && chUnits.length){
+    for (k = 0; k < chUnits.length; k++){
+      var tgt = Math.min(nM - 1, startMi + Math.floor(k * span / chUnits.length));
+      perM[tgt].push(k);
+    }
+    for (i = 0; i < nM; i++){
+      if (!perM[i].length) continue;
+      var beatsEach = bpb / perM[i].length;
+      ms[i].ch = perM[i].map(function(idx){ return { name: chUnits[idx].name, beats: beatsEach }; });
+    }
+    for (k = 0; k < chUnits.length; k++){
+      var mi2 = Math.min(nM - 1, startMi + Math.floor(k * span / chUnits.length));
+      putChordWords(ms, mi2, perM[mi2].indexOf(k), perM[mi2].length, units[chUnits[k]].words);
+    }
+  }
+  /* 가사 줄: LRC 시각이 있으면 그 시각의 마디부터, 없으면 전주 뒤 남은 마디에 고르게 */
+  var lyrUnits = [], texts = [];
+  for (k = 0; k < units.length; k++){
+    if (units[k].words.length){ lyrUnits.push(k); texts.push(units[k].words.join(" ")); }
+  }
+  if (lyrUnits.length){
+    var times = L ? matchLrcTimes(texts, L, off) : null;
+    var m0s = [], known = [];
+    for (k = 0; k < lyrUnits.length; k++){
+      var tv = times ? times[k] : null;
+      m0s.push((tv != null && dur > 0) ? clamp(Math.floor(Math.max(0, tv) / mDur), startMi, nM - 1) : null);
+    }
+    for (k = 0; k < m0s.length; k++) if (m0s[k] != null) known.push(k);
+    function fillM(k0, k1, mA, mB){
+      var idxs = [], W = 0, acc = 0, j, ww;
+      for (j = k0; j < k1; j++){ idxs.push(j); W += Math.max(1, units[lyrUnits[j]].words.length); }
+      if (!idxs.length || !(W > 0)) return;
+      if (!(mB > mA)) mB = Math.min(nM - 1, mA + 1);
+      for (j = 0; j < idxs.length; j++){
+        ww = Math.max(1, units[lyrUnits[idxs[j]]].words.length);
+        m0s[idxs[j]] = clamp(mA + Math.round((mB - mA) * (acc / W)), 0, nM - 1);
+        acc += ww;
+      }
+    }
+    if (!known.length){
+      fillM(0, lyrUnits.length, startMi, nM - 1);
+    } else {
+      fillM(0, known[0], startMi, m0s[known[0]]);
+      for (k = 0; k < known.length; k++){
+        var kA = known[k], kB = (k + 1 < known.length) ? known[k + 1] : lyrUnits.length;
+        fillM(kA + 1, kB, m0s[kA], (k + 1 < known.length) ? m0s[known[k + 1]] : nM - 1);
+      }
+    }
+    for (k = 0; k < lyrUnits.length; k++){
+      var m0 = m0s[k], m1 = (k + 1 < lyrUnits.length) ? Math.max(m0 + 1, m0s[k + 1]) : nM;
+      var wds = units[lyrUnits[k]].words;
+      if (times && times[k] != null) putWordsFront(ms, m0, Math.min(nM, m1), wds);
+      else putWordsInRange(ms, m0, Math.min(nM, m1), wds);
     }
   }
   song.lyrText = String(text == null ? "" : text);
@@ -3202,7 +3348,16 @@ function openLyricHelper(song){
   var s = song || currentSong();
   if (!s){ toast("먼저 곡을 골라 주세요"); return; }
   var txt = $("#lqText");
-  if (txt) txt.value = s.lyrText || (s.sheetFromLyric ? (s.sheet || "") : "") || "";
+  if (txt){
+    var L = songLrc(s);
+    txt.value = L ? lrcToText(L) : (s.lyrText || (s.sheetFromLyric ? (s.sheet || "") : "") || "");
+  }
+  var st = $("#lqStart");
+  if (st){
+    var off = lyricOffsetSec(s);
+    st.value = off !== 0 ? String(off) : "";
+    st.placeholder = "0 (전주 없음)";
+  }
   var info = $("#lqInfo");
   if (info){
     var nm = s.title || "이 곡";
@@ -3226,8 +3381,29 @@ function applyLyricInput(){
   var txt = box ? box.value : "";
   if (!s){ toast("먼저 곡을 골라 주세요"); return; }
   if (!txt.trim()){ toast("가사를 넣어 주세요"); if (box) box.focus(); return; }
+  /* 전주(첫 가사가 나오는 초) 입력값 */
+  var st = $("#lqStart"), startSec = lyricOffsetSec(s);
+  if (st){
+    var sv = String(st.value == null ? "" : st.value).trim();
+    if (sv === "") startSec = 0;
+    else {
+      var sn = parseFloat(sv);
+      if (isFinite(sn)) startSec = sn;
+    }
+  }
+  /* [00:18.50]첫 번째 가사 같은 LRC 시각이 있으면 따로 담고, 악보에는 시각을 뺀 가사만 넣는다 */
+  var lrcNew = parseLrcText(txt), timedLrc = null;
+  if (lrcNew){
+    var tl = lrcNew.filter(function(e){ return e.t != null; });
+    if (tl.length) timedLrc = tl;
+  }
+  s.lrc = timedLrc;
+  if (timedLrc) txt = lrcSheetText(lrcNew);
+  setLyricStartSec(s, startSec);
+  var startMi = lyricStartMeasure(s, (s.auto && s.auto.measures ? s.auto.measures.length : (s.imp && s.imp.measures ? s.imp.measures.length : 0)));
   if (s.auto && s.auto.measures && s.auto.measures.length){
-    applyLyricsToAuto(s, txt, false);
+    if (lyricOffsetSec(s) || songLrc(s)) layoutAutoLyrics(s, txt, false);
+    else applyLyricsToAuto(s, txt, false);
     s.sheetFromLyric = true;
     renderSheet();
     closeModal("lyricModal");
@@ -3235,7 +3411,7 @@ function applyLyricInput(){
     return;
   }
   if (s.imp && s.imp.measures && s.imp.measures.length){
-    applyLyricsToImp(s, txt);
+    applyLyricsToImp(s, txt, startMi);
     s.sheet = sheetTextFromMeasures(s.imp.measures, s.imp.bpb);
     s.sheetFromImp = true;
     s.sheetFromLyric = false;
@@ -3261,6 +3437,15 @@ function initLyricUI(){
   if (sb && !sb._gmBound){ sb._gmBound = true; sb.addEventListener("click", openLyricSearch); }
   var rb = $("#lqReana");
   if (rb && !rb._gmBound){ rb._gmBound = true; rb.addEventListener("click", function(){ reanalyzeSong(currentSong()); }); }
+  /* 전주 맞추기 툴바 */
+  var nb = $("#lpsNow");
+  if (nb && !nb._gmBound){ nb._gmBound = true; nb.addEventListener("click", lyricStartFromNow); }
+  var mb = $("#lpsMinus");
+  if (mb && !mb._gmBound){ mb._gmBound = true; mb.addEventListener("click", function(){ lyricStartNudge(-1); }); }
+  var pb = $("#lpsPlus");
+  if (pb && !pb._gmBound){ pb._gmBound = true; pb.addEventListener("click", function(){ lyricStartNudge(1); }); }
+  var zb = $("#lpsZero");
+  if (zb && !zb._gmBound){ zb._gmBound = true; zb.addEventListener("click", function(){ lyricStartApply(0, { reset: true }); }); }
   var ss = $("#seSearch");
   if (ss && !ss._gmBound){ ss._gmBound = true; ss.addEventListener("click", openLyricSearch); }
   var sa = $("#seAnalyze");
@@ -4217,13 +4402,14 @@ function lyricUnitWords(text){
   });
   return out;
 }
-function spreadWords(ms, lines){
+function spreadWords(ms, lines, startMi){
   var total = 0, i, k;
   lines.forEach(function(w){ total += w.length; });
   if (!total || !ms || !ms.length) return false;
-  var cursor = 0;
+  var n0 = clamp(startMi || 0, 0, Math.max(0, ms.length - 1));
+  var cursor = n0;
   for (i = 0; i < lines.length; i++){
-    var share = Math.max(1, Math.round(lines[i].length / total * ms.length));
+    var share = Math.max(1, Math.round(lines[i].length / total * (ms.length - n0)));
     var m1 = (i === lines.length - 1) ? ms.length : Math.min(ms.length, cursor + share);
     var slots = [];
     for (var mi = cursor; mi < m1; mi++){
@@ -4241,12 +4427,12 @@ function spreadWords(ms, lines){
   }
   return true;
 }
-function applyLyricsToImp(song, text){
+function applyLyricsToImp(song, text, startMi){
   if (!song || !song.imp || !song.imp.measures || !song.imp.measures.length) return false;
   song.imp.measures.forEach(function(m){
     (m.notes || []).forEach(function(nt){ if (nt.midi != null) nt.l = ""; });
   });
-  var ok = spreadWords(song.imp.measures, lyricUnitWords(text));
+  var ok = spreadWords(song.imp.measures, lyricUnitWords(text), startMi);
   song.lyrText = String(text == null ? "" : text);
   return ok;
 }
@@ -4431,36 +4617,247 @@ function staffAudioFollow(ratio, immediate){
   if (Math.abs(d) >= 0.5) sc.scrollTop = sc.scrollTop + d * 0.16;
 }
 /* ---------- 가사·코드 화면 실시간 진행 표시(진행 바·줄/마디 강조·이동) ---------- */
-var lyricProg = { songId: "", mode: "", rows: [], chords: [], total: 0, bpb: 4, cur: -1, curMi: -1 };
+var lyricProg = {
+  songId: "", mode: "", rows: [], steps: [], chords: [], total: 0, bpb: 4,
+  cur: -1, curMi: -1, dur: 0, mDur: 2, startSec: 0, firstMi: 0, timed: false
+};
+
+/* ---------- 가사 시작(전주) 시각 · LRC([mm:ss.xx]) 시각 ---------- */
+function lyricOffsetSec(song){
+  var v = song ? Number(song.lyricStartSec) : 0;
+  return (isFinite(v) && v !== 0) ? v : 0;
+}
+function songLrc(song){
+  var L = song && song.lrc, out = [], i;
+  if (!L || !L.length) return null;
+  for (i = 0; i < L.length; i++) if (L[i] && L[i].t != null) out.push(L[i]);
+  return out.length ? out : null;
+}
+function lrcBaseSec(song){
+  var L = songLrc(song);
+  return (L && L.length) ? Math.max(0, L[0].t) : 0;
+}
+/* lyricStartSec: 첫 가사가 나오는 시각(초). LRC가 있으면 그 시각에 더하는 보정값 */
+function setLyricStartSec(song, sec){
+  if (!song) return 0;
+  sec = Number(sec);
+  if (!isFinite(sec)) sec = 0;
+  var lo = songLrc(song) ? -lrcBaseSec(song) : 0;
+  sec = Math.max(lo, Math.min(3600, sec));
+  sec = Math.round(sec * 10) / 10;
+  if (Math.abs(sec) < 0.05) sec = 0;
+  song.lyricStartSec = sec;
+  return sec;
+}
+/* [00:18.50]첫 번째 가사 형식(LRC)이 한 줄이라도 있으면 줄마다 시각을 뽑는다. 없으면 null */
+function parseLrcText(text){
+  var lines = String(text == null ? "" : text).replace(/\r/g, "").split("\n");
+  var out = [], any = false, i;
+  for (i = 0; i < lines.length; i++){
+    var t = lines[i].trim();
+    if (!t) continue;
+    if (/^\[(ti|ar|al|by|offset|re|ve|length|au|la)\s*:/i.test(t)) continue;   /* 곡 정보 줄 */
+    var m = /^((?:\[\s*\d{1,3}:\d{1,2}(?:\.\d{1,3})?\s*\])+)\s*(.*)$/.exec(t);
+    if (!m){ out.push({ t: null, text: t }); continue; }
+    any = true;
+    var body = m[2] || "";
+    var re = /\[\s*(\d{1,3}):(\d{1,2})(?:\.(\d{1,3}))?\s*\]/g, g;
+    while ((g = re.exec(m[1])) !== null){
+      var sec = (parseInt(g[1], 10) || 0) * 60 + (parseInt(g[2], 10) || 0);
+      if (g[3]) sec += parseFloat("0." + g[3]);
+      out.push({ t: sec, text: body });
+    }
+  }
+  return any ? out : null;
+}
+function lrcSheetText(lrc){
+  var out = [], i;
+  for (i = 0; i < lrc.length; i++){
+    var t = String(lrc[i].text == null ? "" : lrc[i].text);
+    if (t.trim()) out.push(t);
+  }
+  return out.join("\n");
+}
+function lrcToText(lrc){
+  var out = [], i;
+  for (i = 0; i < lrc.length; i++){
+    var t = lrc[i].t;
+    if (t == null) continue;
+    var mm = Math.floor(t / 60), ss = t - mm * 60;
+    out.push("[" + (mm < 10 ? "0" : "") + mm + ":" + (ss < 10 ? "0" : "") + ss.toFixed(2) + "]" + String(lrc[i].text || ""));
+  }
+  return out.join("\n");
+}
+function normLyric(t){
+  return String(t == null ? "" : t)
+    .replace(/\[[^\]]*\]/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/\s|\u00a0|\u3000/g, "")
+    .replace(/[.,·…~!?'"“”‘’()\[\]{}<>\/\-—_|:;]/g, "");
+}
+/* 줄 순서대로의 가사 → 각 줄의 시작 시각(초). 짝을 못 찾은 줄은 null */
+function matchLrcTimes(texts, lrc, off){
+  var out = [], j = 0, i, k;
+  for (i = 0; i < texts.length; i++) out.push(null);
+  if (!lrc || !lrc.length) return out;
+  for (i = 0; i < texts.length; i++){
+    var want = normLyric(texts[i]);
+    if (!want) continue;
+    for (k = j; k < lrc.length; k++){
+      if (lrc[k].t == null) continue;
+      var have = normLyric(lrc[k].text);
+      if (!have) continue;
+      if (have === want || have.indexOf(want) >= 0 || want.indexOf(have) >= 0){
+        out[i] = lrc[k].t + (off || 0);
+        j = k + 1;
+        break;
+      }
+    }
+  }
+  return out;
+}
+/* 화면의 한 줄에서 가사 글자만 뽑는다(코드 이름은 뺀다) */
+function lyricRowText(node){
+  if (!node) return "";
+  var parts = [], i, n;
+  var ly = node.querySelectorAll(".ly");
+  for (i = 0; i < ly.length; i++){
+    n = (ly[i].textContent || "").replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+    if (n) parts.push(n);
+  }
+  if (!parts.length){
+    var au = node.querySelector(".autoly");
+    if (au){ n = (au.textContent || "").replace(/\s+/g, " ").trim(); if (n) parts.push(n); }
+  }
+  return parts.join(" ");
+}
+/* 첫 가사가 나오는 시각(초). 전주 표시에 쓴다 */
+function lyricFirstSec(song){
+  var L = songLrc(song), off = lyricOffsetSec(song);
+  if (L && L.length) return Math.max(0, L[0].t + off);
+  return Math.max(0, off);
+}
+function lyricStartMeasure(song, nM){
+  var mDur = measureDurFor(song) || 2, off = Math.max(0, lyricFirstSec(song));
+  return clamp(Math.floor(off / mDur), 0, Math.max(0, nM - 1));
+}
+
+/* ---------- 🎤 지금부터 가사 · −1초 / +1초 툴바 ---------- */
+function lyricSyncVisible(song){
+  return !!(song && (song.audio || player.url) && state.view !== "staff");
+}
+function updateLyricSyncBar(){
+  var box = $("#lyricSync");
+  if (!box) return;
+  var s = currentSong();
+  var on = lyricSyncVisible(s);
+  box.classList.toggle("on", on);
+  var now = $("#lpsNow");
+  if (now) now.disabled = !on;
+  var lab = $("#lpsLabel");
+  if (lab){
+    var first = s ? lyricFirstSec(s) : 0;
+    lab.textContent = first > 0.05 ? ("전주 " + fmtTime(first)) : "전주 없음";
+  }
+}
+function lyricSetIntroBadge(on){
+  var b = $("#lyIntro");
+  if (b) b.classList.toggle("now", !!on);
+}
+function lyricStartFromNow(){
+  var s = currentSong(), ae = $("#audioEl");
+  if (!s){ toast("먼저 곡을 골라 주세요"); return; }
+  if (!(ae && player.url)){ toast("먼저 🎵 음원을 넣어 주세요"); return; }
+  if (!(player.dur > 0)){ toast("음원 길이를 아직 읽지 못했어요. 잠시 뒤 다시 눌러 주세요"); return; }
+  var t = clamp(+ae.currentTime || 0, 0, player.dur);
+  lyricStartApply(t - lrcBaseSec(s), { fromNow: t });
+}
+function lyricStartNudge(d){
+  var s = currentSong();
+  if (!s){ toast("먼저 곡을 골라 주세요"); return; }
+  lyricStartApply(lyricOffsetSec(s) + d, { nudge: d });
+}
+function lyricStartApply(sec, opts){
+  opts = opts || {};
+  var s = currentSong();
+  if (!s) return;
+  var before = lyricOffsetSec(s);
+  var after = setLyricStartSec(s, sec);
+  store.set("gm_songs_v1", songs);
+  relayoutLyrics(s);
+  var keep = $("#sheetScroll") ? $("#sheetScroll").scrollTop : 0;
+  renderSheet();
+  var sc = $("#sheetScroll");
+  if (sc) sc.scrollTop = keep;
+  updateLyricSyncBar();
+  if (player.url && player.dur > 0) applyAudioSync(true);
+  if (opts.fromNow != null){
+    toast("🎤 " + fmtTime(opts.fromNow) + "부터 첫 가사 · 전주 " + fmtTime(after));
+  } else if (opts.reset){
+    toast("전주를 없애고 0초부터 시작해요");
+  } else if (after === before){
+    toast("더 움직일 수 없어요 · 전주 " + (after > 0 ? fmtTime(after) : "없음"));
+  } else if ((opts.nudge || 0) > 0){
+    toast("가사를 1초 늦췄어요 · 전주 " + fmtTime(after));
+  } else {
+    toast("가사를 1초 앞당겼어요 · 전주 " + (after > 0 ? fmtTime(after) : "없음"));
+  }
+}
+/* 전주·시각 보정이 바뀌면 자동 분석 격자의 가사 자리도 다시 잡는다 */
+function relayoutLyrics(song){
+  if (!song) return;
+  if (song.auto && song.auto.measures && song.auto.measures.length && song.lyrText){
+    layoutAutoLyrics(song, song.lyrText, true);
+    return;
+  }
+  if (song.imp && song.imp.measures && song.imp.measures.length && song.lyrText && song.sheetFromLyric){
+    spreadWords(song.imp.measures, lyricUnitWords(song.lyrText), lyricStartMeasure(song, song.imp.measures.length));
+    song.sheet = sheetTextFromMeasures(song.imp.measures, song.imp.bpb);
+    song.sheetFromImp = true;
+  }
+}
+function lyIntroBadge(song, sec){
+  var box = el("div", "lyintro");
+  box.id = "lyIntro";
+  box.textContent = "🎸 전주 " + fmtTime(sec) + " · 첫 가사는 여기서부터" + (songLrc(song) ? " (LRC 시각 기준)" : "");
+  return box;
+}
 
 function lyricProgHide(){
   var box = $("#lyricProg");
   if (box) box.classList.remove("on");
   var a = $("#lpArrow");
   if (a) a.classList.remove("on");
+  lyricSetIntroBadge(false);
 }
 function lyricProgClear(){
-  var P = lyricProg;
+  var P = lyricProg, i;
   if (P.cur >= 0 && P.rows[P.cur] && P.rows[P.cur].el){
     P.rows[P.cur].el.classList.remove("lycur");
     P.rows[P.cur].el.classList.remove("mcur");
   }
-  P.songId = ""; P.mode = ""; P.rows = []; P.chords = []; P.total = 0; P.bpb = 4; P.cur = -1; P.curMi = -1;
+  for (i = 0; i < P.rows.length; i++){
+    if (P.rows[i] && P.rows[i].el) P.rows[i].el.classList.remove("lynext");
+  }
+  lyricSetIntroBadge(false);
+  P.songId = ""; P.mode = ""; P.rows = []; P.steps = []; P.chords = []; P.total = 0; P.bpb = 4;
+  P.cur = -1; P.curMi = -1; P.dur = 0; P.startSec = 0; P.firstMi = 0; P.timed = false;
   lyricProgHide();
+  updateLyricSyncBar();
 }
 function lyricProgChordAt(mi){
   var P = lyricProg;
   if (!P.chords || !(mi >= 0)) return "";
   return P.chords[mi] || "";
 }
-function lyricProgPaint(mi, ratio, chord, src){
+function lyricProgPaint(mi, ratio, chord, src, intro){
   var P = lyricProg, box = $("#lyricProg");
   if (!box) return;
   box.classList.add("on");
   var fill = $("#lpFill");
   if (fill) fill.style.width = (clamp(ratio, 0, 1) * 100).toFixed(2) + "%";
   var t = $("#lpText");
-  if (t) t.textContent = P.total ? ("▶ 마디 " + (mi + 1) + " / " + P.total) : "▶ 마디 — / —";
+  if (t) t.textContent = P.total ? ("▶ 마디 " + (mi + 1) + " / " + P.total + (intro ? " · 🎸 전주 중" : "")) : "▶ 마디 — / —";
   var c = $("#lpChord"), nm = chord || lyricProgChordAt(mi);
   if (c){
     c.textContent = nm ? "[" + nm + "]" : "";
@@ -4497,30 +4894,59 @@ function lyricProgFollow(node, immediate){
   try { sc.scrollTo({ top: target, behavior: "smooth" }); }
   catch (e) { sc.scrollTop = target; }
 }
-function lyricProgActivate(mi, immediate){
-  var P = lyricProg;
-  if (!P.rows.length) return;
-  var idx = lyricProgRowFor(mi);
-  if (idx < 0) idx = 0;
-  P.curMi = mi;
-  if (idx === P.cur){
-    /* 같은 줄을 다시 재생할 때는 표식만 다시 붙인다 */
-    var same = P.rows[idx];
-    var bar = $("#lyricProg");
-    if (same && same.el && bar && bar.classList.contains("on")) lyricProgMark(same.el);
+/* idx: P.rows 의 위치. -1 이면 아직 첫 가사 전(전주) */
+function lyricProgShow(idx, immediate){
+  var P = lyricProg, i;
+  if (idx < 0){
+    if (P.cur >= 0 && P.rows[P.cur] && P.rows[P.cur].el){
+      P.rows[P.cur].el.classList.remove("lycur");
+      P.rows[P.cur].el.classList.remove("mcur");
+    }
+    P.cur = -1;
+    var f = P.steps.length ? P.rows[P.steps[0]] : null;
+    if (f && f.el){ f.el.classList.add("lynext"); lyricProgMark(f.el); }
     return;
   }
-  var prev = P.rows[P.cur];
-  if (prev && prev.el){
-    prev.el.classList.remove("lycur");
-    prev.el.classList.remove("mcur");
-  }
-  P.cur = idx;
   var row = P.rows[idx];
   if (!row || !row.el) return;
+  if (idx === P.cur){
+    var bar = $("#lyricProg");
+    if (bar && bar.classList.contains("on")) lyricProgMark(row.el);
+    return;
+  }
+  if (P.cur >= 0 && P.rows[P.cur] && P.rows[P.cur].el){
+    P.rows[P.cur].el.classList.remove("lycur");
+    P.rows[P.cur].el.classList.remove("mcur");
+  }
+  for (i = 0; i < P.steps.length; i++){
+    var st = P.rows[P.steps[i]];
+    if (st && st.el && st.el.classList.contains("lynext")) st.el.classList.remove("lynext");
+  }
+  P.cur = idx;
   row.el.classList.add(P.mode === "grid" ? "mcur" : "lycur");
   lyricProgMark(row.el);
   lyricProgFollow(row.el, immediate);
+}
+/* tSec: 음원 재생 시각(초). 있으면 그 시각에 맞는 줄을, 없으면 마디로 고른다 */
+function lyricProgActivate(mi, immediate, tSec){
+  var P = lyricProg;
+  if (!P.steps.length) return;
+  var si = -1, k;
+  if (tSec != null && P.timed){
+    var lo = 0, hi = P.steps.length - 1;
+    while (lo <= hi){
+      var md = (lo + hi) >> 1, rr = P.rows[P.steps[md]];
+      var t0 = (rr.t0 == null) ? -1 : rr.t0;
+      if (t0 <= tSec + 0.001){ si = md; lo = md + 1; } else hi = md - 1;
+    }
+  } else {
+    for (k = 0; k < P.steps.length; k++){
+      if (P.rows[P.steps[k]].mi0 <= mi) si = k; else break;
+    }
+  }
+  P.curMi = mi;
+  if (si < 0){ lyricProgShow(-1, immediate); return; }
+  lyricProgShow(P.steps[si], immediate);
 }
 function lyricProgFromRatio(ratio, immediate, force){
   var P = lyricProg;
@@ -4528,8 +4954,12 @@ function lyricProgFromRatio(ratio, immediate, force){
   if (!(force || audioPlaying() || accomp.playing)){ lyricProgHide(); return true; }
   ratio = clamp(ratio || 0, 0, 1);
   var mi = clamp(Math.floor(ratio * P.total), 0, P.total - 1);
-  lyricProgPaint(mi, ratio, "", "🎧 음원");
-  lyricProgActivate(mi, immediate);
+  var t = P.dur > 0 ? ratio * P.dur : null;
+  var intro = (P.startSec > 0.05) && (t != null ? t < P.startSec - 0.02 : mi < P.firstMi);
+  lyricProgPaint(mi, ratio, "", "🎧 음원", intro);
+  lyricSetIntroBadge(intro);
+  if (intro) lyricProgShow(-1, immediate);
+  else lyricProgActivate(mi, immediate, (P.timed && t != null) ? t : null);
   return true;
 }
 function lyricProgFromAccomp(beats, ev){
@@ -4539,8 +4969,11 @@ function lyricProgFromAccomp(beats, ev){
   beats = Math.max(0, beats || 0);
   var mi = (ev && ev.mi != null) ? ev.mi : Math.floor(beats / bpb);
   mi = clamp(mi, 0, P.total - 1);
-  lyricProgPaint(mi, clamp(beats / (P.total * bpb), 0, 1), (ev && ev.name) ? ev.name : "", "🎸 반주");
-  lyricProgActivate(mi, false);
+  var intro = (P.firstMi > 0) && mi < P.firstMi;
+  lyricProgPaint(mi, clamp(beats / (P.total * bpb), 0, 1), (ev && ev.name) ? ev.name : "", "🎸 반주", intro);
+  lyricSetIntroBadge(intro);
+  if (intro) lyricProgShow(-1, false);
+  else lyricProgActivate(mi, false, null);
 }
 /* 화면을 그릴 때마다 가사 줄·마디 카드와 재생 위치를 이어 준다 */
 function buildLyricProg(song, autoMode){
@@ -4548,32 +4981,50 @@ function buildLyricProg(song, autoMode){
   if (!song || state.view === "staff" || !$("#sheetBody")) return;
   var P = lyricProg;
   P.songId = song.id;
+  var dur = songDur(song);
+  var mDur = measureDurFor(song);
+  if (!(mDur > 0)) mDur = 2;
+  P.dur = dur > 0 ? dur : 0;
+  P.mDur = mDur;
+  var off = lyricOffsetSec(song), L = songLrc(song);
   var ms = autoMode ? ((song.imp && song.imp.measures && song.imp.measures.length) ? song.imp.measures : ((song.auto && song.auto.measures) || [])) : [];
+  var i, k;
+
   if (autoMode && ms.length){
     P.mode = "grid";
     P.total = ms.length;
     P.bpb = (song.imp && song.imp.bpb) ? song.imp.bpb : ((song.auto && song.auto.meter) || 4);
     var cells = $$("#sheetBody .autom[data-mi]");
-    for (var c = 0; c < cells.length; c++){
-      var cmi = parseInt(cells[c].getAttribute("data-mi"), 10);
+    for (k = 0; k < cells.length; k++){
+      var cmi = parseInt(cells[k].getAttribute("data-mi"), 10);
       if (!(cmi >= 0)) continue;
-      P.rows.push({ el: cells[c], mi0: cmi, mi1: cmi + 1 });
+      var ctxt = lyricRowText(cells[k]);
+      P.rows.push({ el: cells[k], mi0: cmi, mi1: cmi + 1, t0: ctxt ? cmi * mDur : null, lyric: ctxt });
       var mm = ms[cmi];
       if (mm && mm.ch && mm.ch[0] && mm.ch[0].name && !P.chords[cmi]) P.chords[cmi] = displayChord(mm.ch[0].name);
     }
+    P.rows.sort(function(a, b){ return a.mi0 - b.mi0; });
+    P.steps = [];
+    for (k = 0; k < P.rows.length; k++) if (P.rows[k].lyric) P.steps.push(k);
+    P.firstMi = P.steps.length ? P.rows[P.steps[0]].mi0 : 0;
+    P.startSec = (lyricFirstSec(song) > 0.05) ? Math.max(P.firstMi * mDur, lyricFirstSec(song)) : 0;
+    P.timed = false;
+    updateLyricSyncBar();
     return;
   }
+
   var rows = $$("#sheetBody .pair");
-  if (!rows.length) return;
+  if (!rows.length){ updateLyricSyncBar(); return; }
   P.mode = "lines";
-  var i, w = [], sum = 0;
+  var w = [], sum = 0, texts = [], txt;
   for (i = 0; i < rows.length; i++){
-    var txt = (rows[i].textContent || "").replace(/\s+/g, " ").trim();
+    txt = (rows[i].textContent || "").replace(/\s+/g, " ").trim();
     w.push(Math.max(2, Math.min(60, txt.length)));
     sum += w[i];
+    texts.push(lyricRowText(rows[i]));
   }
   var total = 0;
-  if (songDur(song) > 0) total = audioMeasureCount(song);
+  if (dur > 0) total = audioMeasureCount(song);
   if (!total){
     var bt = 0;
     (accomp.events || []).forEach(function(e){ bt += Math.max(0.5, e.beats || 2); });
@@ -4582,23 +5033,84 @@ function buildLyricProg(song, autoMode){
   if (!total) total = rows.length;
   P.total = total;
   P.bpb = barBeats();
-  var acc = 0, prev = 0;
+
+  /* ── 줄마다 시작 시각: LRC 시각이 있으면 그것, 없으면 전주 뒤부터 곡 끝까지 고르게 ── */
+  var rowT = [], hasT = 0;
+  var lrcTimes = L ? matchLrcTimes(texts, L, off) : null;
   for (i = 0; i < rows.length; i++){
-    acc += w[i];
-    var m1 = (i === rows.length - 1) ? total : Math.round(acc / sum * total);
-    if (m1 <= prev) m1 = Math.min(total, prev + 1);
-    rows[i].setAttribute("data-mi0", String(prev));
-    rows[i].setAttribute("data-mi1", String(m1));
-    P.rows.push({ el: rows[i], mi0: prev, mi1: m1 });
-    prev = m1;
+    var tv = (texts[i] && lrcTimes && lrcTimes[i] != null) ? lrcTimes[i] : null;
+    if (tv != null) hasT++;
+    rowT.push(tv);
   }
-  var b = 0;
-  (accomp.events || []).forEach(function(e){
-    var em = Math.floor(b / P.bpb);
-    if (em >= 0 && em < total && !P.chords[em] && e.name) P.chords[em] = e.name;
-    b += Math.max(0.5, e.beats || 2);
-  });
+  var startSec = off;
+  for (i = 0; i < rowT.length; i++){ if (rowT[i] != null){ startSec = rowT[i]; break; } }
+  if (startSec < 0) startSec = 0;
+  if (dur > 0 && startSec > dur - 0.3) startSec = Math.max(0, dur - 0.3);
+  var lyrIdx = [];
+  for (i = 0; i < rows.length; i++) if (texts[i]) lyrIdx.push(i);
+  P.startSec = startSec;
+
+  function fillTimeRun(k0, k1, t0, t1){
+    var idxs = [], W = 0, acc = 0, j, rr, ww;
+    for (j = k0; j < k1; j++){ rr = lyrIdx[j]; idxs.push(rr); W += Math.max(1, texts[rr].length); }
+    if (!idxs.length) return;
+    if (!(t1 > t0)) t1 = t0 + 0.25 * idxs.length;
+    for (j = 0; j < idxs.length; j++){
+      rr = idxs[j]; ww = Math.max(1, texts[rr].length);
+      rowT[rr] = t0 + (t1 - t0) * (acc / W);
+      acc += ww;
+    }
+  }
+  if (dur > 0 && lyrIdx.length){
+    var anchors = [];
+    for (i = 0; i < lyrIdx.length; i++) if (rowT[lyrIdx[i]] != null) anchors.push({ k: i, t: rowT[lyrIdx[i]] });
+    if (!anchors.length){
+      fillTimeRun(0, lyrIdx.length, startSec, Math.max(startSec + 0.4, dur));
+    } else {
+      fillTimeRun(0, anchors[0].k, startSec, Math.max(startSec, anchors[0].t));
+      for (i = 0; i < anchors.length; i++){
+        var kA = anchors[i], kB = (i + 1 < anchors.length) ? anchors[i + 1] : null;
+        fillTimeRun(kA.k + 1, kB ? kB.k : lyrIdx.length, kA.t, kB ? kB.t : Math.max(kA.t + 0.4, dur));
+      }
+    }
+  }
+
+  var startMi = clamp(Math.floor(startSec / mDur), 0, Math.max(0, total - 1));
+  if (!(dur > 0)){
+    /* 음원이 없으면 마디 수에 맞춰 글자 수 비율로 나눈다(전주 마디는 비워 둔다) */
+    var accM = 0, prevM = startMi;
+    for (i = 0; i < rows.length; i++){
+      accM += w[i];
+      var m1 = (i === rows.length - 1) ? total : startMi + Math.round(accM / sum * (total - startMi));
+      if (m1 <= prevM) m1 = Math.min(total, prevM + 1);
+      rows[i].setAttribute("data-mi0", String(prevM));
+      rows[i].setAttribute("data-mi1", String(m1));
+      P.rows.push({ el: rows[i], mi0: prevM, mi1: m1, t0: null, lyric: texts[i] });
+      prevM = m1;
+    }
+  } else {
+    var prevMi = startMi;
+    for (i = 0; i < rows.length; i++){
+      var mi0 = prevMi;
+      if (texts[i] && rowT[i] != null) mi0 = clamp(Math.floor(rowT[i] / mDur), startMi, Math.max(startMi, total - 1));
+      if (mi0 < prevMi) mi0 = prevMi;
+      rows[i].setAttribute("data-mi0", String(mi0));
+      P.rows.push({ el: rows[i], mi0: mi0, mi1: mi0 + 1, t0: texts[i] ? rowT[i] : null, lyric: texts[i] });
+      prevMi = mi0;
+    }
+    for (i = 0; i < P.rows.length; i++){
+      var nx = P.rows[i + 1];
+      P.rows[i].mi1 = nx ? Math.max(P.rows[i].mi0 + 1, nx.mi0) : total;
+      rows[i].setAttribute("data-mi1", String(P.rows[i].mi1));
+    }
+  }
+  P.steps = [];
+  for (i = 0; i < P.rows.length; i++) if (P.rows[i].lyric) P.steps.push(i);
+  P.firstMi = P.steps.length ? P.rows[P.steps[0]].mi0 : 0;
+  P.timed = (P.dur > 0);
+  updateLyricSyncBar();
 }
+
 /* 코드 반주를 그 마디부터 이어 간다 */
 function accompSeekMeasure(mi){
   if (!accomp.playing) return false;
@@ -4623,10 +5135,13 @@ function accompSeekMeasure(mi){
   accompSchedule();
   return true;
 }
-/* 가사 줄·마디 카드를 누를 때 그 마디로 이동 */
-function lyricProgJump(mi){
+/* 가사 줄·마디 카드를 누를 때 그 마디(또는 그 줄의 시각)로 이동 */
+function lyricProgJump(mi, el){
   var P = lyricProg;
   if (!P.rows.length || !(mi >= 0)) return;
+  var row = null, i;
+  if (el) for (i = 0; i < P.rows.length; i++) if (P.rows[i].el === el){ row = P.rows[i]; break; }
+  var tgt = (row && row.t0 != null) ? row.t0 : null;
   var song = currentSong();
   if (accomp.playing && accompSeekMeasure(mi)){
     toast("🎸 마디 " + (mi + 1) + "부터 반주를 이어 갑니다");
@@ -4639,9 +5154,10 @@ function lyricProgJump(mi){
       var dur = player.dur || songDur(song) || 0;
       if (!(dur > 0)){ toast("음원 길이를 아직 읽지 못했어요"); return; }
       showPlayer(true);
-      seekToTime(ratio * dur);
-      lyricProgFromRatio(ratio, true, true);
-      toast("마디 " + (mi + 1) + " 위치로 옮겼어요");
+      var at = (tgt != null && tgt >= 0 && tgt < dur) ? tgt : ratio * dur;
+      seekToTime(at);
+      lyricProgFromRatio(clamp(at / dur, 0, 1), true, true);
+      toast((tgt != null ? fmtTime(at) : "마디 " + (mi + 1)) + " 위치로 옮겼어요");
     });
     return;
   }
@@ -6097,7 +6613,7 @@ function bindUI(){
     var lrow = t.closest("#sheetBody .autom[data-mi], #sheetBody .pair");
     if (lrow && !t.closest(".chd")){
       var lmi = parseInt(lrow.getAttribute("data-mi") != null ? lrow.getAttribute("data-mi") : lrow.getAttribute("data-mi0"), 10);
-      if (lmi >= 0){ lyricProgJump(lmi); return; }
+      if (lmi >= 0){ lyricProgJump(lmi, lrow); return; }
     }
     if (t.closest("[data-emptypick]")){ pickAudioFile("new"); return; }
     if (t.closest("[data-emptadd]")){ openEditor(null); return; }
