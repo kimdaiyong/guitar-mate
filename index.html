@@ -2770,10 +2770,12 @@ function initStaffUI(){
   }
   if (!window._gmResize){
     window._gmResize = true;
-    var t = 0;
+    var t = 0, lastW = window.innerWidth;
     window.addEventListener("resize", function(){
       clearTimeout(t);
       t = setTimeout(function(){
+        if (window.innerWidth === lastW) return;   /* 주소창만 접히고 펼 때는 다시 그리지 않음 */
+        lastW = window.innerWidth;
         if (state.view === "staff" && $("#pane-sheet") && $("#pane-sheet").classList.contains("on")) renderStaffSheet();
       }, 260);
     });
