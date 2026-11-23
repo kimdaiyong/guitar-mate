@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#b45309">
+<title>기타 메이트 개인정보처리방침</title>
+<style>
+  :root{
+    --bg:#faf6ef; --panel:#fffdf6; --ink:#2b2118; --ink2:#5e4b36; --muted:#8b7457;
+    --line:#e3d4b8; --accent:#b45309; --chip:#fff3e4;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic","Segoe UI",Roboto,Arial,sans-serif;
+    font-size:16px; line-height:1.7; -webkit-text-size-adjust:100%;
+  }
+  .wrap{max-width:760px; margin:0 auto; padding:28px 20px 72px}
+  header{display:flex; align-items:center; gap:12px; padding:18px 0 8px; border-bottom:2px solid var(--line); margin-bottom:24px}
+  header img{width:44px; height:44px; border-radius:11px; flex:none; box-shadow:0 2px 8px rgba(90,65,30,.18)}
+  h1{font-size:21px; margin:0; letter-spacing:-.4px}
+  .sub{font-size:12.5px; color:var(--muted); margin-top:2px}
+  h2{font-size:16.5px; margin:34px 0 8px; color:var(--accent); letter-spacing:-.3px}
+  p, li{color:var(--ink2); font-size:15px; margin:8px 0}
+  ul{padding-left:20px}
+  .summary{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin:4px 0 8px}
+  .summary b{color:var(--ink)}
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 2px}
+  .chip{background:var(--chip); border:1px solid #f0dcc0; color:#8f4413; font-size:13px; font-weight:700; padding:5px 11px; border-radius:999px}
+  table{width:100%; border-collapse:collapse; margin:10px 0; font-size:14.5px}
+  th,td{border:1px solid var(--line); padding:9px 11px; text-align:left; vertical-align:top; color:var(--ink2)}
+  th{background:var(--panel); color:var(--ink); font-weight:700; width:34%}
+  a{color:var(--accent)}
+  footer{margin-top:40px; padding-top:16px; border-top:1px solid var(--line); font-size:13px; color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="icon-192.png" alt="기타 메이트 아이콘">
+    <div>
+      <h1>기타 메이트 개인정보처리방침</h1>
+      <div class="sub">시행일: 2026년 11월 23일 · 웹앱 및 안드로이드 앱 공통</div>
+    </div>
+  </header>
+
+  <div class="summary">
+    <b>한눈에 보기</b>
+    <p>기타 메이트는 회원가입이 없고, 이용자의 악보·음원·마이크 입력을 외부 서버로 보내지 않습니다.
+    모든 처리는 이용자의 기기(브라우저) 안에서만 이루어집니다.</p>
+    <div class="chips">
+      <span class="chip">회원가입 없음</span>
+      <span class="chip">서버 수집·저장 없음</span>
+      <span class="chip">기기 내부 처리</span>
+      <span class="chip">광고·분석 도구 없음</span>
+    </div>
+  </div>
+
+  <h2>1. 수집하지 않는 정보</h2>
+  <p>기타 메이트는 다음 정보를 수집하거나 보관하지 않습니다.</p>
+  <ul>
+    <li>이름, 이메일, 전화번호 등 계정 정보 (회원가입 절차 자체가 없습니다)</li>
+    <li>이용자가 입력하거나 불러온 코드·가사·악보(MusicXML, MIDI) 파일의 내용</li>
+    <li>튜너를 위해 사용되는 마이크 입력(소리) 및 녹음 파일</li>
+    <li>접속 기록, 이용 기록, 위치 정보 등 이용 행태 정보</li>
+  </ul>
+
+  <h2>2. 기기 안에서만 처리되는 정보</h2>
+  <table>
+    <tr><th>코드·가사·악보</th><td>이용자가 직접 입력하거나 불러온 데이터는 화면 표시·연주 재생을 위해 기기 안에서만 계산됩니다. 외부로 전송되지 않습니다.</td></tr>
+    <tr><th>튜너 마이크 입력</th><td>마이크로 들어온 소리는 음높이를 판별하기 위해 실시간으로 분석된 뒤 즉시 버려집니다. 저장되거나 전송되지 않습니다.</td></tr>
+    <tr><th>메트로놈·재생</th><td>소리와 박자는 기기 안에서 생성됩니다.</td></tr>
+  </table>
+
+  <h2>3. 저장되는 정보와 저장 위치</h2>
+  <p>이용자가 만든 곡, 가져온 악보, 설정값(테마·글씨 크기·카포 등)은 이용자 기기의 브라우저 저장소
+  (localStorage 및 IndexedDB)에만 저장됩니다. 서버 백업은 없으며, 앱을 삭제하거나 브라우저의 사이트 데이터를
+  지우면 함께 삭제됩니다.</p>
+
+  <h2>4. 마이크 권한 (RECORD_AUDIO)</h2>
+  <p>튜너 기능을 사용할 때만 브라우저가 마이크 사용 권한을 요청합니다. 이용자가 허용한 동안에만 음높이 분석에
+  사용되며, 녹음 파일을 만들거나 저장하지 않습니다. 권한을 허용하지 않아도 악보·코드·메트로놈 등 다른 기능은
+  정상적으로 사용할 수 있습니다.</p>
+
+  <h2>5. 네트워크 통신</h2>
+  <p>기타 메이트는 이용자의 데이터를 서버로 전송하지 않습니다. 네트워크 통신은 앱 화면(HTML·JavaScript)과
+  아이콘 등 앱 파일을 내려받기 위한 요청, 그리고 오프라인 사용을 위한 캐시 갱신에만 사용됩니다.
+  광고, 접속 분석(애널리틱스), 추적 도구를 사용하지 않습니다.</p>
+
+  <h2>6. 외부 링크</h2>
+  <p>이용자가 직접 누른 외부 링크(예: 유튜브 영상, 검색 결과)로 이동한 경우에는 해당 사이트의
+  개인정보처리방침이 적용됩니다. 기타 메이트가 그 사이트로 이용자의 정보를 넘기지는 않습니다.</p>
+
+  <h2>7. 제3자 제공 및 판매</h2>
+  <p>수집하는 개인정보가 없으므로 제3자에게 제공하거나 판매하는 정보도 없습니다.</p>
+
+  <h2>8. 이용자의 권리</h2>
+  <p>기기에 저장된 모든 데이터는 이용자가 직접 관리합니다. 브라우저 설정에서 사이트 데이터를 삭제하거나 앱을
+  삭제하면 저장된 곡과 설정이 모두 지워집니다.</p>
+
+  <h2>9. 아동의 개인정보</h2>
+  <p>기타 메이트는 개인정보를 수집하지 않으며, 아동을 포함한 모든 이용자로부터 개인정보를 받지 않습니다.</p>
+
+  <h2>10. 방침의 변경</h2>
+  <p>기능 추가 등으로 이 방침이 바뀌면 이 페이지에 변경 내용과 시행일을 게시합니다.</p>
+
+  <h2>11. 문의</h2>
+  <p>개인정보처리방침에 대한 문의는
+  <a href="https://github.com/kimdaiyong/guitar-mate/issues" target="_blank" rel="noopener">github.com/kimdaiyong/guitar-mate/issues</a>
+  로 남겨 주시기 바랍니다.</p>
+
+  <footer>
+    기타 메이트 · 기타 연주를 위한 코드·오선지·메트로놈·튜너<br>
+    본 방침은 2026년 11월 23일부터 적용됩니다.
+  </footer>
+</div>
+</body>
+</html>

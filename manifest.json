@@ -1,0 +1,29 @@
+{
+  "name": "기타 메이트 - 코드·오선지·메트로놈·튜너",
+  "short_name": "기타 메이트",
+  "description": "기타 연주를 위한 코드·가사·오선지 악보, 메트로놈, 튜너를 한 화면에서. 모든 데이터는 기기 안에서만 처리됩니다.",
+  "lang": "ko",
+  "dir": "ltr",
+  "start_url": "/guitar-mate/",
+  "scope": "/guitar-mate/",
+  "id": "/guitar-mate/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf6ef",
+  "theme_color": "#b45309",
+  "categories": ["music", "entertainment", "utilities"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

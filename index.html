@@ -3,9 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#f3ead7">
+<meta name="theme-color" content="#b45309">
 <meta name="format-detection" content="telephone=no">
 <title>기타 메이트</title>
+<meta name="description" content="기타 연주를 위한 코드·가사·오선지 악보, 메트로놈, 튜너를 한 화면에서. 모든 데이터는 기기 안에서만 처리됩니다.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;height:100%}
@@ -5892,6 +5899,14 @@ if (document.readyState === "loading") document.addEventListener("DOMContentLoad
 else init();
 
 })();
+</script>
+<script>
+/* PWA: 오프라인 실행 + 최신 버전 반영 */
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function(){
+    navigator.serviceWorker.register("./sw.js").catch(function(){});
+  });
+}
 </script>
 </body>
 </html>
