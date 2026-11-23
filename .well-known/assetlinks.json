@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.kimdaiyong.twa",
+        "sha256_cert_fingerprints": ["D7:63:48:20:55:6F:F7:F0:92:1B:FF:42:2C:8F:E3:05:A8:70:8F:2D:3E:FC:57:B7:FE:5B:57:18:00:D1:64:EF"]
+      }
+    }]
