@@ -472,6 +472,11 @@ html[data-view="staff"] .staffnote{display:-webkit-box; -webkit-line-clamp:1; -w
 .staffinfo{margin:-4px 0 10px; padding:8px 10px; border:1px solid var(--line); border-radius:10px; background:var(--panel2); font-size:12px; color:var(--ink2); line-height:1.5}
 .staffk{font-weight:800; color:var(--ink)}
 .staffnote{color:var(--muted); font-size:11.5px; margin-top:2px; line-height:1.45}
+.staffrow{display:flex; flex-wrap:wrap; gap:5px; margin-top:6px}
+.staffrow .btn{min-height:26px; font-size:11px; padding:0 8px; border-radius:8px; letter-spacing:-.3px}
+.staffbadge{display:inline-block; margin-left:4px; padding:0 5px; border-radius:6px; background:var(--chordbg); color:var(--chord); font-size:10px; font-weight:800; vertical-align:1px}
+.aprow{display:flex; flex-wrap:wrap; gap:5px; margin-top:7px}
+.aprow .btn{min-height:30px; font-size:11.5px; padding:0 9px; border-radius:9px; letter-spacing:-.3px}
 .staffsec{margin:8px 0 0; font-size:12px; font-weight:800; color:var(--accent); letter-spacing:-.2px}
 .staffwrap{display:flex; flex-direction:column}
 .staffsyswrap{margin:0}
@@ -547,6 +552,7 @@ html[data-theme="dark"] .staffsys .msr.cur .barhl{fill:rgba(224,138,68,.18)}
 .lyrbanner .lbb .btn{flex:1; min-width:0; min-height:32px; padding:0 5px; font-size:11.5px; border-radius:9px; letter-spacing:-.4px; white-space:nowrap}
 .autoline{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:2px 5px; align-items:start; margin:0 0 10px; padding-bottom:7px; border-bottom:1px dashed var(--line)}
 .autom{min-width:0; display:flex; flex-direction:column; align-items:flex-start; gap:3px}
+.autom .chrow{display:flex; flex-wrap:wrap; gap:3px; max-width:100%; min-width:0}
 .autom .chd{font-size:calc(12.5px * var(--fs)); padding:2px 5px; min-height:22px; margin:0; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.2}
 .autom .autoly{font-size:11.5px; line-height:1.35; font-weight:700; color:var(--ink2); word-break:keep-all; overflow-wrap:anywhere; max-width:100%}
 .autohint{margin:0 0 8px; font-size:11px; font-weight:800; color:var(--accent); letter-spacing:-.2px; word-break:keep-all}
@@ -599,10 +605,11 @@ html[data-theme="dark"] .staffsys .msr.cur .barhl{fill:rgba(224,138,68,.18)}
       <div class="bar songbar">
         <select class="sel" id="songSelect" aria-label="곡 선택"></select>
         <div class="songacts">
-          <button class="btn pickbtn" type="button" id="btnPickAudio">📂 노래</button>
+          <button class="btn pickbtn" type="button" id="btnPickAudio" title="MP3·MIDI·MusicXML 파일 열기">📂 노래·악보</button>
           <button class="btn" type="button" id="btnSongMgr">＋ 악보</button>
         </div>
-        <input type="file" id="audioFile" accept="audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.opus" hidden>
+        <input type="file" id="audioFile" accept="audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.opus,.mid,.midi,.musicxml,.xml,application/xml" hidden>
+        <input type="file" id="scoreFile" accept=".mid,.midi,.musicxml,.xml,audio/midi,application/xml" hidden>
       </div>
       <div class="settings-wrap">
         <button class="setrow" id="btnSettings" type="button" aria-expanded="false" aria-controls="settingsPanel">
@@ -776,11 +783,12 @@ html[data-theme="dark"] .staffsys .msr.cur .barhl{fill:rgba(224,138,68,.18)}
     <div class="menu-list">
       <button class="btn" id="mgrNew">➕ 새 악보 만들기</button>
       <button class="btn" id="mgrEdit">✏️ 이 악보 수정하기</button>
+      <button class="btn" id="mgrScore">🎼 악보 파일(.mid·.xml) 연결</button>
       <button class="btn" id="mgrAudio">🎧 이 곡에 음원 연결·교체</button>
       <button class="btn" id="mgrAudioDel">🔇 이 곡의 음원 빼기</button>
       <button class="btn danger" id="mgrDelete">🗑️ 이 악보 지우기</button>
     </div>
-    <p class="hint">악보와 음원은 이 폰에 저장돼 앱을 다시 열어도 그대로 남아요. 새 악보를 만들려면 <b>새 악보 만들기</b>를 누르세요.</p>
+    <p class="hint">악보와 음원은 이 폰에 저장돼 앱을 다시 열어도 그대로 남아요. 새 악보를 만들려면 <b>새 악보 만들기</b>를, 표준 악보 파일(MIDI·MusicXML)을 붙이려면 <b>🎼 악보 파일 연결</b>을 누르세요. 음원이 있는 곡에 악보 파일을 붙이면 노래와 정확한 오선지가 함께 흐릅니다.</p>
   </div>
 </div>
 
@@ -840,7 +848,9 @@ html[data-theme="dark"] .staffsys .msr.cur .barhl{fill:rgba(224,138,68,.18)}
       · <b>🎸 코드 반주</b>를 누르면 화면에 보이는 코드 순서대로 기타 반주가 저절로 연주되고, 지금 치는 코드가 표시되며 악보도 따라 내려갑니다. 카포·키를 바꾸면 바뀐 코드로 다시 연주해요. 빠르기는 옆의 − + (2씩)로 맞춥니다.<br>
       · <b>🎵 원곡 듣기</b>를 누르면 유튜브에서 원곡이 열립니다.<br>
       · 맨 위 <b>📂 노래 가져오기</b>로 폰에 있는 MP3·M4A·WAV 파일을 넣으면 파일 이름이 제목인 <b>곡으로 저장</b>되고, 곡 목록에서 다시 골라도 음원이 그대로 있어요(새로고침해도 유지). 이미 있는 곡에 음원을 붙이려면 <b>악보 관리 &gt; 🎧 이 곡에 음원 연결·교체</b>를 누르세요.<br>
-      · 노래를 <b>▶</b>로 틀면 오선지의 마디와 재생선, 화면 스크롤이 노래에 맞춰 함께 움직입니다. 진행 바를 움직이면 그 지점으로 즉시 같이 이동하고, <b>⏸</b>하면 모두 멈춥니다. <b>연습 속도</b>로 0.75x~1.15x 느리게도 들립니다.<br>
+      · <b>🎼 MIDI(.mid)·MusicXML(.musicxml·.xml)</b> 악보 파일을 <b>📂 노래·악보</b>로 고르면 그 악보의 음표·코드·가사·조표·박자·빠르기를 그대로 오선지에 그리고, 🎸 코드 반주와 🎵 멜로디 가이드음도 그 음표대로 연주합니다.<br>
+      · 이미 올려둔 MP3 곡에 악보 파일을 붙이려면 <b>악보 관리 &gt; 🎼 악보 파일(.mid·.xml) 연결</b>을 누르세요. 노래를 ▶로 틀면 정확한 오선지가 노래에 맞춰 함께 진행하며 흐릅니다.<br>
+      · 음원만 있고 악보 파일이 없는 곡은 오선지 위 <b>🙈 추정 음표 숨기기</b>로 소리에서 찾은 음표를 가리고 코드·리듬만 볼 수 있어요.<br> 진행 바를 움직이면 그 지점으로 즉시 같이 이동하고, <b>⏸</b>하면 모두 멈춥니다. <b>연습 속도</b>로 0.75x~1.15x 느리게도 들립니다.<br>
       · <b>✏️ 가사·코드</b>를 누르면 그 곡에 가사를 적어 넣을 수 있고, 적은 뒤에는 노래에 맞춰 가사 화면도 저절로 내려갑니다.<br>
       · <b>🎼 오선지 악보</b> 탭에서는 오선지에 멜로디·코드·가사를 함께 보여 줍니다. 가사가 없는 음원 곡도 노래 길이와 BPM으로 마디를 만들어 흐르게 합니다. <b>🎸 코드 반주</b>를 틀면 지금 연주하는 마디가 표시되고 화면도 따라 내려갑니다. <b>멜로디 가이드음</b>을 켜면 선율도 같이 들립니다.<br>
       · MP3·M4A 같은 <b>음원을 넣으면 소리에서 코드와 음표를 추정</b>해 오선지에 채워 줍니다(기기 안에서만 계산하고 밖으로 보내지 않아요). 추정이라 실제 악보와 다를 수 있으니 <b>✏️ 가사·코드</b>로 고치면 됩니다.<br>
@@ -1180,13 +1190,14 @@ var state = {
   accStyle: settings.accStyle === "strum" ? "strum" : "arpeggio",
   view: settings.view === "staff" ? "staff" : "lyric",
   guideOn: !!settings.guideOn,
+  hideEst: !!settings.hideEst,
   scrollOn: false
 };
 function saveSettings(){
   store.set("gm_settings_v1", {
     songId: state.songId, keyShift: state.keyShift, capo: state.capo, flat: state.flat,
     fontSize: state.fontSize, theme: state.theme, spd: state.spd, bpm: state.bpm, meter: state.meter,
-    accStyle: accomp.style, view: state.view, guideOn: state.guideOn
+    accStyle: accomp.style, view: state.view, guideOn: state.guideOn, hideEst: !!state.hideEst
   });
 }
 
@@ -1429,7 +1440,7 @@ function renderEmptySheet(body){
   b2.type = "button"; b2.setAttribute("data-emptadd", "1");
   btns.appendChild(b1); btns.appendChild(b2);
   box.appendChild(btns);
-  box.appendChild(el("div", "eshint", "폰에 있는 MP3·M4A 파일을 그대로 열 수 있고, 악보는 코드와 가사를 붙여넣어 만듭니다."));
+  box.appendChild(el("div", "eshint", "폰에 있는 MP3·M4A 음악과 MIDI(.mid)·MusicXML(.musicxml·.xml) 악보 파일을 그대로 열 수 있고, 악보는 코드와 가사를 붙여넣어 만들 수도 있습니다."));
   body.appendChild(box);
 }
 function updateKeyInfo(){
@@ -1971,6 +1982,26 @@ function sheetChips(song){
 }
 function computeEvents(song){
   if (!song) return [];
+  if (song.imp && song.imp.measures && song.imp.measures.length){
+    /* 악보 파일에서 불러온 정확한 음표·코드를 그대로 반주·가이드음으로 쓴다 */
+    var scI = compileScore(song), evI = [], ciI = 0;
+    scI.measures.forEach(function(m, mi){
+      var mel = [];
+      (m.notes || []).forEach(function(nt){ if (nt.p) mel.push({ b: nt.b, midi: nt.midi, d: nt.d }); });
+      var list = (m.ch && m.ch.length) ? m.ch : [{ name: "", beats: scI.bpb }];
+      for (var k = 0; k < list.length; k++){
+        var c = list[k];
+        var disp = c.name ? displayChord(c.name) : "";
+        var pI = disp ? playChordOf(disp) : null;
+        evI.push({
+          ci: ciI++, mi: mi, name: disp, raw: c.name || "", beats: c.beats || scI.bpb, lyric: "",
+          freqs: pI ? shapeFreqs(shapeFor(pI.pc, pI.q), state.capo) : [],
+          mel: k === 0 ? mel : null
+        });
+      }
+    });
+    return evI;
+  }
   if (song.score && song.score.bars){
     var sc = compileScore(song);
     var chips = sheetChips(song), idx = 0, ev = [], lastCi = -1;
@@ -2851,6 +2882,7 @@ function anaFail(song, why){
 
 function maybeAutoAnalyze(song){
   if (!song || !song.audio) return;
+  if (song.imp && song.imp.measures && song.imp.measures.length) return;   /* 정확한 악보가 이미 있으면 소리 분석은 필요 없다 */
   if (song.auto && song.auto.measures && song.auto.measures.length) return;
   if (song.autoErr) return;
   if (ana.running) return;
@@ -3026,16 +3058,21 @@ function autoHasLyrics(song){
   }
   return false;
 }
+/* 가사·코드 화면 구성: 악보 파일 곡이거나 음원 자동 분석 곡이면 마디 격자로 보여 준다 */
 function showAutoView(song, hasSheetTxt){
+  if (song && song.imp && song.imp.measures && song.imp.measures.length) return !!song.sheetFromImp;
   if (!(song && song.auto && song.auto.measures && song.auto.measures.length)) return false;
   if (!hasSheetTxt) return true;
   return !!song.sheetFromLyric;
 }
-/* 자동 분석 곡의 가사·코드 화면(마디 4개씩 한 줄) */
+/* 자동 분석·악보 파일 곡의 가사·코드 화면(마디 4개씩 한 줄) */
 function autoLyricBody(song){
+  var isImp = !!(song.imp && song.imp.measures && song.imp.measures.length);
   var wrap = el("div", "autowrap");
-  wrap.appendChild(el("div", "autohint", "🎵 소리에서 찾은 추정 코드·가사 · 코드를 누르면 운지표가 열립니다"));
-  var ms = (song.auto && song.auto.measures) || [];
+  wrap.appendChild(el("div", "autohint", isImp
+    ? "🎼 악보 파일에서 읽은 정확한 코드·가사 · 코드를 누르면 운지표가 열립니다"
+    : "🎵 소리에서 찾은 추정 코드·가사 · 코드를 누르면 운지표가 열립니다"));
+  var ms = isImp ? song.imp.measures : ((song.auto && song.auto.measures) || []);
   var per = 4, ci = 0, i, k;
   for (i = 0; i < ms.length; i += per){
     var row = el("div", "autoline");
@@ -3043,15 +3080,21 @@ function autoLyricBody(song){
       var mm = ms[i + k];
       var cell = el("div", "autom");
       if (mm){
-        var nm = (mm.ch && mm.ch.length) ? displayChord(mm.ch[0].name || "") : "";
-        if (nm){
-          var chip = el("button", "chd", nm);
-          chip.type = "button";
-          chip.setAttribute("data-c", nm);
-          chip.setAttribute("data-ci", String(ci));
-          cell.appendChild(chip);
-        }
-        ci += (mm.ch && mm.ch.length) ? mm.ch.length : 1;
+        var chs = (mm.ch || []).filter(function(c){ return c && c.name; });
+        if (chs.length){
+          var crow = el("div", "chrow");
+          chs.forEach(function(c){
+            var nm = displayChord(c.name);
+            if (!nm){ ci++; return; }
+            var chip = el("button", "chd", nm);
+            chip.type = "button";
+            chip.setAttribute("data-c", nm);
+            chip.setAttribute("data-ci", String(ci));
+            crow.appendChild(chip);
+            ci++;
+          });
+          cell.appendChild(crow);
+        } else ci += 1;
         var words = [];
         (mm.notes || []).forEach(function(nt){ if (nt.l) words.push(nt.l); });
         if (words.length) cell.appendChild(el("div", "autoly", words.join(" ")));
@@ -3100,7 +3143,9 @@ function openLyricHelper(song){
   var info = $("#lqInfo");
   if (info){
     var nm = s.title || "이 곡";
-    if (s.auto && s.auto.measures && s.auto.measures.length){
+    if (s.imp && s.imp.measures && s.imp.measures.length){
+      info.innerHTML = "🎼 ‘" + sEsc(nm) + "’은(는) 악보 파일에서 불러온 <b>정확한 악보</b>예요. 가사만 붙여넣으면 음표 아래에 마디에 맞춰 나누어 넣습니다.";
+    } else if (s.auto && s.auto.measures && s.auto.measures.length){
       var n = anaCount(s);
       info.innerHTML = "🎵 ‘" + sEsc(nm) + "’은(는) 소리에서 코드 " + n.ch + "개·음표 " + n.notes + "개를 찾은 <b>음원 곡</b>이에요. 가사만 붙여넣어도 마디와 박자에 맞춰 나눠 넣습니다.";
     } else if (s.audio){
@@ -3126,6 +3171,17 @@ function applyLyricInput(){
     toast(autoHasLyrics(s) ? "🎼 가사를 마디에 맞춰 넣었어요" : "가사를 담았어요");
     return;
   }
+  if (s.imp && s.imp.measures && s.imp.measures.length){
+    applyLyricsToImp(s, txt);
+    s.sheet = sheetTextFromMeasures(s.imp.measures, s.imp.bpb);
+    s.sheetFromImp = true;
+    s.sheetFromLyric = false;
+    store.set("gm_songs_v1", songs);
+    renderSheet();
+    closeModal("lyricModal");
+    toast("🎼 가사를 정확한 음표 아래에 마디에 맞춰 넣었어요");
+    return;
+  }
   s.lyrText = txt;
   s.sheet = txt;
   s.sheetFromLyric = true;
@@ -3146,6 +3202,990 @@ function initLyricUI(){
   if (ss && !ss._gmBound){ ss._gmBound = true; ss.addEventListener("click", openLyricSearch); }
   var sa = $("#seAnalyze");
   if (sa && !sa._gmBound){ sa._gmBound = true; sa.addEventListener("click", function(){ reanalyzeSong(currentSong()); }); }
+}
+
+/* ================= 표준 악보 파일(MIDI·MusicXML) ================= */
+/* 외부 라이브러리 없이 이 브라우저 안에서만 악보 파일을 읽는다.
+   · MusicXML(.musicxml/.xml): DOMParser 로 마디·음표·코드(harmony)·가사·조표·박자·빠르기를 읽는다
+   · MIDI(.mid/.midi, SMF 0/1): DataView 로 헤더·트랙·Running Status·메타 이벤트를 읽고
+     주선율 트랙을 골라 마디별 음표·쉼표·코드로 양자화한다 */
+var SC_MAJOR = ["Cb","Gb","Db","Ab","Eb","Bb","F","C","G","D","A","E","B","F#","C#"];
+var SC_DURS = [4, 3, 2, 1.5, 1, 0.75, 0.5, 0.25];
+var SC_TYPE_DUR = { whole: 4, half: 2, quarter: 1, eighth: 0.5, "16th": 0.25, "32nd": 0.125, "64th": 0.0625, breve: 8, long: 16 };
+var SC_MAX_MEAS = 400;
+var SC_CH = [
+  { q: "",     st: [0, 4, 7] },
+  { q: "m",    st: [0, 3, 7] },
+  { q: "7",    st: [0, 4, 7, 10] },
+  { q: "m7",   st: [0, 3, 7, 10] },
+  { q: "M7",   st: [0, 4, 7, 11] },
+  { q: "sus4", st: [0, 5, 7] },
+  { q: "dim",  st: [0, 3, 6] }
+];
+
+function scoreKindOf(file){
+  var n = String((file && file.name) || "").toLowerCase();
+  var t = String((file && file.type) || "").toLowerCase();
+  if (/\.(mid|midi)$/.test(n)) return "midi";
+  if (/\.(musicxml|xml)$/.test(n)) return "musicxml";
+  if (t.indexOf("midi") >= 0) return "midi";
+  if (t.indexOf("xml") >= 0) return "musicxml";
+  return "";
+}
+function readFileBuffer(file){
+  if (file && typeof file.arrayBuffer === "function"){
+    try { return file.arrayBuffer(); } catch (e) {}
+  }
+  return new Promise(function(resolve, reject){
+    try {
+      var fr = new FileReader();
+      fr.onload = function(){ resolve(fr.result); };
+      fr.onerror = function(){ reject(new Error("파일을 읽지 못했어요")); };
+      fr.readAsArrayBuffer(file);
+    } catch (e) { reject(e); }
+  });
+}
+function scoreErrText(err){
+  var m = String((err && err.message) || "");
+  if (!m || /^(xml|midi|read|decode|자료)$/.test(m)) return "이 파일은 악보로 읽지 못했어요. MIDI(.mid)나 MusicXML(.musicxml·.xml) 파일인지 확인해 주세요";
+  return m;
+}
+function fifthsToKey(sf, minor){
+  sf = Math.max(-7, Math.min(7, Math.round(sf || 0)));
+  var maj = SC_MAJOR[sf + 7] || "C";
+  if (!minor) return maj;
+  var pc = ((PC[maj] + 9) % 12 + 12) % 12;
+  return (sf < 0 ? FLAT : SHARP)[pc] + "m";
+}
+function meterFrom(top, bot){
+  top = Math.round(parseFloat(top) || 4);
+  bot = Math.round(parseFloat(bot) || 4);
+  if (top < 1 || top > 32) top = 4;
+  if (bot < 1 || bot > 32) bot = 4;
+  var bpb = top * 4 / bot;
+  if (!(bpb > 0.2)) bpb = 4;
+  return { meter: top + "/" + bot, bpb: Math.round(bpb * 2) / 2, top: top, bot: bot };
+}
+function quantDur(d){
+  var best = 0.25, bd = 1e9;
+  for (var i = 0; i < SC_DURS.length; i++){
+    var df = Math.abs(SC_DURS[i] - d);
+    if (df < bd - 1e-9){ bd = df; best = SC_DURS[i]; }
+  }
+  return best;
+}
+function pushRestRun(out, b, len){
+  var left = len, cur = b, guard = 0;
+  while (left >= 0.24 && guard++ < 40){
+    var d = 0.25;
+    for (var i = 0; i < SC_DURS.length; i++){ if (SC_DURS[i] <= left + 1e-6){ d = SC_DURS[i]; break; } }
+    out.push({ b: Math.round(cur * 1000) / 1000, d: d, midi: null, p: null, l: "" });
+    cur += d; left -= d;
+  }
+}
+/* 같은 파트 안에서 동시에 울리는 음(화음) 수 — 코드 추정을 할지 판단한다
+   MIDI는 틱(t,e), MusicXML은 박(b,d) 단위라 둘 다 받는다 */
+function polyCountTicks(notes){
+  if (!notes || notes.length < 2) return 0;
+  function st(n){ return n.t != null ? n.t : n.b; }
+  function en(n){ return n.e != null ? n.e : (n.b + (n.d || 0)); }
+  var ns = notes.slice().sort(function(a, b){ return st(a) - st(b) || en(a) - en(b); });
+  var n = 0;
+  for (var i = 1; i < ns.length; i++){
+    if (st(ns[i]) < en(ns[i - 1]) - 0.02) n++;
+  }
+  return n;
+}
+/* 12음 에너지 → 코드 이름 (동시 울림 화음이 있을 때만 보조로 쓴다) */
+function inferChordName(w, bassPc){
+  var tot = 0, i, distinct = 0;
+  for (i = 0; i < 12; i++) tot += w[i];
+  if (!(tot > 0)) return "";
+  for (i = 0; i < 12; i++) if (w[i] > tot * 0.09) distinct++;
+  if (distinct < 2) return "";
+  var best = null;
+  for (var r = 0; r < 12; r++){
+    for (var t = 0; t < SC_CH.length; t++){
+      var tp = SC_CH[t], inW = 0, outW = 0;
+      for (i = 0; i < 12; i++){
+        if (w[i] <= tot * 0.04) continue;
+        if (tp.st.indexOf((((i - r) % 12) + 12) % 12) >= 0) inW += w[i]; else outW += w[i];
+      }
+      var thirdPc = (r + (tp.q === "m" || tp.q === "m7" || tp.q === "dim" ? 3 : (tp.q === "sus4" ? 5 : 4))) % 12;
+      var sc = inW / tot - outW / tot * 0.85 + (bassPc === r ? 0.16 : 0);
+      if (w[thirdPc] > tot * 0.05) sc += 0.08;
+      if (tp.q === "M7" || tp.q === "m7" || tp.q === "7"){
+        var sevPc = (r + (tp.q === "M7" ? 11 : 10)) % 12;
+        sc -= 0.02;
+        if (w[sevPc] < tot * 0.12) sc -= 0.16;   /* 7음이 거의 없으면 세븐 코드로 보지 않는다 */
+      }
+      if (!best || sc > best.sc) best = { sc: sc, pc: r, q: tp.q };
+    }
+  }
+  if (!best || best.sc < 0.42) return "";
+  return PC_NAMES[best.pc] + best.q;
+}
+
+/* ---------- MusicXML ---------- */
+function xLocalName(n){
+  var s = String((n && (n.localName || n.nodeName)) || "");
+  var i = s.indexOf(":");
+  return (i >= 0 ? s.slice(i + 1) : s).toLowerCase();
+}
+function xKids(node, name){
+  var out = [], ch = (node && node.childNodes) || [], i;
+  for (i = 0; i < ch.length; i++){
+    var n = ch[i];
+    if (!n || n.nodeType !== 1) continue;
+    if (!name || xLocalName(n) === name) out.push(n);
+  }
+  return out;
+}
+function xFirst(node, name){ var a = xKids(node, name); return a.length ? a[0] : null; }
+function xText(node, name){ var n = xFirst(node, name); return n ? String(n.textContent || "").trim() : ""; }
+function xNum(node, name, dflt){
+  var s = xText(node, name), v = parseFloat(s);
+  return isFinite(v) ? v : dflt;
+}
+function xFind(root, name){
+  var stack = [root], guard = 0;
+  while (stack.length && guard++ < 60000){
+    var n = stack.pop();
+    if (n !== root && xLocalName(n) === name) return n;
+    var kids = n.childNodes || [];
+    for (var i = kids.length - 1; i >= 0; i--){ if (kids[i] && kids[i].nodeType === 1) stack.push(kids[i]); }
+  }
+  return null;
+}
+function xAll(root, name){
+  var out = [], stack = [root], guard = 0;
+  while (stack.length && guard++ < 80000){
+    var n = stack.pop();
+    if (n !== root && xLocalName(n) === name) out.push(n);
+    var kids = n.childNodes || [];
+    for (var i = kids.length - 1; i >= 0; i--){ if (kids[i] && kids[i].nodeType === 1) stack.push(kids[i]); }
+  }
+  return out;
+}
+function harmonySuffix(kind){
+  var k = String(kind || "").toLowerCase();
+  if (!k) return "";
+  if (/major-seventh|maj7/.test(k)) return "M7";
+  if (/minor-seventh|min7/.test(k)) return "m7";
+  if (/half-diminished/.test(k)) return "m7b5";
+  if (/diminished|^dim/.test(k)) return "dim";
+  if (/augmented|^aug/.test(k)) return "aug";
+  if (/suspended-fourth|sus4/.test(k)) return "sus4";
+  if (/suspended-second|sus2/.test(k)) return "sus4";
+  if (/dominant|^7/.test(k)) return "7";
+  if (/minor|^min/.test(k)) return "m";
+  return "";
+}
+function readHarmony(el){
+  var root = xFirst(el, "root");
+  if (!root) return null;
+  var step = (xText(root, "root-step") || "").toUpperCase();
+  if (!(step in PC)) return null;
+  var alt = Math.round(xNum(root, "root-alter", 0));
+  var pc = ((PC[step] + alt) % 12 + 12) % 12;
+  var rn = (alt < 0 ? FLAT : SHARP)[pc];
+  var kindEl = xFirst(el, "kind");
+  var kind = kindEl ? String(kindEl.textContent || "").trim() : "major";
+  return { name: rn + harmonySuffix(kind), b: 0 };
+}
+function readXmlNote(el, div){
+  if (el.getAttribute("print-object") === "no") return null;
+  if (xFirst(el, "cue")) return null;
+  var o = { b: 0, d: 0, midi: null, rest: false, voice: xText(el, "voice") || "1", lyr: "", chord: false, grace: false };
+  o.grace = !!xFirst(el, "grace");
+  o.chord = !!xFirst(el, "chord");
+  var dq = xNum(el, "duration", 0) / (div || 1);
+  if (!(dq > 0)){
+    dq = SC_TYPE_DUR[String(xText(el, "type")).toLowerCase()] || 0;
+    var dots = xKids(el, "dot").length;
+    for (var i = 0; i < dots; i++) dq *= 1.5;
+  }
+  o.d = dq > 0 ? dq : 0;
+  o.rest = !!xFirst(el, "rest");
+  var pt = xFirst(el, "pitch");
+  if (pt){
+    var step = (xText(pt, "step") || "").toUpperCase();
+    var alt = Math.round(xNum(pt, "alter", 0));
+    var oct = parseInt(xText(pt, "octave"), 10);
+    if ((step in PC) && isFinite(oct)) o.midi = 12 * (oct + 1) + PC[step] + alt;
+  }
+  var lyrs = xKids(el, "lyric");
+  for (var j = 0; j < lyrs.length; j++){
+    var num = lyrs[j].getAttribute("number");
+    if (num && num !== "1") continue;
+    var t = xText(lyrs[j], "text");
+    if (t) o.lyr += t;
+  }
+  if (o.rest) o.midi = null;
+  return o;
+}
+function readXmlPart(partEl){
+  var st = { divisions: 1, fifths: 0, mode: "major", time: null, tempo: 0, perc: false };
+  var measures = [], measEls = xKids(partEl, "measure"), mi, i;
+  var voiceDur = {};
+  /* 첫 마디가 픽업(implicit)이라 attributes가 없을 수 있다 — 악보의 divisions를 미리 찾아 둔다 */
+  for (mi = 0; mi < measEls.length && mi < 4; mi++){
+    var at0 = xFirst(measEls[mi], "attributes");
+    if (at0){
+      var dv0 = xNum(at0, "divisions", 0);
+      if (dv0 > 0){ st.divisions = dv0; break; }
+    }
+  }
+  for (mi = 0; mi < measEls.length && mi < SC_MAX_MEAS; mi++){
+    var mEl = measEls[mi];
+    var notes = [], harm = [], cur = 0, lastB = 0, kids = xKids(mEl);
+    for (i = 0; i < kids.length; i++){
+      var k = kids[i], ln = xLocalName(k);
+      if (ln === "attributes"){
+        var dv = xNum(k, "divisions", 0);
+        if (dv > 0) st.divisions = dv;
+        var ky = xFirst(k, "key");
+        if (ky){ st.fifths = xNum(ky, "fifths", 0); st.mode = (xText(ky, "mode") || "major").toLowerCase(); }
+        var tm = xFirst(k, "time");
+        if (tm){
+          var bt = xText(tm, "beats"), bt2 = xText(tm, "beat-type");
+          if (bt){
+            var partsB = bt.split("+");
+            var tsum = 0;
+            for (var q = 0; q < partsB.length; q++) tsum += parseFloat(partsB[q]) || 0;
+            if (tsum > 0) st.time = meterFrom(tsum, bt2);
+          }
+        }
+        var clef = xFirst(k, "clef");
+        if (clef && /percussion/i.test(xText(clef, "sign"))) st.perc = true;
+        continue;
+      }
+      if (ln === "sound"){
+        var tp0 = parseFloat(k.getAttribute("tempo") || "");
+        if (isFinite(tp0) && tp0 > 0 && !st.tempo) st.tempo = tp0;
+        continue;
+      }
+      if (ln === "direction"){
+        var snd = xFirst(k, "sound");
+        var tp1 = snd ? parseFloat(snd.getAttribute("tempo") || "") : NaN;
+        if (isFinite(tp1) && tp1 > 0 && !st.tempo) st.tempo = tp1;
+        if (!st.tempo){
+          var met = xFirst(k, "metronome");
+          if (met){ var pm = xNum(met, "per-minute", 0); if (pm > 0) st.tempo = pm; }
+        }
+        continue;
+      }
+      if (ln === "backup"){ cur -= xNum(k, "duration", 0) / st.divisions; if (cur < 0) cur = 0; continue; }
+      if (ln === "forward"){ cur += xNum(k, "duration", 0) / st.divisions; continue; }
+      if (ln === "harmony"){
+        var h = readHarmony(k);
+        if (h){ h.b = Math.max(0, cur + xNum(k, "offset", 0) / st.divisions); harm.push(h); }
+        continue;
+      }
+      if (ln !== "note") continue;
+      var nt = readXmlNote(k, st.divisions);
+      if (!nt || nt.grace || !(nt.d > 0)) continue;
+      if (nt.chord){
+        nt.b = lastB;
+        if (nt.b + nt.d > cur) cur = nt.b + nt.d;
+      } else {
+        nt.b = cur; lastB = cur; cur += nt.d;
+      }
+      notes.push(nt);
+    }
+    measures.push({ notes: notes, ch: harm, poly: polyCountTicks(notes) });
+  }
+  /* 여러 성부(voice)가 있으면 음표가 가장 많은 성부를 주선율로 쓴다 */
+  for (mi = 0; mi < measures.length; mi++){
+    for (i = 0; i < measures[mi].notes.length; i++){
+      var nn = measures[mi].notes[i];
+      voiceDur[nn.voice] = (voiceDur[nn.voice] || 0) + nn.d;
+    }
+  }
+  var domVoice = "1", bestDur = -1;
+  for (var v in voiceDur){
+    if (!Object.prototype.hasOwnProperty.call(voiceDur, v)) continue;
+    if (voiceDur[v] > bestDur + 1e-6 || (Math.abs(voiceDur[v] - bestDur) < 1e-6 && v < domVoice)){
+      bestDur = voiceDur[v]; domVoice = v;
+    }
+  }
+  var pitched = 0, nLyr = 0, sumP = 0, durSum = 0;
+  for (mi = 0; mi < measures.length; mi++){
+    var src = measures[mi].notes, keep = [], seenB = {};
+    for (i = 0; i < src.length; i++){
+      var n2 = src[i];
+      if (n2.voice !== domVoice) continue;
+      var key = Math.round(n2.b * 100) / 100;
+      if (!n2.rest && seenB[key] != null){
+        var pv = keep[seenB[key]];
+        if (pv){
+          if (n2.lyr && !pv.lyr) keep[seenB[key]] = n2;
+          else if (n2.midi != null && pv.midi != null && n2.midi > pv.midi) keep[seenB[key]] = n2;
+        }
+        continue;
+      }
+      if (!n2.rest) seenB[key] = keep.length;
+      keep.push(n2);
+      if (n2.midi != null){ pitched++; sumP += n2.midi; durSum += n2.d; }
+      if (n2.lyr) nLyr++;
+    }
+    keep.sort(function(a, b){ return a.b - b.b; });
+    measures[mi].notes = keep;
+  }
+  var avg = pitched ? sumP / pitched : 0;
+  return {
+    measures: measures, time: st.time, tempo: st.tempo, fifths: st.fifths, mode: st.mode,
+    perc: st.perc, pitched: pitched, lyrics: nLyr, avg: avg,
+    avgIn: avg >= 48 && avg <= 84, durSum: durSum, domVoice: domVoice
+  };
+}
+function parseMusicXML(text, fname){
+  var doc = null;
+  try { doc = new DOMParser().parseFromString(text, "application/xml"); } catch (e) { doc = null; }
+  if (!doc) throw new Error("xml");
+  var pe = [];
+  try { pe = doc.getElementsByTagName("parsererror"); } catch (e) { pe = []; }
+  if (pe && pe.length) throw new Error("xml");
+  var root = doc.documentElement;
+  if (!root) throw new Error("xml");
+  var parts = [], stack = [root], guard = 0;
+  while (stack.length && guard++ < 80000){
+    var n = stack.pop(), kids = n.childNodes || [];
+    for (var i = 0; i < kids.length; i++){
+      var c = kids[i];
+      if (!c || c.nodeType !== 1) continue;
+      if (xLocalName(c) === "part") parts.push(c);
+      else stack.push(c);
+    }
+  }
+  if (!parts.length) throw new Error("악보에 파트(part)가 없어요");
+  /* part-list 의 파트 이름(악기·보컬 이름)을 읽어 둔다 */
+  var nameMap = {}, sps = xAll(root, "score-part");
+  sps.forEach(function(sp){
+    var pid = sp.getAttribute("id");
+    var pn = xText(sp, "part-name");
+    if (pid && pn) nameMap[pid] = pn;
+  });
+  var work = [], pi;
+  for (pi = 0; pi < parts.length; pi++){
+    var w0 = readXmlPart(parts[pi]);
+    w0.id = parts[pi].getAttribute("id") || "";
+    work.push(w0);
+  }
+  var pick = null, bestSc = -1;
+  function pickPart(onlyLyric){
+    var best = null, bs = -1;
+    for (var q = 0; q < work.length; q++){
+      var w = work[q];
+      if (!w.pitched) continue;
+      if (onlyLyric && !w.lyrics) continue;
+      var sc = w.pitched * (w.lyrics ? 1.45 : 1) * (w.perc ? 0.02 : 1) * (w.avgIn ? 1 : 0.7);
+      if (sc > bs){ bs = sc; best = w; }
+    }
+    return best;
+  }
+  /* 가사가 있는 파트가 있으면 그 파트를 주선율(보컬/멜로디)로 본다 */
+  pick = pickPart(true) || pickPart(false);
+  if (!pick) throw new Error("악보에서 음표를 찾지 못했어요");
+  var tm0 = pick.time || (work[0] && work[0].time) || meterFrom(4, 4);
+  var bpb = tm0.bpb;
+  var ms = [];
+  for (pi = 0; pi < pick.measures.length; pi++){
+    ms.push({ ch: pick.measures[pi].ch.slice(), notes: pick.measures[pi].notes.slice() });
+  }
+  var hasH = false;
+  for (pi = 0; pi < ms.length; pi++) if (ms[pi].ch.length){ hasH = true; break; }
+  if (!hasH){
+    for (pi = 0; pi < work.length; pi++){
+      if (work[pi] === pick) continue;
+      work[pi].measures.forEach(function(m, mi){
+        if (!ms[mi] || !m.ch.length) return;
+        m.ch.forEach(function(c){ ms[mi].ch.push({ name: c.name, b: c.b }); });
+      });
+    }
+  }
+  var impMeas = [], totalCh = 0, totalNt = 0, totalLyr = 0, mi2, i2;
+  for (mi2 = 0; mi2 < ms.length; mi2++){
+    var chords = ms[mi2].ch.slice().sort(function(a, b){ return a.b - b.b; });
+    var chOut = [];
+    for (i2 = 0; i2 < chords.length && i2 < 8; i2++){
+      var c2 = chords[i2];
+      var b0 = clamp(c2.b || 0, 0, Math.max(0, bpb - 0.5));
+      var nxt = (i2 + 1 < chords.length) ? Math.max(b0 + 0.5, chords[i2 + 1].b) : bpb;
+      if (nxt > bpb) nxt = bpb;
+      if (!c2.name) continue;
+      chOut.push({ name: c2.name, beats: Math.round(Math.max(0.5, nxt - b0) * 100) / 100 });
+    }
+    totalCh += chOut.length;
+    var ns = ms[mi2].notes.slice().sort(function(a, b){ return a.b - b.b; });
+    var out = [], cur2 = 0;
+    for (i2 = 0; i2 < ns.length; i2++){
+      var n3 = ns[i2];
+      var b3 = Math.round(clamp(n3.b, 0, Math.max(0, bpb - 0.25)) * 4) / 4;
+      var d3 = quantDur(n3.d > 0 ? n3.d : 0.25);
+      if (b3 < cur2 - 0.01){
+        b3 = cur2;
+        if (b3 >= bpb - 0.01) continue;
+      }
+      if (b3 + d3 > bpb + 1e-6) d3 = Math.max(0.25, bpb - b3);
+      if (!n3.rest && n3.midi == null) continue;
+      out.push({ b: b3, d: d3, midi: n3.rest ? null : n3.midi, p: (n3.rest || n3.midi == null) ? null : anaNoteName(n3.midi), l: n3.lyr || "" });
+      cur2 = Math.max(cur2, b3 + d3);
+      if (n3.midi != null) totalNt++;
+      if (n3.lyr) totalLyr++;
+    }
+    impMeas.push({ ch: chOut, notes: out });
+  }
+  /* 코드 표기가 없는 악보: 같은 마디에서 동시에 울리는 화음이 있을 때만 코드를 추정한다 */
+  if (!totalCh){
+    for (mi2 = 0; mi2 < impMeas.length; mi2++){
+      var w2 = [0,0,0,0,0,0,0,0,0,0,0,0], bass = -1, poly = 0;
+      for (pi = 0; pi < work.length; pi++){
+        var mm = work[pi].measures[mi2];
+        if (!mm) continue;
+        poly += (mm.poly != null ? mm.poly : polyCountTicks(mm.notes));
+        for (i2 = 0; i2 < mm.notes.length; i2++){
+          var n4 = mm.notes[i2];
+          if (n4.midi == null) continue;
+          w2[((n4.midi % 12) + 12) % 12] += Math.max(0.25, n4.d);
+          if (bass < 0 || n4.midi < bass) bass = n4.midi;
+        }
+      }
+      if (poly >= 1 && bass >= 0){
+        var nm = inferChordName(w2, ((bass % 12) + 12) % 12);
+        if (nm) impMeas[mi2].ch = [{ name: nm, beats: bpb }];
+      }
+    }
+  }
+  if (!totalNt) throw new Error("악보에서 음표를 찾지 못했어요");
+  var title = "";
+  var wt = xFind(root, "work-title") || xFind(root, "movement-title");
+  if (wt) title = String(wt.textContent || "").trim();
+  var composer = "";
+  var cre = xFind(root, "creator");
+  if (cre && /composer/i.test(cre.getAttribute("type") || "")) composer = String(cre.textContent || "").trim();
+  var bpmV = Math.round(pick.tempo || 0);
+  if (!(bpmV > 0)) bpmV = 84;
+  return {
+    kind: "musicxml", name: fname || "", title: title, composer: composer,
+    key: fifthsToKey(pick.fifths, pick.mode === "minor"), fifths: pick.fifths, mode: pick.mode,
+    meter: tm0.meter, bpb: bpb, timeTop: tm0.top, timeBot: tm0.bot,
+    bpm: clamp(bpmV, 40, 200), measures: impMeas, parts: parts.length,
+    track: nameMap[pick.id] || (work.length > 1 ? ("파트 " + (work.indexOf(pick) + 1)) : ""),
+    notes: totalNt, lyrics: totalLyr
+  };
+}
+
+/* ---------- 표준 MIDI(SMF 0/1) ---------- */
+function midiBars(ppq, meters, lastTick){
+  var ms = (meters || []).slice().sort(function(a, b){ return a.tick - b.tick; });
+  if (!ms.length || ms[0].tick > 0) ms.unshift({ tick: 0, n: 4, d: 4 });
+  var bars = [], tick = 0, idx = 0, guard = 0;
+  while (tick < lastTick && guard++ < SC_MAX_MEAS * 2){
+    while (idx + 1 < ms.length && ms[idx + 1].tick <= tick + 1) idx++;
+    var m = ms[idx];
+    var len = Math.max(1, Math.round(ppq * 4 * (m.n || 4) / (m.d || 4)));
+    bars.push({ start: tick, len: len, bpb: Math.round(4 * (m.n || 4) / (m.d || 4) * 2) / 2, n: m.n, d: m.d });
+    tick += len;
+  }
+  return bars;
+}
+/* MIDI 텍스트 메타(가사·트랙명)는 UTF-8이 대부분이지만 옛 파일은 EUC-KR도 있다 */
+function decodeMidiText(arr){
+  if (!arr || !arr.length) return "";
+  var i, s = "";
+  try {
+    var u8 = (arr instanceof Uint8Array) ? arr : new Uint8Array(arr);
+    s = new TextDecoder("utf-8").decode(u8);
+    if (s.indexOf("\uFFFD") < 0) return s;
+    try {
+      var k = new TextDecoder("euc-kr").decode(u8);
+      if (k.indexOf("\uFFFD") < 0) return k;
+    } catch (e1) {}
+    return s.replace(/\uFFFD/g, "");
+  } catch (e) {
+    for (i = 0; i < arr.length; i++) s += String.fromCharCode(arr[i]);
+    return s;
+  }
+}
+function barIndexAt(bars, tick){
+  var lo = 0, hi = bars.length - 1, ans = -1;
+  while (lo <= hi){
+    var mid = (lo + hi) >> 1;
+    if (bars[mid].start <= tick){ ans = mid; lo = mid + 1; } else hi = mid - 1;
+  }
+  return ans;
+}
+function parseMidiArrayBuffer(buf, fname){
+  var bytes = new Uint8Array(buf);
+  if (bytes.length < 14) throw new Error("midi");
+  var p = 0;
+  function need(n){ if (p + n > bytes.length) throw new Error("midi"); }
+  function u8(){ need(1); return bytes[p++]; }
+  function u16(){ need(2); var v = (bytes[p] << 8) | bytes[p + 1]; p += 2; return v; }
+  function u32(){ need(4); var v = ((bytes[p] << 24) | (bytes[p + 1] << 16) | (bytes[p + 2] << 8) | bytes[p + 3]) >>> 0; p += 4; return v; }
+  function tag(){ need(4); var s = ""; for (var i = 0; i < 4; i++) s += String.fromCharCode(bytes[p++]); return s; }
+  function vint(){ var v = 0, b, g = 0; do { need(1); b = bytes[p++]; v = (v << 7) | (b & 0x7f); } while ((b & 0x80) && g++ < 5); return v; }
+  function textBytes(start, len, end){
+    var arr = [], lim = Math.min(end, bytes.length, start + len);
+    for (var i = start; i < lim; i++) arr.push(bytes[i]);
+    return arr;
+  }
+  if (tag() !== "MThd") throw new Error("midi");
+  var hlen = u32();
+  if (hlen < 6) throw new Error("midi");
+  var fmt = u16(), ntrks = u16(), division = u16();
+  p = 8 + hlen;
+  var ppq = 480;
+  if (!(division & 0x8000) && division > 0) ppq = division;
+  var tracks = [], guardTrk = 0, lastTick = 0;
+  while (p + 8 <= bytes.length && tracks.length < 64 && guardTrk++ < 64){
+    var id = tag(), len = u32();
+    if (id !== "MTrk"){ p += len; continue; }
+    var end = Math.min(bytes.length, p + len);
+    var tick = 0, run = 0, name = "", notes = [], tempos = [], meters = [], keys = [], texts = [], lyrics = [], open = {};
+    while (p < end){
+      var delta = 0, b2, g2 = 0;
+      do {
+        if (p >= end) break;
+        b2 = bytes[p++];
+        delta = (delta << 7) | (b2 & 0x7f);
+      } while ((b2 & 0x80) && g2++ < 4);
+      tick += delta;
+      if (p >= end) break;
+      var st = bytes[p];
+      if (st & 0x80){ p++; if (st < 0xF0) run = st; }
+      else { st = run; if (!st) break; }
+      var hi = st & 0xF0, chn = st & 0x0F;
+      if (st === 0xFF){
+        if (p >= end) break;
+        var mt = bytes[p++];
+        var vlen = vint();
+        var d0 = p;
+        if (mt === 0x51 && vlen >= 3 && p + 3 <= end){
+          var us = (bytes[p] << 16) | (bytes[p + 1] << 8) | bytes[p + 2];
+          if (us > 0) tempos.push({ tick: tick, bpm: 60000000 / us });
+        } else if (mt === 0x58 && vlen >= 2 && p + 2 <= end){
+          meters.push({ tick: tick, n: bytes[p], d: Math.pow(2, bytes[p + 1]) });
+        } else if (mt === 0x59 && vlen >= 2 && p + 2 <= end){
+          keys.push({ tick: tick, sf: (bytes[p] << 24) >> 24, mi: bytes[p + 1] });
+        } else if (mt === 0x03 || mt === 0x04 || mt === 0x02){
+          name = decodeMidiText(textBytes(p, vlen, end));
+        } else if (mt === 0x05){
+          lyrics.push({ tick: tick, txt: decodeMidiText(textBytes(p, vlen, end)) });
+        } else if (mt === 0x01){
+          texts.push({ tick: tick, txt: decodeMidiText(textBytes(p, vlen, end)) });
+        }
+        p = d0 + vlen;
+        if (mt === 0x2F) break;
+        continue;
+      }
+      if (st === 0xF0 || st === 0xF7){ var sl = vint(); p += sl; continue; }
+      if (hi === 0x90 || hi === 0x80){
+        if (p + 2 > end) break;
+        var kk = bytes[p++], vv = bytes[p++];
+        var key2 = chn + ":" + kk;
+        if (hi === 0x90 && vv > 0){
+          if (!open[key2]) open[key2] = { t: tick, v: vv };
+        } else if (open[key2]){
+          notes.push({ t: open[key2].t, e: tick, k: kk, ch: chn, v: open[key2].v });
+          delete open[key2];
+        }
+        continue;
+      }
+      if (hi === 0xA0 || hi === 0xB0 || hi === 0xE0){ p += 2; continue; }
+      if (hi === 0xC0 || hi === 0xD0){ p += 1; continue; }
+      p += 1;
+    }
+    for (var kk2 in open){
+      if (!Object.prototype.hasOwnProperty.call(open, kk2)) continue;
+      var sp = kk2.split(":");
+      notes.push({ t: open[kk2].t, e: Math.max(tick, open[kk2].t + 1), k: parseInt(sp[1], 10), ch: parseInt(sp[0], 10), v: open[kk2].v });
+    }
+    tracks.push({ name: name, notes: notes, tempos: tempos, meters: meters, keys: keys, texts: texts, lyrics: lyrics });
+    p = end;
+  }
+  if (!tracks.length) throw new Error("midi");
+  var allTempos = [], allMeters = [], allKeys = [];
+  tracks.forEach(function(tr){
+    allTempos = allTempos.concat(tr.tempos);
+    allMeters = allMeters.concat(tr.meters);
+    allKeys = allKeys.concat(tr.keys);
+    for (var i = 0; i < tr.notes.length; i++) if (tr.notes[i].e > lastTick) lastTick = tr.notes[i].e;
+    for (var j = 0; j < tr.tempos.length; j++) if (tr.tempos[j].tick > lastTick) lastTick = tr.tempos[j].tick;
+  });
+  allTempos.sort(function(a, b){ return a.tick - b.tick; });
+  allMeters.sort(function(a, b){ return a.tick - b.tick; });
+  allKeys.sort(function(a, b){ return a.tick - b.tick; });
+  /* 주선율: 드럼(9번 채널)을 빼고 평균 음역 C3~C6·단선율·가사 있는 트랙을 고른다 */
+  var cands = [];
+  function buildCands(onlyLyric){
+    cands = [];
+    tracks.forEach(function(tr, ti){
+      if (onlyLyric && !tr.lyrics.length) return;
+      var byCh = {}, chs = [], i;
+      for (i = 0; i < tr.notes.length; i++){
+        var n = tr.notes[i];
+        if (n.ch === 9 || !(n.e > n.t)) continue;
+        if (!byCh[n.ch]){ byCh[n.ch] = []; chs.push(n.ch); }
+        byCh[n.ch].push(n);
+      }
+      chs.forEach(function(chN){
+        var ns = byCh[chN].slice().sort(function(a, b){ return a.t - b.t || a.k - b.k; });
+        var sum = 0, overlap = 0, lastEnd = -1, j;
+        for (j = 0; j < ns.length; j++){
+          sum += ns[j].k;
+          if (lastEnd >= 0 && ns[j].t < lastEnd - 1) overlap++;
+          if (ns[j].e > lastEnd) lastEnd = ns[j].e;
+        }
+        var avg = ns.length ? sum / ns.length : 0;
+        var inRange = avg >= 48 && avg <= 84;
+        var sc = ns.length * (inRange ? 1.2 : 0.6) * (1 - Math.min(0.85, overlap / Math.max(1, ns.length))) * (tr.lyrics.length ? 1.35 : 1);
+        if (/melod|vocal|lead|보컬|멜로디|主旋律|voice|solo/i.test(tr.name)) sc *= 1.3;
+        cands.push({ ti: ti, ch: chN, notes: ns, score: sc, avg: avg, lyrics: tr.lyrics, name: tr.name });
+      });
+    });
+    return cands;
+  }
+  var cands2 = buildCands(true);
+  if (!cands2.length) cands2 = buildCands(false);
+  cands = cands2;
+  cands.sort(function(a, b){ return b.score - a.score; });
+  var pick = cands.length ? cands[0] : null;
+  if (!pick) throw new Error("MIDI에서 음표를 찾지 못했어요 (드럼만 들어 있어요)");
+  var tm = allMeters.length ? meterFrom(allMeters[0].n, allMeters[0].d) : meterFrom(4, 4);
+  var bpm = allTempos.length ? allTempos[0].bpm : 120;
+  if (!(bpm >= 30 && bpm <= 300)) bpm = 120;
+  var bars = midiBars(ppq, allMeters, lastTick);
+  var trunc = bars.length > SC_MAX_MEAS;
+  if (trunc) bars = bars.slice(0, SC_MAX_MEAS);
+  var impMeas = [], mi, i3;
+  for (mi = 0; mi < bars.length; mi++) impMeas.push({ ch: [], notes: [] });
+  var lyrMap = {}, lyrStep = Math.max(1, ppq / 8);
+  pick.lyrics.forEach(function(e){
+    var lk = Math.round(e.tick / lyrStep);
+    if (lyrMap[lk] == null) lyrMap[lk] = e.txt;
+  });
+  function lyricAt(t){
+    var lk = Math.round(t / lyrStep);
+    for (var d = 0; d <= 2; d++){
+      if (lyrMap[lk + d] != null) return String(lyrMap[lk + d]).replace(/\//g, " ").replace(/\s+/g, " ").trim();
+      if (lyrMap[lk - d] != null) return String(lyrMap[lk - d]).replace(/\//g, " ").replace(/\s+/g, " ").trim();
+    }
+    return "";
+  }
+  var used = {};
+  pick.notes.forEach(function(n){
+    if (n.k < 24 || n.k > 108) return;
+    var mi3 = barIndexAt(bars, n.t);
+    if (mi3 < 0) return;
+    var bar = bars[mi3];
+    var b = (n.t - bar.start) / ppq, d = (n.e - n.t) / ppq;
+    if (!(d > 0.05)) d = 0.25;
+    b = Math.round(b * 4) / 4;
+    if (b < 0) b = 0;
+    if (b >= bar.bpb - 1e-6) return;
+    d = quantDur(d);
+    if (b + d > bar.bpb) d = Math.max(0.25, bar.bpb - b);
+    var key = mi3 + ":" + b.toFixed(2);
+    var nt = { b: b, d: d, midi: n.k, p: anaNoteName(n.k), l: lyricAt(n.t) };
+    if (used[key] != null){
+      var pv = impMeas[mi3].notes[used[key]];
+      if (pv && nt.l && !pv.l) impMeas[mi3].notes[used[key]] = nt;
+      else if (pv && !pv.l && !nt.l && nt.midi > pv.midi) impMeas[mi3].notes[used[key]] = nt;
+      return;
+    }
+    used[key] = impMeas[mi3].notes.length;
+    impMeas[mi3].notes.push(nt);
+  });
+  /* 마디 안 빈 자리는 쉼표로 채운다 */
+  for (mi = 0; mi < impMeas.length; mi++){
+    var src = impMeas[mi].notes.slice().sort(function(a, b){ return a.b - b.b; });
+    var out = [], cur = 0;
+    for (i3 = 0; i3 < src.length; i3++){
+      var nt2 = src[i3];
+      if (nt2.b < cur - 0.01){
+        if (cur >= bars[mi].bpb - 0.01) continue;
+        nt2.b = cur;
+        if (nt2.b + nt2.d > bars[mi].bpb) nt2.d = Math.max(0.25, bars[mi].bpb - nt2.b);
+      } else if (nt2.b > cur + 0.24){
+        pushRestRun(out, cur, nt2.b - cur);
+      }
+      out.push(nt2);
+      cur = Math.max(cur, nt2.b + nt2.d);
+    }
+    if (bars[mi].bpb - cur > 0.24) pushRestRun(out, cur, bars[mi].bpb - cur);
+    impMeas[mi].notes = out;
+  }
+  /* 코드 표기(텍스트 메타)가 있으면 쓰고, 없으면 동시 울림 화음으로 추정한다 */
+  var chMarks = [];
+  tracks.forEach(function(tr){
+    (tr.texts || []).forEach(function(e){
+      var t = String(e.txt || "").trim();
+      if (t && t.length <= 8 && /^[A-G](?:#|b)?(?:maj|min|m|M|7|M7|m7|m7b5|sus4|sus|dim|aug)?(?:\/[A-G](?:#|b)?)?$/.test(t)) chMarks.push({ tick: e.tick, name: t });
+    });
+  });
+  if (chMarks.length >= 2){
+    chMarks.sort(function(a, b){ return a.tick - b.tick; });
+    var byBar = {};
+    chMarks.forEach(function(c){
+      var bm = barIndexAt(bars, c.tick);
+      if (bm < 0) return;
+      var bb = clamp(Math.round((c.tick - bars[bm].start) / ppq * 2) / 2, 0, Math.max(0, bars[bm].bpb - 0.5));
+      (byBar[bm] = byBar[bm] || []).push({ name: c.name, b: bb });
+    });
+    Object.keys(byBar).forEach(function(k){
+      var bm2 = parseInt(k, 10), list = byBar[k].sort(function(a, b){ return a.b - b.b; }), res = [];
+      for (var q = 0; q < list.length; q++){
+        var nb = (q + 1 < list.length) ? list[q + 1].b : bars[bm2].bpb;
+        res.push({ name: list[q].name, beats: Math.round(Math.max(0.5, nb - list[q].b) * 100) / 100 });
+      }
+      impMeas[bm2].ch = res;
+    });
+  } else {
+    var MW = [], MBASS = [], MPOLY = [];
+    for (mi = 0; mi < impMeas.length; mi++){
+      MW.push([0,0,0,0,0,0,0,0,0,0,0,0]);
+      MBASS.push(-1);
+      MPOLY.push(0);
+    }
+    tracks.forEach(function(tr){
+      var perCh = {};
+      tr.notes.forEach(function(n){
+        if (n.ch === 9 || !(n.e > n.t)) return;
+        var bm3 = barIndexAt(bars, n.t);
+        if (bm3 < 0) return;
+        var pcn = ((n.k % 12) + 12) % 12;
+        MW[bm3][pcn] += Math.max(1, Math.min(n.e - n.t, bars[bm3].len));
+        if (MBASS[bm3] < 0 || n.k < MBASS[bm3]) MBASS[bm3] = n.k;
+        (perCh[bm3] = perCh[bm3] || []).push(n);
+      });
+      Object.keys(perCh).forEach(function(k4){ MPOLY[parseInt(k4, 10)] += polyCountTicks(perCh[k4]); });
+    });
+    for (mi = 0; mi < impMeas.length; mi++){
+      if (impMeas[mi].ch.length || MPOLY[mi] < 1 || MBASS[mi] < 0) continue;
+      var nm2 = inferChordName(MW[mi], ((MBASS[mi] % 12) + 12) % 12);
+      if (nm2) impMeas[mi].ch = [{ name: nm2, beats: bars[mi].bpb }];
+    }
+  }
+  var keyEv = allKeys.length ? allKeys[0] : null;
+  var totalNt2 = 0, totalLyr2 = 0;
+  for (mi = 0; mi < impMeas.length; mi++){
+    for (i3 = 0; i3 < impMeas[mi].notes.length; i3++){
+      if (impMeas[mi].notes[i3].midi != null) totalNt2++;
+      if (impMeas[mi].notes[i3].l) totalLyr2++;
+    }
+  }
+  if (!totalNt2) throw new Error("MIDI에서 음표를 찾지 못했어요");
+  return {
+    kind: "midi", name: fname || "", title: "", composer: "",
+    key: keyEv ? fifthsToKey(keyEv.sf, keyEv.mi === 1) : "",
+    fifths: keyEv ? keyEv.sf : 0, mode: (keyEv && keyEv.mi === 1) ? "minor" : "major",
+    meter: tm.meter, bpb: tm.bpb, timeTop: tm.top, timeBot: tm.bot,
+    bpm: clamp(Math.round(bpm), 40, 200), measures: impMeas,
+    parts: tracks.length, track: pick.name || ("트랙 " + (pick.ti + 1) + " · 채널 " + (pick.ch + 1)),
+    notes: totalNt2, lyrics: totalLyr2, trunc: trunc, fmt: fmt, ppq: ppq
+  };
+}
+function parseScoreBuffer(buf, file, kind){
+  if (kind === "midi") return parseMidiArrayBuffer(buf, (file && file.name) || "");
+  var bytes = new Uint8Array(buf), txt = "";
+  if (bytes.length > 1 && bytes[0] === 0xFF && bytes[1] === 0xFE){
+    try { txt = new TextDecoder("utf-16le").decode(bytes); } catch (e) { txt = ""; }
+  } else if (bytes.length > 1 && bytes[0] === 0xFE && bytes[1] === 0xFF){
+    try { txt = new TextDecoder("utf-16be").decode(bytes); } catch (e) { txt = ""; }
+  }
+  if (!txt){ try { txt = new TextDecoder("utf-8").decode(bytes); } catch (e) { txt = ""; } }
+  if (!txt){ for (var i = 0; i < bytes.length; i++) txt += String.fromCharCode(bytes[i]); }
+  if (txt.charCodeAt(0) === 0xFEFF) txt = txt.slice(1);
+  return parseMusicXML(txt, (file && file.name) || "");
+}
+
+/* ---------- 악보 파일 → 곡 ---------- */
+function padCols(s, n){
+  s = String(s || "");
+  var w = 0, i;
+  for (i = 0; i < s.length; i++) w += charCols(s.charAt(i));
+  while (w < n){ s += " "; w++; }
+  return s;
+}
+function sheetTextFromMeasures(ms, bpb){
+  var out = [], per = 4, i, k;
+  for (i = 0; i < ms.length; i += per){
+    var cl = "", ll = "";
+    for (k = 0; k < per; k++){
+      var m = ms[i + k], cc = "", lc = "";
+      if (m){
+        cc = (m.ch || []).map(function(c){ return c.name; }).filter(Boolean).join(" ");
+        lc = (m.notes || []).map(function(n){ return n.l || ""; }).filter(Boolean).join(" ");
+      }
+      var w = Math.max(12, cc.length + 3, lc.length + 3);
+      cl += padCols(cc, w) + " ";
+      ll += padCols(lc, w) + " ";
+    }
+    if (cl.replace(/\s/g, "")) out.push(cl.replace(/\s+$/, ""));
+    if (ll.replace(/\s/g, "")) out.push(ll.replace(/\s+$/, ""));
+  }
+  return out.join("\n");
+}
+function applyImportTempo(imp){
+  if (!imp) return;
+  if (imp.bpm >= 40 && imp.bpm <= 200) setBpm(imp.bpm);
+  if (imp.meter && METERS[imp.meter]){
+    metro.meter = imp.meter;
+    state.meter = imp.meter;
+    buildBeatDots();
+    updateMetroUI();
+  }
+  saveSettings();
+}
+function afterScoreLoaded(song, imp, isNew){
+  if (isNew){
+    state.songId = song.id;
+    state.keyShift = 0;
+    state.capo = 0;
+    if (!store.set("gm_songs_v1", songs)) toast("저장 공간이 부족해 악보를 저장하지 못했어요");
+    saveSettings();
+    buildSongSelect();
+    buildCapo();
+    var sel = $("#songSelect");
+    if (sel) sel.value = song.id;
+    syncAudioForSong();
+  } else {
+    if (!store.set("gm_songs_v1", songs)) toast("저장 공간이 부족해 악보를 저장하지 못했어요");
+    saveSettings();
+    buildSongSelect();
+  }
+  applyImportTempo(imp);
+  if (accomp.playing) accompStop();
+  setView("staff");
+  renderSheet();
+  var sc = $("#sheetScroll");
+  if (sc) sc.scrollTop = 0;
+  if (song.audio) syncAudioForSong();
+  var bits = [];
+  bits.push(imp.key ? imp.key + "키" : "키 정보 없음");
+  bits.push(imp.meter || "4/4");
+  bits.push(imp.bpm + " BPM");
+  bits.push("음표 " + (imp.notes || 0) + "개 · 마디 " + imp.measures.length + "개");
+  toast("🎼 ‘" + (song.title || "악보") + "’ " + (imp.kind === "midi" ? "MIDI" : "MusicXML") + " 악보를 불러왔어요 · " + bits.join(" · "));
+}
+function importScoreFile(file){
+  var kind = scoreKindOf(file);
+  if (!kind) return;
+  toast("🎼 악보 파일을 읽는 중이에요…");
+  readFileBuffer(file).then(function(buf){
+    var imp = parseScoreBuffer(buf, file, kind);
+    var title = imp.title || cleanAudioTitle(file.name);
+    var song = {
+      id: "s" + Date.now(),
+      title: title, artist: imp.composer || "", key: imp.key || "", bpm: imp.bpm || 0,
+      youtubeUrl: "", sheet: sheetTextFromMeasures(imp.measures, imp.bpb), builtin: false,
+      sheetFromImp: true, imp: imp
+    };
+    songs.push(song);
+    afterScoreLoaded(song, imp, true);
+  }).catch(function(err){
+    toast(scoreErrText(err));
+  });
+}
+function attachScoreToSong(file){
+  var song = currentSong();
+  if (!song){ importScoreFile(file); return; }
+  var kind = scoreKindOf(file);
+  if (!kind) return;
+  toast("🎼 악보 파일을 읽는 중이에요…");
+  readFileBuffer(file).then(function(buf){
+    var imp = parseScoreBuffer(buf, file, kind);
+    song.imp = imp;
+    song.key = imp.key || song.key || "";
+    if (imp.bpm >= 40 && imp.bpm <= 200) song.bpm = imp.bpm;
+    /* 악보 파일에 가사가 없으면 곡에 적어 둔 가사를 음표 아래로 나눠 넣는다 */
+    if (!imp.lyrics && song.sheet){
+      var oldLines = lyricUnitWords(String(song.sheet));
+      if (oldLines.length) spreadWords(imp.measures, oldLines);
+    }
+    var txt = String(song.sheet || "").replace(/\s/g, "");
+    if (!txt){
+      song.sheet = sheetTextFromMeasures(imp.measures, imp.bpb);
+      song.sheetFromImp = true;
+      song.sheetFromLyric = false;
+    }
+    afterScoreLoaded(song, imp, false);
+    toast("🎼 ‘" + (song.title || "이 곡") + "’에 정확한 악보 파일을 붙였어요" + (song.audio ? " · 노래를 ▶로 틀면 악보가 함께 흐릅니다" : ""));
+  }).catch(function(err){
+    toast(scoreErrText(err));
+  });
+}
+var scorePickMode = "new";
+function pickScoreFile(mode){
+  scorePickMode = (mode === "attach") ? "attach" : "new";
+  var input = $("#scoreFile");
+  if (!input) return;
+  try { input.value = ""; } catch (e) {}
+  try { input.click(); } catch (e) {}
+}
+
+/* ---------- 악보 파일에 가사 넣기 ---------- */
+function looksLikePlainLyrics(text){
+  var lines = String(text || "").split(/\r?\n/), i, any = false;
+  for (i = 0; i < lines.length; i++){
+    var t = lines[i].trim();
+    if (!t) continue;
+    any = true;
+    if (isChordLine(lines[i]) || anaInlineChords(lines[i]) || /^\[[^\]]*\]$/.test(t)) return false;
+  }
+  return any;
+}
+function lyricUnitWords(text){
+  var out = [];
+  lyricBlocks(text).forEach(function(b){
+    if (!b.chords || !b.chords.length){
+      if (b.lyric && b.lyric.trim()) out.push(lyricWords(b.lyric));
+      return;
+    }
+    var cs = b.chords.slice().sort(function(a, c){ return a.col - c.col; });
+    var ly = String(b.lyric || "");
+    for (var k = 0; k < cs.length; k++){
+      var i0 = colToIndex(ly, Math.max(0, cs[k].col));
+      var i1 = (k + 1 < cs.length) ? colToIndex(ly, Math.max(0, cs[k + 1].col)) : ly.length;
+      out.push(lyricWords(ly.slice(i0, Math.max(i0, i1))));
+    }
+  });
+  return out;
+}
+function spreadWords(ms, lines){
+  var total = 0, i, k;
+  lines.forEach(function(w){ total += w.length; });
+  if (!total || !ms || !ms.length) return false;
+  var cursor = 0;
+  for (i = 0; i < lines.length; i++){
+    var share = Math.max(1, Math.round(lines[i].length / total * ms.length));
+    var m1 = (i === lines.length - 1) ? ms.length : Math.min(ms.length, cursor + share);
+    var slots = [];
+    for (var mi = cursor; mi < m1; mi++){
+      var ns = ms[mi].notes || [];
+      for (k = 0; k < ns.length; k++) if (ns[k].midi != null) slots.push(ns[k]);
+    }
+    var n = lines[i].length, s = slots.length;
+    for (k = 0; k < s; k++){
+      var a = Math.floor(k * n / s), b = Math.floor((k + 1) * n / s);
+      var txt = lines[i].slice(a, b).join(" ");
+      if (txt) slots[k].l = txt;
+    }
+    cursor = m1;
+    if (cursor >= ms.length) break;
+  }
+  return true;
+}
+function applyLyricsToImp(song, text){
+  if (!song || !song.imp || !song.imp.measures || !song.imp.measures.length) return false;
+  song.imp.measures.forEach(function(m){
+    (m.notes || []).forEach(function(nt){ if (nt.midi != null) nt.l = ""; });
+  });
+  var ok = spreadWords(song.imp.measures, lyricUnitWords(text));
+  song.lyrText = String(text == null ? "" : text);
+  return ok;
 }
 
 /* ---------- 노래 가져오기 → 곡으로 저장 ---------- */
@@ -3355,6 +4395,7 @@ function renderAudioPanel(song){
   var hasSheet = !!(song.sheet && String(song.sheet).replace(/\s+/g, "") !== "");
   /* 소리에서 찾은 코드·음표나 넣은 가사가 있으면 가사·코드 화면이 본문이므로 음원 카드는 접어 둔다 */
   if (song.auto && song.auto.measures && song.auto.measures.length) hasSheet = true;
+  if (song.imp && song.imp.measures && song.imp.measures.length) hasSheet = true;
   if (autoHasLyrics(song)) hasSheet = true;
   var dur = songDur(song), bpm = audioBpmOf(song), bpb = audioMeterOf(song), n = audioMeasureCount(song);
   var box = el("div", "audiopanel" + (hasSheet ? " compact" : ""));
@@ -3367,6 +4408,9 @@ function renderAudioPanel(song){
   if (n) bits.push("마디 " + n + "개");
   head.appendChild(el("div", "ap-meta", bits.join(" · ")));
   box.appendChild(head);
+  if (song.imp && song.imp.measures && song.imp.measures.length){
+    box.appendChild(el("div", "ap-note", "🎼 정확한 악보 파일(‘" + sEsc(song.imp.name || "악보") + "’)과 연결돼 있어요. ▶로 노래를 틀면 오선지의 마디·재생선이 노래에 맞춰 함께 흐릅니다."));
+  }
 
   var track = el("div", "ap-track");
   track.setAttribute("data-ap-track", "1");
@@ -3402,6 +4446,11 @@ function renderAudioPanel(song){
       note.innerHTML = "이 곡은 <b>음원만</b> 있어요. <b>🎼 오선지 악보</b> 탭을 열면 노래에 맞춰 마디와 재생선이 흐르고, 여기에서는 아래 마디 카드가 따라갑니다. <b>✏️ 가사·코드</b>로 나중에 가사를 적을 수 있어요.";
     }
     box.appendChild(note);
+    var srow = el("div", "aprow");
+    var sbtn = el("button", "btn sm", "🎼 악보 파일(.mid·.xml) 연결");
+    sbtn.type = "button"; sbtn.setAttribute("data-score-attach", "1");
+    srow.appendChild(sbtn);
+    box.appendChild(srow);
     if (n){
       var cards = el("div", "ap-cards");
       var mDur = measureDurFor(song);
@@ -3497,8 +4546,24 @@ function initPlayerUI(){
     if (!f) return;                     /* 취소: 아무 일도 하지 않음 */
     var mode = pickMode;
     pickMode = "new";
+    if (/\.mxl$/i.test(f.name || "")){ toast("압축(.mxl) 악보는 아직 지원하지 않아요. .musicxml 또는 .xml로 저장해 주세요"); return; }
+    if (scoreKindOf(f)){ if (mode === "attach") attachScoreToSong(f); else importScoreFile(f); return; }
     if (mode === "attach") attachAudioToSong(f); else importAudioFile(f);
   });
+  var sf = $("#scoreFile");
+  if (sf && !sf._gmBound){
+    sf._gmBound = true;
+    sf.addEventListener("change", function(){
+      var f = (sf.files && sf.files.length) ? sf.files[0] : null;
+      var mode = scorePickMode;
+      scorePickMode = "new";
+      try { sf.value = ""; } catch (e) {}
+      if (!f) return;
+      if (/\.mxl$/i.test(f.name || "")){ toast("압축(.mxl) 악보는 아직 지원하지 않아요. .musicxml 또는 .xml로 저장해 주세요"); return; }
+      if (!scoreKindOf(f)){ toast("MIDI(.mid)나 MusicXML(.musicxml·.xml) 파일을 골라 주세요"); return; }
+      if (mode === "attach") attachScoreToSong(f); else importScoreFile(f);
+    });
+  }
   $("#btnAudioPlay").addEventListener("click", function(){ toggleAudioPlay(); });
   $("#btnAudioClear").addEventListener("click", hideAudioPlayer);
   var eb = $("#btnAudioEdit");
@@ -3740,7 +4805,22 @@ function compileScore(song){
   /* 화면에 그리는 조(키) = 원국 키 + 반음 이동 - 카포 */
   var wpc = ((majorPc + (state.keyShift || 0) - (state.capo || 0)) % 12 + 12) % 12;
   var ki = keyInfoFor(wpc);
-  if (song && song.score && song.score.bars){
+  var timeTop = 4, timeBot = 4;
+  if (song && song.imp && song.imp.measures && song.imp.measures.length){
+    /* 표준 악보 파일(MIDI·MusicXML)에서 불러온 정확한 음표·코드·박자 */
+    bpb = song.imp.bpb || 4;
+    timeTop = song.imp.timeTop || (bpb === 3 ? 3 : 4);
+    timeBot = song.imp.timeBot || 4;
+    song.imp.measures.forEach(function(im){
+      var chords = (im.ch && im.ch.length)
+        ? im.ch.map(function(c){ return { name: c.name || "", beats: c.beats || bpb }; })
+        : [{ name: "", beats: bpb }];
+      var notes = (im.notes || []).map(function(nt){
+        return { p: (nt.midi == null ? null : nt.p), midi: nt.midi, d: nt.d || 1, l: nt.l || "", b: nt.b || 0 };
+      });
+      measures.push({ ch: chords, notes: notes, lyr: null, beats: bpb, sec: "" });
+    });
+  } else if (song && song.score && song.score.bars){
     if (song.score.meter === "3/4") bpb = 3;
     song.score.bars.forEach(function(blk){
       (blk.m || []).forEach(function(bm, bi){
@@ -3762,11 +4842,14 @@ function compileScore(song){
   } else if (song && song.auto && song.auto.measures && song.auto.measures.length){
     /* 음원에서 자동으로 찾은 코드·음표 (사용자가 적은 코드·가사가 있으면 그것을 우선한다) */
     bpb = (song.auto.meter === 3) ? 3 : 4;
+    timeTop = bpb;
+    timeBot = 4;
+    var hideEstA = !!state.hideEst;   /* 추정 음표를 숨기고 코드·리듬만 보기 */
     song.auto.measures.forEach(function(am){
       var chords = (am.ch && am.ch.length)
         ? am.ch.map(function(c){ return { name: c.name || "", beats: c.beats || bpb }; })
         : [{ name: "", beats: bpb }];
-      var notes = (am.notes || []).map(function(nt){
+      var notes = hideEstA ? [] : (am.notes || []).map(function(nt){
         return { p: nt.p, midi: nt.midi, d: nt.d || 1, l: nt.l || "", b: nt.b || 0 };
       });
       measures.push({ ch: chords, notes: notes, lyr: null, beats: bpb, sec: "" });
@@ -3796,7 +4879,7 @@ function compileScore(song){
   }
   var b0 = 0;
   measures.forEach(function(m){ m.b0 = b0; b0 += m.beats; });
-  return { measures: measures, ki: ki, bpb: bpb, scoreBased: !!(song && song.score && song.score.bars), totalBeats: b0 };
+  return { measures: measures, ki: ki, bpb: bpb, timeTop: timeTop, timeBot: timeBot, scoreBased: !!(song && ((song.imp && song.imp.measures && song.imp.measures.length) || (song.score && song.score.bars))), totalBeats: b0 };
 }
 function staffLayout(W, nBars, ki){
   var nAcc = Math.abs(ki.sharps);
@@ -3822,8 +4905,9 @@ function systemSVG(score, start, nBars, sysI, W, showTime, isLast){
   }
   if (showTime){
     var tx = 30 + lay.keyW + 8;
-    out.push('<text class="tsig" x="' + tx + '" y="' + (S_TOP + S_SP + 4) + '">' + bpb + '</text>');
-    out.push('<text class="tsig" x="' + tx + '" y="' + (S_TOP + 3 * S_SP + 4) + '">4</text>');  }
+    var tTop = score.timeTop || bpb, tBot = score.timeBot || 4;
+    out.push('<text class="tsig" x="' + tx + '" y="' + (S_TOP + S_SP + 4) + '">' + tTop + '</text>');
+    out.push('<text class="tsig" x="' + tx + '" y="' + (S_TOP + 3 * S_SP + 4) + '">' + tBot + '</text>');  }
   var ms = score.measures.slice(start, start + nBars);
   var lyrFs = clamp(barW / 11.5, 8.4, 11).toFixed(1);
   ms.forEach(function(m, i){
@@ -3890,10 +4974,48 @@ function staffInfoLine(song){
   var box = el("div", "staffinfo");
   if (!song) return box;
   var noSheet = !((song.sheet) && String(song.sheet).replace(/\s+/g, "") !== "");
+  if (song.imp && song.imp.measures && song.imp.measures.length){
+    var im = song.imp;
+    var kindTxt = im.kind === "midi" ? "MIDI" : "MusicXML";
+    var sigTxt = im.fifths > 0 ? ("조표 ♯" + im.fifths) : (im.fifths < 0 ? ("조표 ♭" + (-im.fifths)) : "조표 없음");
+    box.appendChild(el("div", "staffk", "🎼 정확한 악보 · " + kindTxt + " · " + (im.key || "키 정보 없음") + " · " + sigTxt + " · " + (im.meter || "4/4") + " · " + (im.bpm || metro.bpm) + " BPM"));
+    var nN = 0, nL = 0, nC = 0;
+    im.measures.forEach(function(m){
+      nC += (m.ch || []).length;
+      (m.notes || []).forEach(function(nt){ if (nt.p) nN++; if (nt.l) nL++; });
+    });
+    var sub = "‘" + (im.name || "악보 파일") + "’의 음표 " + nN + "개·코드 " + nC + "개를 마디 " + im.measures.length + "개로 옮겼어요";
+    if (nL) sub += " (가사 " + nL + "자)";
+    if (im.track) sub += " · 주선율 " + im.track;
+    if (im.trunc) sub += " · 앞 " + im.measures.length + "마디만";
+    sub += ". 🎸 코드 반주·🎵 가이드음이 이 음표대로 연주합니다.";
+    box.appendChild(el("div", "staffnote", sub));
+    var row0 = el("div", "staffrow");
+    var b0x = el("button", "btn sm", "🎼 악보 파일 바꾸기");
+    b0x.type = "button"; b0x.setAttribute("data-score-attach", "1");
+    row0.appendChild(b0x);
+    if (song.audio){
+      var bp = el("button", "btn sm", "▶ 노래에 맞춰 보기");
+      bp.type = "button"; bp.setAttribute("data-ap-play", "1");
+      row0.appendChild(bp);
+    }
+    box.appendChild(row0);
+    return box;
+  }
   if (song.auto && song.auto.measures && song.auto.measures.length){
     var n = anaCount(song);
     box.appendChild(el("div", "staffk", "🎵 소리 자동 분석(추정 코드·음표) · 직접 수정 가능"));
-    box.appendChild(el("div", "staffnote", "음원에서 코드 " + n.ch + "개·음표 " + n.notes + "개를 추정했어요 (" + (song.auto.bpm || audioBpmOf(song)) + " BPM · 마디 " + n.measures + "개). 실제 악보와 다를 수 있어요 — ✏️ 가사·코드로 고칠 수 있습니다." + (song.auto.trunc ? " 앞 " + n.measures + "마디만 분석했어요." : "")));
+    box.appendChild(el("div", "staffnote", "음원에서 코드 " + n.ch + "개·음표 " + n.notes + "개를 추정했어요 (" + (song.auto.bpm || audioBpmOf(song)) + " BPM · 마디 " + n.measures + "개). 실제 악보와 다를 수 있어요 — ✏️ 가사·코드로 고칠 수 있습니다." + (song.auto.trunc ? " 앞 " + n.measures + "마디만 분석했어요." : "") + (state.hideEst ? " 지금은 추정 음표를 가리고 코드·리듬만 보여 주고 있어요." : "")));
+    var row1 = el("div", "staffrow");
+    var tb = el("button", "btn sm", state.hideEst ? "👁 추정 음표 보이기" : "🙈 추정 음표 숨기기");
+    tb.type = "button"; tb.setAttribute("data-est-toggle", "1"); tb.setAttribute("aria-pressed", state.hideEst ? "true" : "false");
+    row1.appendChild(tb);
+    if (song.audio){
+      var sb = el("button", "btn sm", "🎼 악보 파일(.mid·.xml) 연결");
+      sb.type = "button"; sb.setAttribute("data-score-attach", "1");
+      row1.appendChild(sb);
+    }
+    box.appendChild(row1);
     return box;
   }
   if (song.audio && noSheet){
@@ -3903,6 +5025,11 @@ function staffInfoLine(song){
     box.appendChild(el("div", "staffnote", dur > 0
       ? ("노래 길이 " + fmtTime(dur) + "을 " + audioBpmOf(song) + " BPM 기준으로 마디로 나눠 그렸어요. ▶를 누르면 마디와 재생선이 노래에 맞춰 흐르고, 마디를 누르면 그 지점으로 이동합니다.")
       : "노래 길이를 확인하지 못했어요. 임시로 8마디를 그려 두었으니 📂 노래로 다시 넣어 주세요."));
+    var row2 = el("div", "staffrow");
+    var sb2 = el("button", "btn sm", "🎼 악보 파일(.mid·.xml) 연결");
+    sb2.type = "button"; sb2.setAttribute("data-score-attach", "1");
+    row2.appendChild(sb2);
+    box.appendChild(row2);
     return box;
   }
   var opc = (parseChord(song.key || "C") || { pc: 0 }).pc;
@@ -4031,6 +5158,7 @@ function staffStartTick(){
       el2.classList.add("cur");
       staffView.cur = mi;
       if (gm.sys !== staffView.sys){
+        if (staffView.sys >= 0) $$("#sheetBody .staffsys .ph").forEach(function(l){ l.style.opacity = "0"; });
         staffView.sys = gm.sys;
         staffScrollTo(gm.sys);
       }
@@ -4258,6 +5386,13 @@ function saveEditor(){
     s.title = data.title; s.artist = data.artist; s.key = data.key; s.bpm = data.bpm; s.sheet = data.sheet; s.youtubeUrl = data.youtubeUrl;
     s.sheetFromLyric = false;
     if (s.auto && s.auto.measures && s.auto.measures.length) applyLyricsToAuto(s, data.sheet, true);
+    else if (s.imp && s.imp.measures && s.imp.measures.length){
+      /* 악보 파일 곡: 가사만 적은 글이면 정확한 음표 아래로 나눠 넣는다 */
+      if (looksLikePlainLyrics(data.sheet)) applyLyricsToImp(s, data.sheet);
+      var gen = sheetTextFromMeasures(s.imp.measures, s.imp.bpb);
+      s.sheetFromImp = (String(data.sheet).replace(/\s/g, "") === String(gen).replace(/\s/g, ""));
+      s.sheetFromLyric = !s.sheetFromImp && looksLikePlainLyrics(data.sheet);
+    }
     else s.lyrText = data.sheet;
     saved = true;
   } else {
@@ -4504,6 +5639,11 @@ function bindUI(){
     if (!s){ pickAudioFile("new"); return; }
     pickAudioFile("attach");
   });
+  $("#mgrScore").addEventListener("click", function(){
+    var s = currentSong();
+    closeModal("songMgrModal");
+    pickScoreFile(s ? "attach" : "new");
+  });
   $("#mgrAudioDel").addEventListener("click", function(){
     var s = currentSong();
     if (!s || !s.audio){ toast("이 곡에는 음원이 없어요"); return; }
@@ -4673,6 +5813,14 @@ function bindUI(){
     if (t.closest("[data-lyr-open]")){ openLyricHelper(currentSong()); return; }
     if (t.closest("[data-lyr-search]")){ openLyricSearch(); return; }
     if (t.closest("[data-ana-re]")){ reanalyzeSong(currentSong()); return; }
+    if (t.closest("[data-score-attach]")){ pickScoreFile("attach"); return; }
+    if (t.closest("[data-est-toggle]")){
+      state.hideEst = !state.hideEst;
+      saveSettings();
+      renderSheet();
+      toast(state.hideEst ? "🙈 추정 음표를 가렸어요 · 코드와 리듬만 보여요" : "👁 추정 음표를 다시 보여요");
+      return;
+    }
   });
   $("#cmClose").addEventListener("click", function(){ closeModal("chordModal"); });
   $("#cmClose2").addEventListener("click", function(){ closeModal("chordModal"); });
