@@ -456,7 +456,29 @@ main{flex:1; min-height:0; display:flex; flex-direction:column; position:relativ
 .staffsys .msr.cur .beam{stroke:var(--accent)}
 .staffsys .msr.cur .ctx,.staffsys .msr.cur .lyr{fill:var(--accent)}
 .staffsys .ph{stroke:var(--accent); stroke-width:1.6; opacity:0; stroke-dasharray:3 3}
+.staffsys .mno{font-size:8.5px; font-weight:700; fill:var(--muted); font-family:inherit}
 html[data-theme="dark"] .staffsys .msr.cur .barhl{fill:rgba(224,138,68,.18)}
+/* ---------- 음원 패널(가사·코드 화면의 파형·마디 카드) ---------- */
+.audiopanel{margin:0 0 14px; padding:10px 11px 11px; border:1px solid var(--line); border-radius:14px; background:var(--panel); box-shadow:var(--shadow)}
+.ap-head{display:flex; align-items:center; gap:8px; margin-bottom:8px; min-width:0}
+.ap-play{flex:none; min-height:34px; padding:0 12px; font-size:13px}
+.ap-meta{flex:1; min-width:0; font-size:12px; font-weight:700; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.ap-track{position:relative; height:56px; border-radius:10px; background:var(--panel2); border:1px solid var(--line); overflow:hidden; padding:6px 7px; cursor:pointer}
+.audiopanel.compact .ap-track{height:42px}
+.ap-wave{display:flex; align-items:center; gap:1px; height:100%; width:100%; overflow:hidden}
+.ap-wave i{flex:1 1 0; min-width:1px; max-width:7px; height:12%; border-radius:2px; background:var(--line2); display:block; transition:background .12s}
+.ap-wave i.on{background:var(--accent)}
+.ap-cursor{position:absolute; top:3px; bottom:3px; left:0; width:2px; margin-left:-1px; border-radius:2px; background:var(--chord); pointer-events:none}
+.ap-time{display:flex; justify-content:space-between; margin-top:4px; font-size:11px; font-weight:800; color:var(--muted); font-variant-numeric:tabular-nums}
+.ap-note{margin-top:8px; font-size:12px; line-height:1.55; color:var(--ink2); background:var(--panel2); border-radius:9px; padding:8px 9px; word-break:keep-all}
+.ap-note b{color:var(--chord)}
+.ap-cards{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:6px; margin-top:9px; max-height:198px; overflow-y:auto}
+.apcard{min-width:0; min-height:44px; border:1px solid var(--line); border-radius:10px; background:var(--panel2); color:var(--ink2); font-family:inherit; font-size:11px; font-weight:800; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; padding:2px; overflow:hidden}
+.apcard b{font-size:11.5px; letter-spacing:-.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%}
+.apcard span{font-size:10.5px; color:var(--muted); font-weight:700; font-variant-numeric:tabular-nums}
+.apcard.cur{background:var(--accent); border-color:var(--accent); color:#fff}
+.apcard.cur span{color:#ffe}
+.pedit{flex:none; min-height:26px; padding:0 7px; font-size:11px; white-space:nowrap; border-radius:7px; letter-spacing:-.3px}
 </style>
 </head>
 <body>
@@ -496,6 +518,7 @@ html[data-theme="dark"] .staffsys .msr.cur .barhl{fill:rgba(224,138,68,.18)}
             <button class="psb on" type="button" data-rate="1">1.0x</button>
             <button class="psb" type="button" data-rate="1.15">1.15x</button>
           </div>
+          <button class="btn pedit" type="button" id="btnAudioEdit" title="이 곡에 가사·코드를 적기">✏️ 가사·코드</button>
         </div>
       </div>
       <div class="bar songbar">
@@ -659,12 +682,15 @@ html[data-theme="dark"] .staffsys .msr.cur .barhl{fill:rgba(224,138,68,.18)}
 <div class="modal" id="songMgrModal">
   <div class="modal-card">
     <div class="modal-head"><h2>악보 관리</h2><button class="xbtn" data-close="songMgrModal">✕</button></div>
+    <p class="hint" id="mgrAudioInfo" style="margin:0 0 10px"></p>
     <div class="menu-list">
       <button class="btn" id="mgrNew">➕ 새 악보 만들기</button>
       <button class="btn" id="mgrEdit">✏️ 이 악보 수정하기</button>
+      <button class="btn" id="mgrAudio">🎧 이 곡에 음원 연결·교체</button>
+      <button class="btn" id="mgrAudioDel">🔇 이 곡의 음원 빼기</button>
       <button class="btn danger" id="mgrDelete">🗑️ 이 악보 지우기</button>
     </div>
-    <p class="hint">악보는 이 폰에 저장돼 앱을 다시 열어도 그대로 남아요. 새 악보를 만들려면 <b>새 악보 만들기</b>를 누르세요.</p>
+    <p class="hint">악보와 음원은 이 폰에 저장돼 앱을 다시 열어도 그대로 남아요. 새 악보를 만들려면 <b>새 악보 만들기</b>를 누르세요.</p>
   </div>
 </div>
 
@@ -678,6 +704,7 @@ html[data-theme="dark"] .staffsys .msr.cur .barhl{fill:rgba(224,138,68,.18)}
     <label class="field"><span>원곡 유튜브 링크 (선택)</span><input class="input" id="seYoutube" placeholder="https://www.youtube.com/watch?v=..." inputmode="url" autocomplete="off"></label>
     <label class="field"><span>빠르기 BPM (메트로놈 기본값)</span><input class="input" id="seBpm" type="number" inputmode="numeric" min="40" max="200" placeholder="72"></label>
     <label class="field"><span>가사와 코드</span><textarea class="textarea" id="seSheet" placeholder="코드 줄과 가사 줄을 번갈아 적으면 됩니다.&#10;&#10;D               F#m&#10; 사람이 떠나간다고&#10;G             D&#10; 그대여 울지 마세요&#10;&#10;[후렴]&#10;C&#10; 바람처럼 물처럼"></textarea></label>
+    <p class="hint" id="seHint" style="display:none"></p>
     <p class="hint">코드 줄은 <b>D  G  A7</b> 처럼 코드만 적고, 그 아래 줄에 가사를 적으면 코드가 가사 위에 딱 맞춰 보입니다. <code>[후렴]</code> 처럼 대괄호로 묶으면 구간 제목이 됩니다.</p>
     <div class="mrow">
       <button class="btn primary" id="seSave">저장</button>
@@ -698,8 +725,10 @@ html[data-theme="dark"] .staffsys .msr.cur .barhl{fill:rgba(224,138,68,.18)}
       · <b>📜 자동 스크롤</b>은 연주하는 동안 악보가 저절로 내려갑니다. 속도는 − + 로 맞추세요.<br>
       · <b>🎸 코드 반주</b>를 누르면 화면에 보이는 코드 순서대로 기타 반주가 저절로 연주되고, 지금 치는 코드가 표시되며 악보도 따라 내려갑니다. 카포·키를 바꾸면 바뀐 코드로 다시 연주해요. 빠르기는 옆의 − + (2씩)로 맞춥니다.<br>
       · <b>🎵 원곡 듣기</b>를 누르면 유튜브에서 원곡이 열립니다.<br>
-      · 맨 위 <b>📂 노래 가져오기</b>로 폰에 있는 MP3 파일을 열면 이 악보를 보며 같이 들을 수 있어요. 노래를 열면 나오는 <b>연습 속도</b>로 0.75x~1.15x 느리게도 들립니다.<br>
-      · <b>🎼 오선지 악보</b> 탭에서는 오선지에 멜로디·코드·가사를 함께 보여 줍니다. 반주를 틀면 지금 연주하는 마디가 표시되고 화면도 따라 내려갑니다. <b>멜로디 가이드음</b>을 켜면 선율도 같이 들립니다.
+      · 맨 위 <b>📂 노래 가져오기</b>로 폰에 있는 MP3·M4A·WAV 파일을 넣으면 파일 이름이 제목인 <b>곡으로 저장</b>되고, 곡 목록에서 다시 골라도 음원이 그대로 있어요(새로고침해도 유지). 이미 있는 곡에 음원을 붙이려면 <b>악보 관리 &gt; 🎧 이 곡에 음원 연결·교체</b>를 누르세요.<br>
+      · 노래를 <b>▶</b>로 틀면 오선지의 마디와 재생선, 화면 스크롤이 노래에 맞춰 함께 움직입니다. 진행 바를 움직이면 그 지점으로 즉시 같이 이동하고, <b>⏸</b>하면 모두 멈춥니다. <b>연습 속도</b>로 0.75x~1.15x 느리게도 들립니다.<br>
+      · <b>✏️ 가사·코드</b>를 누르면 그 곡에 가사를 적어 넣을 수 있고, 적은 뒤에는 노래에 맞춰 가사 화면도 저절로 내려갑니다.<br>
+      · <b>🎼 오선지 악보</b> 탭에서는 오선지에 멜로디·코드·가사를 함께 보여 줍니다. 가사가 없는 음원 곡도 노래 길이와 BPM으로 마디를 만들어 흐르게 합니다. <b>🎸 코드 반주</b>를 틀면 지금 연주하는 마디가 표시되고 화면도 따라 내려갑니다. <b>멜로디 가이드음</b>을 켜면 선율도 같이 들립니다.
     </div>
     <div class="hint" style="margin-bottom:10px">
       <b>⏱️ 메트로놈</b><br>
@@ -912,6 +941,93 @@ var store = (function(){
     set: function(k, v){ try { var s = JSON.stringify(v); if (ok) localStorage.setItem(k, s); else mem[k] = s; return true; } catch (e) { return false; } }
   };
 })();
+
+/* ================= 음원 저장소 (IndexedDB) ================= */
+/* 곡 목록(localStorage)에는 곡 정보만 두고, 실제 음원 파일(Blob)은 IndexedDB에 넣는다.
+   그래서 새로고침하거나 곡을 다시 골라도 음원이 그대로 남아 재생된다.
+   IndexedDB를 쓸 수 없는 환경에서는 메모리에만 두고(이번 화면에서만 재생) 안내한다. */
+var audioStore = (function(){
+  var NAME = "GuitarMateAudioDB", STORE = "audio", VER = 1;
+  var db = null, opening = null, failed = false, mem = {};
+
+  function open(){
+    if (opening) return opening;
+    opening = new Promise(function(resolve){
+      try {
+        if (!window.indexedDB){ failed = true; resolve(null); return; }
+        var req = window.indexedDB.open(NAME, VER);
+        req.onupgradeneeded = function(){
+          try {
+            var d = req.result;
+            if (!d.objectStoreNames.contains(STORE)) d.createObjectStore(STORE, { keyPath: "id" });
+          } catch (e) {}
+        };
+        req.onsuccess = function(){ db = req.result; resolve(db); };
+        req.onerror = function(){ failed = true; resolve(null); };
+        req.onblocked = function(){ failed = true; resolve(null); };
+      } catch (e) { failed = true; resolve(null); }
+    });
+    return opening;
+  }
+
+  function put(id, blob, meta){
+    if (!id || !blob) return Promise.resolve(false);
+    var rec = { id: id, blob: blob, name: (meta && meta.name) || "", type: (meta && meta.type) || blob.type || "", size: blob.size || 0, addedAt: Date.now() };
+    mem[id] = rec;
+    return open().then(function(d){
+      if (!d) return false;
+      return new Promise(function(resolve){
+        try {
+          var t = d.transaction(STORE, "readwrite");
+          t.objectStore(STORE).put(rec);
+          t.oncomplete = function(){ resolve(true); };
+          t.onerror = t.onabort = function(){ resolve(false); };
+        } catch (e) { resolve(false); }
+      });
+    }).catch(function(){ return false; });
+  }
+
+  function get(id){
+    if (!id) return Promise.resolve(null);
+    if (mem[id]) return Promise.resolve(mem[id]);
+    return open().then(function(d){
+      if (!d) return null;
+      return new Promise(function(resolve){
+        try {
+          var t = d.transaction(STORE, "readonly");
+          var r = t.objectStore(STORE).get(id);
+          r.onsuccess = function(){ var v = r.result || null; if (v) mem[id] = v; resolve(v); };
+          r.onerror = function(){ resolve(null); };
+        } catch (e) { resolve(null); }
+      });
+    }).catch(function(){ return null; });
+  }
+
+  function remove(id){
+    if (!id) return Promise.resolve(false);
+    delete mem[id];
+    return open().then(function(d){
+      if (!d) return false;
+      return new Promise(function(resolve){
+        try {
+          var t = d.transaction(STORE, "readwrite");
+          t.objectStore(STORE).delete(id);
+          t.oncomplete = function(){ resolve(true); };
+          t.onerror = t.onabort = function(){ resolve(false); };
+        } catch (e) { resolve(false); }
+      });
+    }).catch(function(){ return false; });
+  }
+
+  return {
+    put: put,
+    get: get,
+    remove: remove,
+    usable: function(){ return !failed && !!window.indexedDB; },
+    ready: open
+  };
+})();
+
 
 var songs = store.get("gm_songs_v1", []);
 if (!Array.isArray(songs)) songs = [];
@@ -1149,6 +1265,7 @@ function renderSheet(){
     head.appendChild(links);
   }
   body.appendChild(head);
+  if (song.audio) body.appendChild(renderAudioPanel(song));
   var blocks = parseSheet(song.sheet);
   for (var i = 0; i < blocks.length; i++){
     var b = blocks[i];
@@ -1168,6 +1285,7 @@ function renderSheet(){
   }
   updateKeyInfo();
   renderSongChords();
+  if (player.url && player.dur > 0) applyAudioSync(true);
 }
 /* 곡이 하나도 없을 때 보여 주는 첫 화면 */
 function renderEmptySheet(body){
@@ -1468,6 +1586,23 @@ function setBpm(v, silent){
   if (ab) ab.textContent = v + " BPM";
   if (!silent) saveSettings();
   updatePresetHighlight();
+  if (!silent) scheduleAudioGridRefresh();
+}
+/* 음원 곡은 BPM이 바뀌면 마디 타임라인을 다시 그린다 */
+var gridRefreshT = 0;
+function scheduleAudioGridRefresh(){
+  var s = currentSong();
+  if (!s || !s.audio) return;
+  if (s.sheet && String(s.sheet).replace(/\s+/g, "") !== "") return;
+  clearTimeout(gridRefreshT);
+  gridRefreshT = setTimeout(function(){
+    var cs = currentSong();
+    if (!cs) return;
+    var n = audioMeasureCount(cs);
+    var shown = (state.view === "staff") ? (staffData ? staffData.measures.length : -1) : audioPanelUI.cards.length;
+    if (n > 0 && n === shown) return;
+    refreshAudioLayout();
+  }, 160);
 }
 var taps = [];
 function tapTempo(){
@@ -2057,8 +2192,12 @@ function showPitch(f){
 
 /* ================= 보기 전환 · 노래 가져오기 · 오선지 악보 ================= */
 
-/* ---------- 내 음악 파일 플레이어 ---------- */
-var player = { url: "", name: "", rate: 1, dur: 0, dragging: false };
+/* ---------- 내 음악 파일 플레이어 (곡에 연결된 음원) ---------- */
+var player = { url: "", name: "", rate: 1, dur: 0, dragging: false, songId: "", hidden: false };
+var pickMode = "new";
+var audioPanelUI = { bars: [], cards: [], cur: null, cursor: null, barUpto: -1, cardCur: -1, songId: "" };
+var waveCache = {};
+var missingWarned = {};
 
 function fmtTime(t){
   if (!isFinite(t) || t < 0) t = 0;
@@ -2075,93 +2214,517 @@ function setAudioBtn(on){
 function showPlayer(on){
   var box = $("#player");
   if (box) box.classList.toggle("on", !!on);
+  if (on) player.hidden = false;
 }
-function loadAudioFile(file){
-  var el = $("#audioEl");
-  if (!el || !file) return;
-  if (!(window.URL && window.URL.createObjectURL)){ toast("이 브라우저에서는 음악 파일을 열 수 없어요"); return; }
-  try {
-    if (player.url){ try { URL.revokeObjectURL(player.url); } catch (e) {} player.url = ""; }
-    player.url = URL.createObjectURL(file);
-  } catch (e){
-    toast("음악 파일을 열 수 없어요");
-    return;
-  }
-  player.name = file.name || "내 음악";
-  player.dur = 0;
-  $("#audioName").textContent = player.name;
-  $("#audioName").title = player.name;
+function audioPlaying(){
+  var a = $("#audioEl");
+  return !!(a && player.url && !a.paused);
+}
+
+/* ---------- 곡에 붙은 음원 정보 ---------- */
+function songDur(song){
+  if (song && song.audioDur > 0) return song.audioDur;
+  if (song && player.songId === song.id && player.dur > 0) return player.dur;
+  return 0;
+}
+function audioBpmOf(song){
+  var b = song && song.bpm;
+  if (!(b >= 40 && b <= 200)) b = (metro && metro.bpm) || state.bpm || 72;
+  return b;
+}
+function audioMeterOf(song){
+  return (song && song.score && song.score.meter === "3/4") ? 3 : 4;
+}
+function measureDurFor(song){
+  return audioMeterOf(song) * 60 / audioBpmOf(song);
+}
+function audioMeasureCount(song){
+  var dur = songDur(song);
+  if (!(dur > 0)) return 0;
+  return clamp(Math.round(dur / measureDurFor(song)), 1, 240);
+}
+function cleanAudioTitle(name){
+  var t = String(name == null ? "" : name).replace(/\?.*$/, "").replace(/\.[A-Za-z0-9]{1,5}$/, "").replace(/_/g, " ").trim();
+  return t || "내 음악";
+}
+
+/* ---------- 음원 열기·닫기 ---------- */
+function setAudioSource(song, blob, name){
+  var ae = $("#audioEl");
+  if (!ae || !blob) return;
+  try { ae.pause(); } catch (e) {}
+  if (player.url){ try { URL.revokeObjectURL(player.url); } catch (e) {} }
+  player.url = ""; player.songId = song.id; player.dur = 0; player.hidden = false;
+  player.name = name || song.audioName || song.title || "내 음악";
+  try { player.url = URL.createObjectURL(blob); } catch (e) { player.url = ""; }
+  if (!player.url){ toast("음원을 열 수 없어요 (다른 파일을 골라 주세요)"); showPlayer(false); return; }
+  ae.src = player.url;
+  try { ae.load(); } catch (e) {}
+  try { ae.playbackRate = player.rate; ae.defaultPlaybackRate = player.rate; } catch (e) {}
+  $("#audioName").textContent = song.title || player.name;
+  $("#audioName").title = (song.title ? song.title + " · " : "") + player.name;
   $("#audioCur").textContent = "0:00";
-  $("#audioDur").textContent = "0:00";
+  $("#audioDur").textContent = song.audioDur > 0 ? fmtTime(song.audioDur) : "0:00";
   $("#audioSeek").value = "0";
-  try { el.pause(); } catch (e) {}
-  el.src = player.url;
-  try { el.load(); } catch (e) {}
-  el.playbackRate = player.rate;
   showPlayer(true);
   setAudioBtn(false);
-  toast("🎵 " + player.name + " 불러왔어요");
+  updatePlayerEditBtn();
 }
-function toggleAudioPlay(){
-  var el = $("#audioEl");
-  if (!el || !player.url){ toast("먼저 음악 파일을 불러와 주세요"); return; }
-  if (el.paused){
-    var pr = el.play();
-    if (pr && pr.catch) pr.catch(function(){ toast("이 파일은 재생할 수 없어요"); });
-  } else {
-    el.pause();
-  }
-}
-function clearAudio(){
-  var el = $("#audioEl");
-  if (!el) return;
-  try { el.pause(); } catch (e) {}
-  try { el.removeAttribute("src"); el.load(); } catch (e) {}
-  if (player.url){ try { URL.revokeObjectURL(player.url); } catch (e) {} }
-  player.url = ""; player.name = ""; player.dur = 0;
+/* 플레이어만 접는다(음원은 곡에 그대로 남아 있어 다시 열 수 있다) */
+function hideAudioPlayer(){
+  var ae = $("#audioEl");
+  if (ae){ try { ae.pause(); } catch (e) {} }
+  stopAudioSync();
   setAudioBtn(false);
   showPlayer(false);
-  $("#audioSeek").value = "0";
-  $("#audioCur").textContent = "0:00";
-  $("#audioDur").textContent = "0:00";
-  $("#audioName").textContent = "—";
+  player.hidden = true;
+  staffStopTick();
+  toast("플레이어를 접었어요. 곡 아래 ▶ 재생으로 다시 열 수 있어요");
 }
-function pickAudioFile(){
+/* 음원 연결을 완전히 닫는다(곡을 바꾸거나 지울 때) */
+function closeAudioPlayer(quiet){
+  var ae = $("#audioEl");
+  if (ae){
+    try { ae.pause(); } catch (e) {}
+    try { ae.removeAttribute("src"); ae.load(); } catch (e) {}
+  }
+  if (player.url){ try { URL.revokeObjectURL(player.url); } catch (e) {} }
+  player.url = ""; player.name = ""; player.dur = 0; player.songId = ""; player.hidden = false;
+  stopAudioSync();
+  staffStopTick();
+  setAudioBtn(false);
+  showPlayer(false);
+  if ($("#audioSeek")) $("#audioSeek").value = "0";
+  if ($("#audioCur")) $("#audioCur").textContent = "0:00";
+  if ($("#audioDur")) $("#audioDur").textContent = "0:00";
+  if ($("#audioName")){ $("#audioName").textContent = "—"; $("#audioName").title = ""; }
+  if (!quiet) toast("플레이어를 닫았어요");
+}
+function loadSongAudio(song){
+  if (!song) return Promise.resolve(false);
+  if (!song.audio){ closeAudioPlayer(true); return Promise.resolve(false); }
+  var wantId = song.id;
+  return audioStore.get(wantId).then(function(rec){
+    if (!rec || !rec.blob){
+      if (player.songId === wantId) closeAudioPlayer(true);
+      if (!missingWarned[wantId]){
+        missingWarned[wantId] = 1;
+        toast("이 곡의 음원을 찾지 못했어요. 📂 노래 가져오기로 다시 넣어 주세요");
+      }
+      return false;
+    }
+    var cur = currentSong();
+    if (!cur || cur.id !== wantId) return false;   /* 그 사이 다른 곡을 골랐으면 무시 */
+    setAudioSource(song, rec.blob, rec.name);
+    return true;
+  }).catch(function(){ return false; });
+}
+function ensureSongAudio(song, cb){
+  if (!song) return;
+  if (player.songId === song.id && player.url){
+    showPlayer(true);
+    if (cb) cb();
+    return;
+  }
+  loadSongAudio(song).then(function(ok){ if (ok && cb) cb(); });
+}
+/* 지금 고른 곡에 맞춰 플레이어를 맞춘다(곡 선택이 바뀔 때마다) */
+function syncAudioForSong(){
+  var song = currentSong();
+  if (song && song.audio){
+    if (player.songId !== song.id || !player.url) loadSongAudio(song);
+    else showPlayer(true);
+  } else if (player.songId){
+    closeAudioPlayer(true);
+  }
+  updatePlayerEditBtn();
+}
+function updatePlayerEditBtn(){
+  var b = $("#btnAudioEdit");
+  if (b) b.disabled = !currentSong();
+}
+
+/* ---------- 노래 가져오기 → 곡으로 저장 ---------- */
+function importAudioFile(file){
+  if (!file) return;
+  var title = cleanAudioTitle(file.name);
+  var song = {
+    id: "a" + Date.now(),
+    title: title, artist: "", key: "", bpm: 0, youtubeUrl: "", sheet: "",
+    builtin: false,
+    audio: true, audioName: file.name || "", audioMime: file.type || "",
+    audioSize: file.size || 0, audioDur: 0
+  };
+  songs.push(song);
+  state.songId = song.id;
+  state.keyShift = 0; state.capo = 0;
+  if (!store.set("gm_songs_v1", songs)) toast("저장 공간이 부족해 곡 목록을 저장하지 못했어요");
+  saveSettings();
+  buildCapo();
+  buildSongSelect();
+  var sel = $("#songSelect");
+  if (sel) sel.value = song.id;
+  closeAudioPlayer(true);
+  setAudioSource(song, file, file.name);
+  renderSheet();
+  var sc = $("#sheetScroll");
+  if (sc) sc.scrollTop = 0;
+  audioStore.put(song.id, file, { name: file.name, type: file.type }).then(function(ok){
+    if (!ok) toast("음원을 폰에 저장하지 못했어요. 이번 화면에서는 재생되지만 새로고침하면 다시 넣어야 해요");
+  });
+  toast("🎵 ‘" + title + "’ 곡으로 저장했어요");
+}
+/* 이미 있는 곡에 음원을 붙이거나 바꾼다 */
+function attachAudioToSong(file){
+  if (!file) return;
+  var song = currentSong();
+  if (!song){ importAudioFile(file); return; }
+  song.audio = true;
+  song.audioName = file.name || song.audioName || "";
+  song.audioMime = file.type || "";
+  song.audioSize = file.size || 0;
+  song.audioDur = 0;
+  store.set("gm_songs_v1", songs);
+  delete waveCache[song.id]; delete missingWarned[song.id];
+  closeAudioPlayer(true);
+  setAudioSource(song, file, file.name);
+  audioStore.put(song.id, file, { name: file.name, type: file.type }).then(function(ok){
+    if (!ok) toast("음원을 폰에 저장하지 못했어요. 새로고침하면 다시 넣어야 해요");
+  });
+  renderSheet();
+  toast("🎧 ‘" + (song.title || "이 곡") + "’에 음원을 연결했어요");
+}
+function pickAudioFile(mode){
+  pickMode = (mode === "attach") ? "attach" : "new";
   var input = $("#audioFile");
   if (!input) return;
   try { input.value = ""; } catch (e) {}
   input.click();
 }
+function toggleAudioPlay(){
+  var ae = $("#audioEl"), song = currentSong();
+  if (!ae) return;
+  if (!player.url){
+    if (song && song.audio){ ensureSongAudio(song, function(){ toggleAudioPlay(); }); return; }
+    toast("먼저 📂 노래 가져오기로 음악을 넣어 주세요");
+    return;
+  }
+  if (ae.paused){
+    if (accomp.playing) accompStop();
+    if (state.scrollOn) stopScroll();
+    var pr = ae.play();
+    if (pr && pr.then) pr.then(function(){ startAudioSync(); }).catch(function(){ toast("이 파일은 재생할 수 없어요"); });
+    else startAudioSync();
+  } else {
+    ae.pause();
+  }
+}
+function panelPlay(){
+  var song = currentSong();
+  if (!song || !song.audio) return;
+  if (player.songId !== song.id || !player.url){ ensureSongAudio(song, function(){ toggleAudioPlay(); }); return; }
+  showPlayer(true);
+  toggleAudioPlay();
+}
+function seekToTime(t){
+  var ae = $("#audioEl");
+  if (!ae || !player.url || !(player.dur > 0)) return;
+  try { ae.currentTime = clamp(t, 0, Math.max(0, player.dur - 0.01)); } catch (e) {}
+  applyAudioSync(true);
+}
+
+/* ---------- 노래 ↔ 오선지·화면 진행 동기화 ---------- */
+var audioSync = { raf: 0, followTarget: -1 };
+function startAudioSync(){
+  if (audioSync.raf) return;
+  audioSync.raf = requestAnimationFrame(audioFrame);
+}
+function stopAudioSync(){
+  if (audioSync.raf) cancelAnimationFrame(audioSync.raf);
+  audioSync.raf = 0;
+}
+function audioFrame(){
+  audioSync.raf = 0;
+  var ae = $("#audioEl");
+  if (!ae) return;
+  applyAudioSync(false);
+  if (!ae.paused) audioSync.raf = requestAnimationFrame(audioFrame);
+}
+function applyAudioSync(immediate){
+  var ae = $("#audioEl");
+  if (!player.url || !(player.dur > 0)) return;
+  var ratio = clamp((ae.currentTime || 0) / player.dur, 0, 1);
+  updateAudioPanel(ratio);
+  var pane = $("#pane-sheet");
+  if (pane && !pane.classList.contains("on")) return;      /* 다른 탭을 보는 중이면 화면은 건드리지 않음 */
+  if (state.view === "staff") staffAudioFollow(ratio, immediate);
+  else lyricAudioFollow(ratio, immediate);
+}
+function lyricAudioFollow(ratio, immediate){
+  var sc = $("#sheetScroll");
+  if (!sc) return;
+  var max = Math.max(0, sc.scrollHeight - sc.clientHeight);
+  if (max <= 0) return;
+  var target = clamp(ratio * max, 0, max);
+  if (immediate){ sc.scrollTop = target; return; }
+  var d = target - sc.scrollTop;
+  if (Math.abs(d) < 0.6) sc.scrollTop = target;
+  else sc.scrollTop = sc.scrollTop + d * 0.25;
+}
+function staffAudioFollow(ratio, immediate){
+  var sd = staffData;
+  if (!sd || !sd.measures || !sd.measures.length) return;
+  var total = sd.totalBeats || (sd.measures.length * sd.bpb);
+  if (!(total > 0)) return;
+  var beats = ratio * total;
+  var mi = measureAtBeat(beats);
+  if (mi < 0) return;
+  var gm = staffView.map[mi];
+  if (!gm) return;
+  if (gm.sys !== staffView.sys){
+    $$("#sheetBody .staffsys .ph").forEach(function(l){ l.style.opacity = "0"; });
+    staffView.sys = gm.sys;
+  }
+  if (mi !== staffView.cur){
+    var prev = staffView.cur >= 0 ? document.querySelector('#sheetBody .msr[data-mi="' + staffView.cur + '"]') : null;
+    if (prev) prev.classList.remove("cur");
+    var now = document.querySelector('#sheetBody .msr[data-mi="' + mi + '"]');
+    if (now) now.classList.add("cur");
+    staffView.cur = mi;
+    var gpos = $("#guidePos");
+    if (gpos) gpos.textContent = "마디 " + (mi + 1) + " / " + sd.measures.length;
+  }
+  var sysEl = staffView.sysEls[gm.sys];
+  var svg = sysEl ? sysEl.querySelector(".staffsys") : null;
+  if (svg){
+    var ph = svg.querySelector(".ph");
+    if (ph){
+      var inBar = clamp((beats - gm.b0) / (gm.beats || sd.bpb), 0, 1);
+      var px = gm.bx + inBar * gm.w;
+      ph.setAttribute("x1", px); ph.setAttribute("x2", px);
+      ph.style.opacity = "0.9";
+    }
+  }
+  var sc = $("#sheetScroll");
+  if (!sc || !sysEl) return;
+  var nr = sysEl.getBoundingClientRect(), sr = sc.getBoundingClientRect();
+  var maxS = Math.max(0, sc.scrollHeight - sc.clientHeight);
+  var top = nr.top - sr.top;
+  if (top < 8 || nr.bottom > sr.bottom - 8){
+    audioSync.followTarget = clamp(sc.scrollTop + top - 8, 0, maxS);
+  } else {
+    audioSync.followTarget = sc.scrollTop;
+  }
+  if (immediate){ sc.scrollTop = audioSync.followTarget; return; }
+  var d = audioSync.followTarget - sc.scrollTop;
+  if (Math.abs(d) >= 0.5) sc.scrollTop = sc.scrollTop + d * 0.16;
+}
+function updateAudioPanel(ratio){
+  var ui = audioPanelUI;
+  if (!ui.bars.length || !ui.bars[0] || !ui.bars[0].isConnected) return;
+  if (ui.cur && player.dur > 0) ui.cur.textContent = fmtTime(ratio * player.dur);
+  if (ui.cursor) ui.cursor.style.left = (ratio * 100).toFixed(2) + "%";
+  var bars = ui.bars;
+  if (bars && bars.length){
+    var upto = Math.round(ratio * bars.length);
+    if (upto !== ui.barUpto){
+      for (var i = 0; i < bars.length; i++) bars[i].classList.toggle("on", i < upto);
+      ui.barUpto = upto;
+    }
+  }
+  var cards = ui.cards;
+  if (cards && cards.length){
+    var ci = clamp(Math.floor(ratio * cards.length), 0, cards.length - 1);
+    if (ci !== ui.cardCur){
+      if (ui.cardCur >= 0 && cards[ui.cardCur]) cards[ui.cardCur].classList.remove("cur");
+      if (cards[ci]) cards[ci].classList.add("cur");
+      ui.cardCur = ci;
+    }
+  }
+}
+
+/* ---------- 가사·코드 화면의 음원 패널(파형·마디 카드) ---------- */
+function renderAudioPanel(song){
+  var hasSheet = !!(song.sheet && String(song.sheet).replace(/\s+/g, "") !== "");
+  var dur = songDur(song), bpm = audioBpmOf(song), bpb = audioMeterOf(song), n = audioMeasureCount(song);
+  var box = el("div", "audiopanel" + (hasSheet ? " compact" : ""));
+  var head = el("div", "ap-head");
+  var play = el("button", "btn primary sm ap-play", "▶ 재생");
+  play.type = "button";
+  play.setAttribute("data-ap-play", "1");
+  head.appendChild(play);
+  var bits = ["🎧 " + (dur > 0 ? fmtTime(dur) : "길이 확인 중"), bpm + " BPM", bpb + "/4"];
+  if (n) bits.push("마디 " + n + "개");
+  head.appendChild(el("div", "ap-meta", bits.join(" · ")));
+  box.appendChild(head);
+
+  var track = el("div", "ap-track");
+  track.setAttribute("data-ap-track", "1");
+  track.setAttribute("aria-label", "노래 진행 막대 (누르면 그 지점으로 이동)");
+  var wave = el("div", "ap-wave");
+  wave.setAttribute("data-wave-song", song.id);
+  track.appendChild(wave);
+  var cursor = el("div", "ap-cursor");
+  track.appendChild(cursor);
+  box.appendChild(track);
+
+  var times = el("div", "ap-time");
+  var c1 = el("span", null, "0:00");
+  var c2 = el("span", null, fmtTime(dur));
+  times.appendChild(c1);
+  times.appendChild(c2);
+  box.appendChild(times);
+
+  audioPanelUI.cur = c1;
+  audioPanelUI.cursor = cursor;
+  audioPanelUI.cardCur = -1;
+  audioPanelUI.barUpto = -1;
+  audioPanelUI.songId = song.id;
+  audioPanelUI.cards = [];
+
+  if (!hasSheet){
+    var note = el("div", "ap-note");
+    note.innerHTML = "이 곡은 <b>음원만</b> 있어요. <b>🎼 오선지 악보</b> 탭을 열면 노래에 맞춰 마디와 재생선이 흐르고, 여기에서는 아래 마디 카드가 따라갑니다. <b>✏️ 가사·코드</b>로 나중에 가사를 적을 수 있어요.";
+    box.appendChild(note);
+    if (n){
+      var cards = el("div", "ap-cards");
+      var mDur = measureDurFor(song);
+      var limit = Math.min(n, 240);
+      for (var i = 0; i < limit; i++){
+        var c = el("button", "apcard");
+        c.type = "button";
+        c.setAttribute("data-ap-card", String(i));
+        c.appendChild(el("b", null, "마디 " + (i + 1)));
+        c.appendChild(el("span", null, fmtTime(i * mDur)));
+        cards.appendChild(c);
+      }
+      box.appendChild(cards);
+      audioPanelUI.cards = $$(".apcard", cards);
+    }
+  }
+  buildWaveInto(wave, song);
+  return box;
+}
+function buildWaveInto(box, song){
+  box.innerHTML = "";
+  var n = 96, bars = [], i;
+  for (i = 0; i < n; i++){
+    var b = document.createElement("i");
+    box.appendChild(b);
+    bars.push(b);
+  }
+  audioPanelUI.bars = bars;
+  paintPeaks(box, waveCache[song.id] || synthPeaks(n, song));
+  if (!song.audio) return;
+  if (song.audioSize && song.audioSize > 24 * 1024 * 1024) return;   /* 너무 큰 파일은 모양만 */
+  audioStore.get(song.id).then(function(rec){
+    if (!rec || !rec.blob || !rec.blob.arrayBuffer) return;
+    if (!box.isConnected || box.getAttribute("data-wave-song") !== song.id) return;
+    var OAC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    if (!OAC) return;
+    rec.blob.arrayBuffer().then(function(ab){
+      var ctx;
+      try { ctx = new OAC(1, 1024, 44100); } catch (e) { return; }
+      try {
+        ctx.decodeAudioData(ab, function(buf){
+          var pk = peaksFromBuffer(buf, n);
+          waveCache[song.id] = pk;
+          if (box.isConnected && box.getAttribute("data-wave-song") === song.id) paintPeaks(box, pk);
+        }, function(){});
+      } catch (e) {}
+    }).catch(function(){});
+  }).catch(function(){});
+}
+function paintPeaks(box, peaks){
+  var bars = box.children;
+  for (var i = 0; i < bars.length && i < peaks.length; i++){
+    bars[i].style.height = Math.round(clamp(peaks[i], 0.06, 1) * 100) + "%";
+  }
+}
+function peaksFromBuffer(buf, n){
+  var ch = buf.getChannelData(0), len = ch.length, out = [], i, j;
+  var step = Math.max(1, Math.floor(len / n));
+  for (i = 0; i < n; i++){
+    var s = i * step, e = Math.min(len, s + step), peak = 0;
+    for (j = s; j < e; j += 16){ var v = ch[j]; if (v < 0) v = -v; if (v > peak) peak = v; }
+    out.push(peak);
+  }
+  var mx = 0;
+  for (i = 0; i < out.length; i++) if (out[i] > mx) mx = out[i];
+  if (mx > 0) for (i = 0; i < out.length; i++) out[i] = out[i] / mx;
+  return out;
+}
+function synthPeaks(n, song){
+  var out = [], seed = 0, s = String((song && song.id) || "gm"), k;
+  for (var i = 0; i < s.length; i++) seed = (seed * 31 + s.charCodeAt(i)) % 9973;
+  for (k = 0; k < n; k++){
+    var a = Math.sin((k + seed % 7) * 0.37) * 0.5 + 0.5;
+    var b = Math.sin((k + seed % 13) * 0.11 + 1.7) * 0.5 + 0.5;
+    out.push(0.2 + a * 0.4 + b * 0.3);
+  }
+  return out;
+}
+/* 음원 길이를 알게 되면 마디 타임라인을 다시 그린다 */
+function refreshAudioLayout(){
+  if (!$("#sheetBody")) return;
+  if (state.view === "staff") renderStaffSheet(); else renderSheet();
+}
 function initPlayerUI(){
-  var input = $("#audioFile"), el = $("#audioEl");
-  if (!input || !el || input._gmBound) return;
+  var input = $("#audioFile"), ae = $("#audioEl");
+  if (!input || !ae || input._gmBound) return;
   input._gmBound = true;
-  $("#btnPickAudio").addEventListener("click", pickAudioFile);
+  $("#btnPickAudio").addEventListener("click", function(){ pickAudioFile("new"); });
   input.addEventListener("change", function(){
     var f = (input.files && input.files.length) ? input.files[0] : null;
     if (!f) return;                     /* 취소: 아무 일도 하지 않음 */
-    loadAudioFile(f);
+    var mode = pickMode;
+    pickMode = "new";
+    if (mode === "attach") attachAudioToSong(f); else importAudioFile(f);
   });
-  $("#btnAudioPlay").addEventListener("click", toggleAudioPlay);
-  $("#btnAudioClear").addEventListener("click", clearAudio);
-  el.addEventListener("play", function(){ setAudioBtn(true); });
-  el.addEventListener("pause", function(){ setAudioBtn(false); });
-  el.addEventListener("ended", function(){ setAudioBtn(false); });
-  el.addEventListener("loadedmetadata", function(){
-    player.dur = isFinite(el.duration) ? el.duration : 0;
+  $("#btnAudioPlay").addEventListener("click", function(){ toggleAudioPlay(); });
+  $("#btnAudioClear").addEventListener("click", hideAudioPlayer);
+  var eb = $("#btnAudioEdit");
+  if (eb) eb.addEventListener("click", function(){
+    var s = currentSong();
+    if (!s){ toast("먼저 곡을 골라 주세요"); return; }
+    openEditor(s);
+  });
+  ae.addEventListener("play", function(){
+    setAudioBtn(true);
+    player.hidden = false;
+    showPlayer(true);
+    startAudioSync();
+    syncWake();
+  });
+  ae.addEventListener("pause", function(){ setAudioBtn(false); stopAudioSync(); });
+  ae.addEventListener("ended", function(){
+    setAudioBtn(false);
+    stopAudioSync();
+    applyAudioSync(true);
+  });
+  ae.addEventListener("loadedmetadata", function(){
+    player.dur = isFinite(ae.duration) ? ae.duration : 0;
     $("#audioDur").textContent = fmtTime(player.dur);
-    try { el.playbackRate = player.rate; } catch (e) {}
-  });
-  el.addEventListener("timeupdate", function(){
-    if (!player.dragging && player.dur > 0){
-      $("#audioSeek").value = String(Math.round(el.currentTime / player.dur * 1000));
+    try { ae.playbackRate = player.rate; } catch (e) {}
+    var s = findSong(player.songId);
+    if (s && player.dur > 0 && Math.abs((s.audioDur || 0) - player.dur) > 0.4){
+      s.audioDur = player.dur;
+      store.set("gm_songs_v1", songs);
+      if (state.songId === s.id) refreshAudioLayout();
     }
-    $("#audioCur").textContent = fmtTime(el.currentTime);
+    applyAudioSync(true);
   });
-  el.addEventListener("error", function(){
+  ae.addEventListener("timeupdate", function(){
+    if (!player.dragging && player.dur > 0){
+      $("#audioSeek").value = String(Math.round(ae.currentTime / player.dur * 1000));
+    }
+    $("#audioCur").textContent = fmtTime(ae.currentTime);
+  });
+  ae.addEventListener("error", function(){
     if (!player.url) return;
     toast("이 파일은 브라우저에서 재생할 수 없어요 (다른 파일을 골라 주세요)");
     setAudioBtn(false);
+    stopAudioSync();
   });
   var seek = $("#audioSeek");
   seek.addEventListener("pointerdown", function(){ player.dragging = true; });
@@ -2171,8 +2734,9 @@ function initPlayerUI(){
   seek.addEventListener("input", function(){
     if (player.dur > 0){
       var t = (parseInt(seek.value, 10) / 1000) * player.dur;
-      try { el.currentTime = t; } catch (e) {}
+      try { ae.currentTime = t; } catch (e) {}
       $("#audioCur").textContent = fmtTime(t);
+      applyAudioSync(true);
     }
   });
   seek.addEventListener("change", function(){ player.dragging = false; });
@@ -2182,7 +2746,7 @@ function initPlayerUI(){
       var b = e.target.closest("[data-rate]");
       if (!b) return;
       player.rate = parseFloat(b.getAttribute("data-rate")) || 1;
-      try { el.playbackRate = player.rate; el.defaultPlaybackRate = player.rate; } catch (err) {}
+      try { ae.playbackRate = player.rate; ae.defaultPlaybackRate = player.rate; } catch (err) {}
       $$("#audioSpeeds .psb").forEach(function(x){ x.classList.toggle("on", x === b); });
       toast("재생 속도 " + player.rate + "x");
     });
@@ -2378,7 +2942,16 @@ function compileScore(song){
       });
     });
   } else {
-    var ev = legacyEvents(song), cur = null, used = 0;
+    var sheetTxt = (song && song.sheet) ? String(song.sheet).replace(/\s+/g, "") : "";
+    if (song && song.audio && !sheetTxt){
+      /* 가사·코드가 없는 음원 곡: 음원 길이와 BPM으로 마디 타임라인을 만든다 */
+      bpb = audioMeterOf(song);
+      var aN = audioMeasureCount(song);
+      for (var am = 0; am < aN; am++){
+        measures.push({ ch: [], notes: null, lyr: null, beats: bpb, sec: "", tline: true });
+      }
+    }
+    var ev = sheetTxt ? legacyEvents(song) : [], cur = null, used = 0;
     ev.forEach(function(e){
       var left = Math.max(0.25, e.beats || bpb), first = true;
       while (left > 0.001){
@@ -2419,7 +2992,7 @@ function systemSVG(score, start, nBars, sysI, W, showTime, isLast){
   }
   if (showTime){
     var tx = 30 + lay.keyW + 8;
-    out.push('<text class="tsig" x="' + tx + '" y="' + (S_TOP + S_SP + 4) + '">4</text>');
+    out.push('<text class="tsig" x="' + tx + '" y="' + (S_TOP + S_SP + 4) + '">' + bpb + '</text>');
     out.push('<text class="tsig" x="' + tx + '" y="' + (S_TOP + 3 * S_SP + 4) + '">4</text>');  }
   var ms = score.measures.slice(start, start + nBars);
   var lyrFs = clamp(barW / 11.5, 8.4, 11).toFixed(1);
@@ -2429,6 +3002,7 @@ function systemSVG(score, start, nBars, sysI, W, showTime, isLast){
     var x0 = bx + 6.5;
     staffView.map[mi] = { sys: sysI, bx: bx, w: barW, x0: x0, inner: inner, b0: m.b0, beats: bpb };
     out.push('<g class="msr" data-mi="' + mi + '">');
+    if (m.tline) out.push('<text class="mno" x="' + (bx + 3) + '" y="' + (S_TOP - 16) + '">' + (mi + 1) + '</text>');
     out.push('<rect class="barhl" x="' + (bx + 1) + '" y="' + (S_TOP - 12) + '" width="' + (barW - 1) + '" height="' + (4 * S_SP + 32) + '" rx="5"/>');
     out.push('<line class="bl" x1="' + bx + '" y1="' + S_TOP + '" x2="' + bx + '" y2="' + yEnd + '"/>');
     var bt = 0, row = 0, prevX = -999;
@@ -2480,6 +3054,13 @@ function systemSVG(score, start, nBars, sysI, W, showTime, isLast){
 function staffInfoLine(song){
   var box = el("div", "staffinfo");
   if (!song) return box;
+  var noSheet = !((song.sheet) && String(song.sheet).replace(/\s+/g, "") !== "");
+  if (song.audio && noSheet){
+    var an = audioMeasureCount(song);
+    box.appendChild(el("div", "staffk", "🎧 음원 타임라인 악보 · " + audioBpmOf(song) + " BPM · " + audioMeterOf(song) + "/4 · 마디 " + an + "개"));
+    box.appendChild(el("div", "staffnote", "노래 길이 " + (songDur(song) > 0 ? fmtTime(songDur(song)) : "확인 중") + "을 " + audioBpmOf(song) + " BPM 기준으로 마디로 나눠 그렸어요. ▶를 누르면 마디와 재생선이 노래에 맞춰 흐르고, 마디를 누르면 그 지점으로 이동합니다."));
+    return box;
+  }
   var opc = (parseChord(song.key || "C") || { pc: 0 }).pc;
   var wpc = ((opc + state.keyShift - state.capo) % 12 + 12) % 12;
   var wname = KEY_PC[wpc][0], sig = KEY_PC[wpc][1];
@@ -2554,6 +3135,7 @@ function renderStaffSheet(){
   renderSongChords();
   updateGuideUI();
   if (accomp.playing) staffStartTick();
+  else if (player.url && player.dur > 0) applyAudioSync(true);
 }
 function measureAtBeat(beats){
   var ms = staffData && staffData.measures;
@@ -2682,7 +3264,7 @@ function initStaffUI(){
 /* ================= 화면 켜두기 ================= */
 var wakeLock = null;
 function syncWake(){
-  var need = state.scrollOn || metro.playing || accomp.playing;
+  var need = state.scrollOn || metro.playing || accomp.playing || audioPlaying();
   try {
     if (need && !wakeLock && navigator.wakeLock && navigator.wakeLock.request){
       navigator.wakeLock.request("screen").then(function(lock){
@@ -2761,6 +3343,13 @@ function openEditor(song){
   $("#seYoutube").value = song ? (song.youtubeUrl || "") : "";
   $("#seBpm").value = song && song.bpm ? song.bpm : metro.bpm;
   $("#seSheet").value = song ? (song.sheet || "") : "";
+  var seh = $("#seHint");
+  if (seh){
+    if (song && song.audio){
+      seh.style.display = "";
+      seh.innerHTML = "🎧 이 곡에는 음원이 연결돼 있어요. 가사를 비워 두고 저장해도 되고, 여기에 가사·코드를 적으면 노래에 맞춰 가사 화면도 함께 흐릅니다.";
+    } else seh.style.display = "none";
+  }
   closeModal("songMgrModal");
   openModal("songEditModal");
 }
@@ -2768,7 +3357,10 @@ function saveEditor(){
   var name = $("#seName").value.trim();
   var sheetText = $("#seSheet").value;
   if (!name){ toast("곡 제목을 넣어 주세요"); $("#seName").focus(); return; }
-  if (!sheetText.trim()){ toast("가사와 코드를 넣어 주세요"); $("#seSheet").focus(); return; }
+  var editingSong = editingId ? findSong(editingId) : null;
+  if (!sheetText.trim() && !(editingSong && editingSong.audio)){
+    toast("가사와 코드를 넣어 주세요"); $("#seSheet").focus(); return;
+  }
   var bpm = parseInt($("#seBpm").value, 10);
   if (!(bpm >= 40 && bpm <= 200)) bpm = 0;
   var key = $("#seKey").value.trim().replace(/\s*key$/i, "");
@@ -2806,6 +3398,7 @@ function saveEditor(){
   if (!editingId && data.bpm >= 40 && data.bpm <= 200) setBpm(data.bpm);
   renderSheet();
   $("#sheetScroll").scrollTop = 0;
+  syncAudioForSong();
   closeModal("songEditModal");
   toast((editingId ? "악보를 고쳤어요" : "새 악보를 저장했어요") + (ytBad ? " · 유튜브 주소가 아니라 링크는 뺐어요" : ""));
   editingId = null;
@@ -2850,6 +3443,7 @@ var scrollRAF = 0, scrollLast = 0;
 function startScroll(){
   var sc = $("#sheetScroll");
   if (!currentSong()){ toast("먼저 노래를 가져오거나 악보를 추가해 주세요"); return; }
+  if (audioPlaying()){ toast("노래를 재생하면 악보가 노래에 맞춰 저절로 내려가요"); return; }
   if (sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 4) sc.scrollTop = 0;
   state.scrollOn = true;
   scrollLast = 0;
@@ -2933,6 +3527,21 @@ function renderSongChords(){
   list.slice(0, 12).forEach(function(n){ grid.appendChild(chordCard(n, QUAL_KO[(parseChord(n) || {}).q] || "")); });
 }
 
+function updateMgrAudioInfo(){
+  var box = $("#mgrAudioInfo");
+  if (!box) return;
+  var s = currentSong();
+  if (!s){ box.textContent = "먼저 곡을 골라 주세요."; return; }
+  if (s.audio){
+    var bits = ["🎧 <b>" + sEsc(s.title || "이 곡") + "</b>에 음원이 연결돼 있어요"];
+    if (songDur(s) > 0) bits.push(fmtTime(songDur(s)));
+    if (s.audioName) bits.push(sEsc(s.audioName));
+    box.innerHTML = bits.join(" · ");
+  } else {
+    box.innerHTML = "이 곡에는 아직 음원이 없어요. <b>🎧 음원 연결·교체</b>로 MP3를 붙이면 노래에 맞춰 악보와 화면이 흐릅니다.";
+  }
+}
+
 /* ================= 이벤트 연결 ================= */
 function bindUI(){
   /* 테마 */
@@ -2959,10 +3568,11 @@ function bindUI(){
     renderSheet();
     $("#sheetScroll").scrollTop = 0;
     stopScroll();
+    syncAudioForSong();
   });
 
   /* 곡 관리 */
-  $("#btnSongMgr").addEventListener("click", function(){ openModal("songMgrModal"); });
+  $("#btnSongMgr").addEventListener("click", function(){ updateMgrAudioInfo(); openModal("songMgrModal"); });
   $("#mgrNew").addEventListener("click", function(){ openEditor(null); });
   $("#mgrEdit").addEventListener("click", function(){
     var s = currentSong();
@@ -2989,6 +3599,9 @@ function bindUI(){
     if (!s){ toast("지울 악보가 없어요"); return; }
     if (s.builtin){ toast("기본 곡은 지울 수 없어요"); return; }
     if (!window.confirm("‘" + s.title + "’ 악보를 지울까요? 되돌릴 수 없습니다.")) return;
+    if (player.songId === s.id) closeAudioPlayer(true);
+    audioStore.remove(s.id);
+    delete waveCache[s.id];
     songs = songs.filter(function(x){ return x.id !== s.id; });
     store.set("gm_songs_v1", songs);
     state.songId = songs.length ? songs[0].id : "";
@@ -2996,8 +3609,28 @@ function bindUI(){
     saveSettings();
     buildSongSelect();
     renderSheet();
+    syncAudioForSong();
     closeModal("songMgrModal");
     toast("악보를 지웠어요");
+  });
+  $("#mgrAudio").addEventListener("click", function(){
+    var s = currentSong();
+    closeModal("songMgrModal");
+    if (!s){ pickAudioFile("new"); return; }
+    pickAudioFile("attach");
+  });
+  $("#mgrAudioDel").addEventListener("click", function(){
+    var s = currentSong();
+    if (!s || !s.audio){ toast("이 곡에는 음원이 없어요"); return; }
+    if (!window.confirm("‘" + (s.title || "이 곡") + "’의 음원을 뺄까요? 악보·가사는 그대로 남습니다.")) return;
+    if (player.songId === s.id) closeAudioPlayer(true);
+    audioStore.remove(s.id);
+    delete waveCache[s.id];
+    s.audio = false; s.audioName = ""; s.audioMime = ""; s.audioSize = 0; s.audioDur = 0;
+    store.set("gm_songs_v1", songs);
+    closeModal("songMgrModal");
+    renderSheet();
+    toast("음원을 뺐어요");
   });
   $("#seSave").addEventListener("click", saveEditor);
 
@@ -3114,7 +3747,33 @@ function bindUI(){
     if (play){ strumChord(play.getAttribute("data-play-chord")); return; }
     var close = t.closest("[data-close]");
     if (close){ closeModal(close.getAttribute("data-close")); return; }
-    if (t.closest("[data-emptypick]")){ pickAudioFile(); return; }
+    if (t.closest("[data-ap-play]")){ panelPlay(); return; }
+    var apc = t.closest("[data-ap-card]");
+    if (apc){
+      var ai = parseInt(apc.getAttribute("data-ap-card"), 10);
+      var asong = currentSong();
+      if (asong && ai >= 0) ensureSongAudio(asong, function(){ seekToTime(ai * measureDurFor(asong)); });
+      return;
+    }
+    var apt = t.closest("[data-ap-track]");
+    if (apt){
+      var asong2 = currentSong();
+      var arect = apt.getBoundingClientRect();
+      var aratio = clamp((ev.clientX - arect.left) / Math.max(1, arect.width), 0, 1);
+      if (asong2) ensureSongAudio(asong2, function(){ seekToTime(aratio * (player.dur || 0)); });
+      return;
+    }
+    var msm = t.closest("#sheetBody .msr[data-mi]");
+    if (msm){
+      var mmi = parseInt(msm.getAttribute("data-mi"), 10);
+      var mms = staffData && staffData.measures;
+      if (mms && mms[mmi] && player.url && player.dur > 0){
+        var mtot = staffData.totalBeats || (mms.length * staffData.bpb);
+        if (mtot > 0) seekToTime((mms[mmi].b0 / mtot) * player.dur);
+      }
+      return;
+    }
+    if (t.closest("[data-emptypick]")){ pickAudioFile("new"); return; }
     if (t.closest("[data-emptadd]")){ openEditor(null); return; }
   });
   $("#cmClose").addEventListener("click", function(){ closeModal("chordModal"); });
@@ -3173,6 +3832,7 @@ function init(){
   renderSheet();
   updateAccompUI();
   initPlayerUI();
+  syncAudioForSong();
   bindUI();
   initStaffUI();
   updateGuideUI();
