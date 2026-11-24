@@ -26,6 +26,13 @@ html,body{margin:0;padding:0;height:100%}
   --ok:#2e7d32; --warn:#c25b00; --bad:#b3261e;
   --shadow:0 3px 12px rgba(90,65,30,.13);
   --dot:#b4571a;
+  /* 튜너 기타 헤드스톡 */
+  --wood1:#f3d7ab; --wood2:#ddb27a; --wood3:#c48f4e; --wood-edge:#8a5a2b;
+  --grain:rgba(110,63,20,.24); --wood-top:#fbeacb;
+  --nut1:#fbf4e6; --nut2:#d6c19c;
+  --peg1:#f6e9d0; --peg2:#c3a169; --peg-edge:#8b6a3a; --peg-num:#5a4526;
+  --hs-str:#f6efe1; --str-shadow:#3a2312; --hs-hot:#d97706; --hs-ok:#15803d;
+  --fret:#5b3d28; --fret-wire:rgba(255,246,228,.55);
 }
 html[data-theme="dark"]{
   --bg:#131110; --bg2:#1b1815; --panel:#221d18; --panel2:#2a241e;
@@ -36,6 +43,12 @@ html[data-theme="dark"]{
   --ok:#7dd07f; --warn:#ffb066; --bad:#ff8a80;
   --shadow:0 3px 12px rgba(0,0,0,.55);
   --dot:#e08a44;
+  --wood1:#73492b; --wood2:#54351f; --wood3:#3a2311; --wood-edge:#b08453;
+  --grain:rgba(255,214,160,.15); --wood-top:#8a5a35;
+  --nut1:#efe3ca; --nut2:#b3a180;
+  --peg1:#eedcbb; --peg2:#8d7048; --peg-edge:#caa877; --peg-num:#2a1c0d;
+  --hs-str:#f2e8d6; --str-shadow:#000; --hs-hot:#fbbf24; --hs-ok:#4ade80;
+  --fret:#33241a; --fret-wire:rgba(240,230,210,.42);
   color-scheme:dark;
 }
 body{
@@ -273,13 +286,14 @@ html[data-view="staff"] .scrollctl{display:none}
 }
 .notice b{color:var(--chord)}
 .tuner{text-align:center}
-.tnote{font-size:54px; font-weight:900; line-height:1.05; letter-spacing:-2px; margin:2px 0 0}
-.tnote small{font-size:22px; font-weight:800; color:var(--muted); letter-spacing:0}
+.tnote{font-size:34px; font-weight:900; line-height:1.05; letter-spacing:-1.2px; margin:2px 0 0}
+.tnote small{font-size:16px; font-weight:800; color:var(--muted); letter-spacing:0; margin-left:3px}
+.tnote.idle{font-size:20px; color:var(--muted); font-weight:800; letter-spacing:0}
 .tsub{font-size:13px; font-weight:700; color:var(--muted); margin-bottom:10px; min-height:19px}
 .tsub.ok{color:var(--ok)}
 .tsub.warn{color:var(--warn)}
 .gauge{position:relative; margin:6px 4px 2px}
-.gauge-track{position:relative; height:34px; border-radius:9px; background:var(--panel2); border:1px solid var(--line); overflow:hidden}
+.gauge-track{position:relative; height:30px; border-radius:9px; background:var(--panel2); border:1px solid var(--line); overflow:hidden}
 .gauge-zone{position:absolute; left:45%; width:10%; top:0; bottom:0; background:rgba(46,125,50,.16)}
 .gauge-mid{position:absolute; left:50%; top:0; bottom:0; width:2px; margin-left:-1px; background:var(--line2)}
 .gauge-tick{position:absolute; top:0; bottom:0; width:1px; background:var(--line); opacity:.8}
@@ -290,7 +304,57 @@ html[data-view="staff"] .scrollctl{display:none}
 }
 .gauge-needle.ok{background:var(--ok)}
 .gauge-scale{display:flex; justify-content:space-between; font-size:10.5px; font-weight:700; color:var(--muted); margin-top:3px; padding:0 2px}
-.tcents{font-size:15px; font-weight:800; color:var(--ink2); margin:6px 0 12px; font-variant-numeric:tabular-nums}
+.gauge-words{display:flex; justify-content:space-between; font-size:11px; font-weight:800; color:var(--muted); margin-top:1px; padding:0 2px; letter-spacing:-.2px}
+.gauge-words .mid{color:var(--ok)}
+.tcents{font-size:14px; font-weight:800; color:var(--ink2); margin:4px 0 10px; font-variant-numeric:tabular-nums}
+/* 튜너: 기타 헤드스톡 */
+.hs-wrap{position:relative; margin:2px auto 0; width:100%; max-width:250px}
+.hs-help{margin:0 2px 2px; font-size:11.5px; line-height:1.5}
+.hs-badge{
+  position:absolute; left:50%; top:0; z-index:2; pointer-events:none;
+  transform:translate(-50%,-4px) scale(.92); opacity:0;
+  background:var(--hs-ok); color:#fff; font-size:12px; font-weight:900; letter-spacing:-.2px;
+  padding:3px 11px; border-radius:999px; box-shadow:0 3px 12px rgba(21,128,61,.45);
+  white-space:nowrap; transition:opacity .16s ease, transform .16s ease;
+}
+.hs-badge.on{opacity:1; transform:translate(-50%,-2px) scale(1)}
+.headstock{display:block; width:100%; height:auto; overflow:visible; touch-action:manipulation; -webkit-user-select:none; user-select:none}
+#hsWood .w1{stop-color:var(--wood1)} #hsWood .w2{stop-color:var(--wood2)} #hsWood .w3{stop-color:var(--wood3)}
+#hsNeckGrad .w2{stop-color:var(--wood2)} #hsNeckGrad .w3{stop-color:var(--wood3)}
+#hsSheen .w1{stop-color:var(--wood-top); stop-opacity:.55} #hsSheen .w2{stop-color:var(--wood-top); stop-opacity:0}
+#hsMetal .w8{stop-color:var(--peg1)} #hsMetal .w9{stop-color:var(--peg2)}
+#hsNut .n1{stop-color:var(--nut1)} #hsNut .n2{stop-color:var(--nut2)}
+.hs-body{fill:url(#hsWood); stroke:var(--wood-edge); stroke-width:1.6; stroke-linejoin:round; filter:drop-shadow(0 3px 3px rgba(60,35,10,.22))}
+.hs-truss{fill:var(--wood-edge); opacity:.42}
+.hs-sheen{fill:none}
+.hs-grain{fill:none; stroke:var(--grain); stroke-width:1; stroke-linecap:round}
+.hs-neck{fill:var(--fret); stroke:var(--wood-edge); stroke-width:1.2; stroke-linejoin:round; stroke-opacity:.5}
+.hs-fret{stroke:var(--fret-wire); stroke-width:1.8; opacity:.9}
+.hs-nut{fill:url(#hsNut); stroke:var(--wood-edge); stroke-width:1; filter:drop-shadow(0 2px 2px rgba(40,22,6,.35))}
+.hs-shaft{stroke:var(--peg-edge); stroke-width:3.4; stroke-linecap:round}
+.hs-string{fill:none; stroke:var(--hs-str); stroke-linecap:round; transition:stroke .12s}
+.hs-string-sh{fill:none; stroke:var(--str-shadow); stroke-linecap:round; opacity:.42; transition:stroke .12s, opacity .12s}
+.hs-peg{fill:url(#hsMetal); stroke:var(--peg-edge); stroke-width:1.3; transition:stroke .12s, stroke-width .12s}
+.hs-peg-in{fill:var(--peg-num); opacity:.28; pointer-events:none}
+.hs-num{fill:var(--peg-num); font-size:11.5px; font-weight:800; text-anchor:middle; pointer-events:none; transition:fill .12s}
+.hs-note{fill:var(--ink2); font-size:12.5px; font-weight:900; letter-spacing:-.2px; pointer-events:none; transition:fill .12s}
+.hs-str{cursor:pointer}
+.hs-hit{fill:transparent; stroke:none; pointer-events:all}
+.hs-str:focus{outline:none}
+.hs-str:focus-visible .hs-peg{stroke:var(--accent); stroke-width:2.6}
+.hs-string.live{stroke:var(--hs-hot); filter:drop-shadow(0 0 3px var(--hs-hot))}
+.hs-string-sh.live{stroke:var(--hs-hot); opacity:.5}
+.hs-string.ok{stroke:var(--hs-ok); filter:drop-shadow(0 0 4px var(--hs-ok))}
+.hs-string-sh.ok{stroke:var(--hs-ok); opacity:.5}
+.hs-peg.live{stroke:var(--hs-hot); stroke-width:2.6; filter:drop-shadow(0 0 6px var(--hs-hot)); animation:hsPulse .6s ease-in-out infinite alternate}
+.hs-peg.ok{stroke:var(--hs-ok); stroke-width:3; filter:drop-shadow(0 0 8px var(--hs-ok))}
+.hs-num.live{fill:var(--hs-hot)} .hs-num.ok{fill:var(--hs-ok)}
+.hs-note.live{fill:var(--hs-hot)} .hs-note.ok{fill:var(--hs-ok)}
+@keyframes hsPulse{from{stroke-opacity:.75}to{stroke-opacity:1}}
+@media (prefers-reduced-motion:reduce){
+  .hs-peg.live{animation:none}
+  .hs-badge{transition:none}
+}
 .strsel{display:flex; gap:5px; margin:12px 0 0}
 .strsel .btn{flex:1; min-height:42px; padding:0 2px; font-size:12.5px; flex-direction:column; gap:0; line-height:1.25}
 .strsel .btn.on{background:var(--accent); border-color:var(--accent); color:#fff}
@@ -832,8 +896,35 @@ html[data-view="staff"] .lysync .lsrow1{display:none}
     <section class="pane" id="pane-tuner">
       <div class="scrollall">
         <div class="card tuner">
-          <div class="notice" id="micNotice">🎤 마이크를 쓰려면 허용을 눌러 주세요. <b>파일로 열었거나 마이크가 막혀 있으면</b> 아래 <b>기준음 듣기</b>로 귀로 맞출 수 있어요.</div>
-          <div class="tnote" id="tNote">—</div>
+          <div class="notice" id="micNotice">🎤 마이크를 허용하면 줄을 자동으로 찾아 줍니다. 마이크가 안 되면 아래 <b>기준음 듣기</b>로 귀로 맞춰 보세요.</div>
+          <button class="btn primary big wide" id="btnMic">🎤 마이크 튜너 시작</button>
+          <div class="hs-wrap">
+            <div class="hs-badge" id="hsBadge" aria-live="polite">✓ 정음</div>
+            <svg class="headstock" id="hsSvg" viewBox="0 0 300 235" role="img" aria-label="기타 헤드스톡 · 줄감개를 누르면 그 줄의 기준음이 납니다">
+              <defs>
+                <linearGradient id="hsWood" x1="0" y1="0" x2=".85" y2="1">
+                  <stop class="w1" offset="0"/><stop class="w2" offset=".5"/><stop class="w3" offset="1"/>
+                </linearGradient>
+                <linearGradient id="hsMetal" x1="0" y1="0" x2=".3" y2="1">
+                  <stop class="w8" offset="0"/><stop class="w9" offset="1"/>
+                </linearGradient>
+                <linearGradient id="hsNut" x1="0" y1="0" x2="0" y2="1">
+                  <stop class="n1" offset="0"/><stop class="n2" offset="1"/>
+                </linearGradient>
+                <linearGradient id="hsNeckGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop class="w2" offset="0"/><stop class="w3" offset="1"/>
+                </linearGradient>
+              </defs>
+              <g id="hsNeckG"></g>
+              <g id="hsBodyG"></g>
+              <g id="hsNutG"></g>
+              <g id="hsStringG"></g>
+              <g id="hsPegG"></g>
+              <g id="hsLabelG"></g>
+            </svg>
+          </div>
+          <p class="help hs-help">줄감개를 누르면 그 줄의 기준음이 나옵니다 · 6번 줄부터 하나씩 튕겨 보세요</p>
+          <div class="tnote idle" id="tNote">—</div>
           <div class="tsub" id="tSub">마이크를 켜면 자동으로 줄을 찾아 줍니다</div>
           <div class="gauge">
             <div class="gauge-track" id="gaugeTrack">
@@ -844,9 +935,9 @@ html[data-view="staff"] .lysync .lsrow1{display:none}
               <div class="gauge-needle" id="gaugeNeedle"></div>
             </div>
             <div class="gauge-scale"><span>−50</span><span>−25</span><span>0</span><span>+25</span><span>+50</span></div>
+            <div class="gauge-words"><span>낮음</span><span class="mid">딱 맞음</span><span>높음</span></div>
           </div>
           <div class="tcents" id="tCents">0 cent</div>
-          <button class="btn primary big wide" id="btnMic">🎤 마이크 튜너 시작</button>
           <div class="strsel" id="strLock"></div>
           <p class="help">줄을 하나 골라 두면 그 줄만 집중해서 볼 수 있습니다. '자동'은 가장 가까운 줄을 찾아 줍니다.</p>
         </div>
@@ -1781,8 +1872,10 @@ function playReference(idx){
   btns.forEach(function(b){ b.classList.remove("on"); });
   if (btns[idx]) { btns[idx].classList.add("on"); setTimeout(function(){ btns[idx].classList.remove("on"); }, 900); }
   $("#tNote").innerHTML = s.note + '<small> ' + s.no + '번 줄</small>';
+  $("#tNote").classList.remove("idle");
   $("#tSub").textContent = "기준음 " + s.no + "번 줄 " + s.note + " (" + s.freq.toFixed(1) + "Hz)";
   $("#tCents").textContent = "귀로 소리를 들으며 맞춰 보세요";
+  hsFlash(idx, 1800);
 }
 
 /* ================= 메트로놈 ================= */
@@ -2429,11 +2522,13 @@ function tunerStop(){
 }
 function resetTunerDisplay(){
   $("#tNote").innerHTML = "—";
+  $("#tNote").classList.add("idle");
   $("#tCents").textContent = "0 cent";
   var n = $("#gaugeNeedle");
   n.style.left = "50%";
   n.classList.remove("ok");
   tuner.hist = [];
+  hsClear();
 }
 function detectPitch(buf, sr){
   var n = buf.length, i;
@@ -2490,6 +2585,7 @@ function tunerLoop(){
     showPitch(f);
     tuner.seen = now;
   } else if (now - tuner.seen > 1200){
+    if (now > (hsState.hold || 0)) hsClear();
     if (tuner.lock < 0){
       $("#tSub").textContent = "줄을 하나씩 튕겨 보세요";
       $("#tSub").className = "tsub";
@@ -2509,8 +2605,10 @@ function showPitch(f){
     cents = 1200 * Math.log2(f / STRINGS[idx].freq);
   }
   var st = STRINGS[idx];
+  var cs = Math.abs(cents) < 0.05 ? 0 : cents;
   $("#tNote").innerHTML = st.note + '<small> ' + st.no + '번 줄</small>';
-  $("#tCents").textContent = st.freq.toFixed(1) + "Hz · " + (cents >= 0 ? "+" : "") + cents.toFixed(1) + " cent";
+  $("#tNote").classList.remove("idle");
+  $("#tCents").textContent = st.freq.toFixed(1) + "Hz · " + (cs > 0 ? "+" : "") + cs.toFixed(1) + " cent";
   var n = $("#gaugeNeedle");
   n.style.left = clamp(50 + cents / 50 * 50, 1, 99) + "%";
   var ok = Math.abs(cents) <= 5;
@@ -2519,6 +2617,7 @@ function showPitch(f){
   if (ok){ sub.textContent = "딱 맞았어요! 아주 좋아요 👍"; sub.className = "tsub ok"; }
   else if (cents < 0){ sub.textContent = "조금 낮아요 · 줄을 조여 주세요 (" + Math.round(-cents) + " cent)"; sub.className = "tsub warn"; }
   else { sub.textContent = "조금 높아요 · 줄을 풀어 주세요 (" + Math.round(cents) + " cent)"; sub.className = "tsub warn"; }
+  hsShowPitch(idx, ok);
 }
 
 
@@ -7015,6 +7114,23 @@ function bindUI(){
     tuner.lock = parseInt(b.getAttribute("data-lock"), 10);
     $$("#strLock .btn").forEach(function(x){ x.classList.toggle("on", parseInt(x.getAttribute("data-lock"), 10) === tuner.lock); });
   });
+  var hsSvg = $("#hsSvg");
+  if (hsSvg){
+    hsSvg.addEventListener("click", function(e){
+      var t = e.target.closest ? e.target.closest("[data-hs-str]") : null;
+      if (!t) return;
+      var i = parseInt(t.getAttribute("data-hs-str"), 10);
+      if (i >= 0) playReference(i);
+    });
+    hsSvg.addEventListener("keydown", function(e){
+      if (e.key !== "Enter" && e.key !== " " && e.key !== "Spacebar") return;
+      var t = e.target.closest ? e.target.closest("[data-hs-str]") : null;
+      if (!t) return;
+      e.preventDefault();
+      var i = parseInt(t.getAttribute("data-hs-str"), 10);
+      if (i >= 0) playReference(i);
+    });
+  }
 
   /* 코드 사전 */
   $("#rootBtns").addEventListener("click", function(e){
@@ -7097,6 +7213,157 @@ function bindUI(){
 }
 
 /* ================= 시작 ================= */
+/* ---------- 튜너: 기타 헤드스톡 (3×3) ---------- */
+var HS_NOTES = ["E2", "A2", "D3", "G3", "B3", "E4"];
+var HS_SLOT = [106, 123.6, 141.2, 158.8, 176.4, 194];
+/* 인덱스 0 = 6번 줄. 왼쪽 아래 6E, 왼쪽 중간 5A, 왼쪽 위 4D / 오른쪽 위 3G, 오른쪽 중간 2B, 오른쪽 아래 1E */
+var HS_SLOT = [92, 115.2, 138.4, 161.6, 184.8, 208];
+/* 인덱스 0 = 6번 줄. 왼쪽 아래 6E, 왼쪽 중간 5A, 왼쪽 위 4D / 오른쪽 위 3G, 오른쪽 중간 2B, 오른쪽 아래 1E */
+var HS_PEG = [
+  { x: 84,  y: 148, side: -1 },   // 6 E2 왼쪽 아래
+  { x: 84,  y: 98,  side: -1 },   // 5 A2 왼쪽 중간
+  { x: 84,  y: 48,  side: -1 },   // 4 D3 왼쪽 위
+  { x: 216, y: 48,  side: 1 },    // 3 G3 오른쪽 위
+  { x: 216, y: 98,  side: 1 },    // 2 B3 오른쪽 중간
+  { x: 216, y: 148, side: 1 }     // 1 E4 오른쪽 아래
+];
+var HS_NUT_TOP = 174, HS_NUT_BOT = 182, HS_BOTTOM = 235;
+var HS_WIDTH = [3.4, 2.9, 2.4, 1.9, 1.4, 1.1];
+var HS_BODY_D = "M114 10 L186 10 Q200 10 201 26 C203 70 208 130 214 182 L86 182 C92 130 97 70 99 26 Q100 10 114 10 Z";
+var HS_NECK_D = "M90 182 L88 235 L212 235 L210 182 Z";
+var HS_TRUSS_D = "M150 22 C156 22 160 26 160 32 L160 52 C160 58 154 62 150 62 C146 62 140 58 140 52 L140 32 C140 26 144 22 150 22 Z";
+var hsState = { idx: -1, ok: false, timer: 0, hold: 0 };
+
+function svgEl(tag, cls, attrs){
+  var n = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  if (cls) n.setAttribute("class", cls);
+  if (attrs) for (var k in attrs) n.setAttribute(k, attrs[k]);
+  return n;
+}
+function buildHeadstock(){
+  var svg = $("#hsSvg");
+  if (!svg) return;
+  var neckG = $("#hsNeckG"), bodyG = $("#hsBodyG"), nutG = $("#hsNutG"),
+      strG = $("#hsStringG"), pegG = $("#hsPegG"), labG = $("#hsLabelG");
+  if (!neckG || !bodyG || !nutG || !strG || !pegG || !labG) return;
+  [neckG, bodyG, nutG, strG, pegG, labG].forEach(function(g){ g.textContent = ""; });
+
+  /* 목(넥) = 지판 */
+  neckG.appendChild(svgEl("path", "hs-neck", { d: HS_NECK_D }));
+  var fretG = svgEl("g", null, { "clip-path": "url(#hsFretClip)" });
+
+  /* 헤드(나무판) + 나무결 */
+  bodyG.appendChild(svgEl("path", "hs-body", { d: HS_BODY_D }));
+  var defs = svg.querySelector("defs");
+  ["#hsClip", "#hsFretClip"].forEach(function(id){
+    var old = svg.querySelector(id);
+    if (old) old.parentNode.removeChild(old);
+  });
+  var clip = svgEl("clipPath", null, { id: "hsClip" });
+  clip.appendChild(svgEl("path", null, { d: HS_BODY_D }));
+  var fclip = svgEl("clipPath", null, { id: "hsFretClip" });
+  fclip.appendChild(svgEl("path", null, { d: HS_NECK_D }));
+  if (defs){ defs.appendChild(clip); defs.appendChild(fclip); }
+  var grain = svgEl("g", null, { "clip-path": "url(#hsClip)" });
+  ["M 100 180 C 102 132 104 76 112 24",
+   "M 122 180 C 126 130 130 74 138 20",
+   "M 156 180 C 158 130 160 70 162 18",
+   "M 186 180 C 184 130 182 74 178 22",
+   "M 204 180 C 200 132 196 78 192 28"].forEach(function(d){
+    grain.appendChild(svgEl("path", "hs-grain", { d: d }));
+  });
+  bodyG.appendChild(grain);
+  bodyG.appendChild(svgEl("path", "hs-truss", { d: HS_TRUSS_D }));
+
+  /* 지판 프렛선 */
+  neckG.appendChild(fretG);
+  [[207, 89.1, 210.9], [232, 88.2, 211.8]].forEach(function(f){
+    fretG.appendChild(svgEl("line", "hs-fret", { x1: String(f[1]), y1: String(f[0]), x2: String(f[2]), y2: String(f[0]) }));
+  });
+
+  /* 너트 */
+  nutG.appendChild(svgEl("rect", "hs-nut", {
+    x: "86", y: String(HS_NUT_TOP), width: "128", height: String(HS_NUT_BOT - HS_NUT_TOP), rx: "2"
+  }));
+
+  for (var i = 0; i < 6; i++){
+    var p = HS_PEG[i], s = HS_SLOT[i], dir = -p.side;
+    var x0 = p.x + dir * 11;
+    var d = "M" + x0 + " " + p.y + " L" + s + " " + HS_NUT_TOP + " L" + s + " " + HS_BOTTOM;
+    strG.appendChild(svgEl("path", "hs-string-sh hs-str", {
+      d: d, "stroke-width": String(HS_WIDTH[i] + 1.4), "data-hs-str": String(i)
+    }));
+    strG.appendChild(svgEl("path", "hs-string hs-str", {
+      d: d, "stroke-width": String(HS_WIDTH[i]), "data-hs-str": String(i)
+    }));
+
+    var circ = svgEl("circle", "hs-peg hs-str", {
+      cx: String(p.x), cy: String(p.y), r: "15", "data-hs-str": String(i), tabindex: "0", role: "button"
+    });
+    circ.setAttribute("aria-label", STRINGS[i].no + "번 줄 " + HS_NOTES[i] + " 기준음 듣기");
+    pegG.appendChild(circ);
+    pegG.appendChild(svgEl("circle", "hs-peg-in", { cx: String(p.x), cy: String(p.y), r: "6.2" }));
+    var num = svgEl("text", "hs-num hs-str", { x: String(p.x), y: String(p.y + 4), "data-hs-str": String(i) });
+    num.textContent = String(STRINGS[i].no);
+    pegG.appendChild(num);
+    /* 손가락으로 누르기 편하도록 넉넉한 투명 터치 영역 */
+    pegG.appendChild(svgEl("circle", "hs-hit hs-str", {
+      cx: String(p.x), cy: String(p.y), r: "21", "data-hs-str": String(i)
+    }));
+
+    var lx = p.side < 0 ? 62 : 238;
+    var note = svgEl("text", "hs-note hs-str", {
+      x: String(lx), y: String(p.y + 4.5), "text-anchor": p.side < 0 ? "end" : "start", "data-hs-str": String(i)
+    });
+    note.textContent = HS_NOTES[i];
+    labG.appendChild(note);
+  }
+}
+function hsQuery(i){ return $$('#hsSvg [data-hs-str="' + i + '"]'); }
+function hsSet(i, ok){
+  ok = !!ok;
+  if (hsState.idx === i && hsState.ok === ok) return;
+  var prev = hsState.idx;
+  if (prev >= 0 && prev !== i){
+    hsQuery(prev).forEach(function(n){ n.classList.remove("live"); n.classList.remove("ok"); });
+  }
+  hsState.idx = i; hsState.ok = ok;
+  if (i >= 0){
+    hsQuery(i).forEach(function(n){
+      n.classList.toggle("ok", ok);
+      n.classList.toggle("live", !ok);
+    });
+  }
+  var badge = $("#hsBadge");
+  if (badge){
+    if (i >= 0 && ok){
+      badge.textContent = "✓ 정음 · " + STRINGS[i].no + "번 " + HS_NOTES[i];
+      badge.classList.add("on");
+    } else {
+      badge.classList.remove("on");
+    }
+  }
+}
+function hsShowPitch(i, ok){
+  if (hsState.timer){ clearTimeout(hsState.timer); hsState.timer = 0; }
+  hsState.hold = 0;
+  hsSet(i, ok);
+}
+function hsFlash(i, ms){
+  if (hsState.timer) clearTimeout(hsState.timer);
+  hsSet(i, false);
+  var wait = ms || 1500;
+  hsState.hold = Date.now() + wait;
+  hsState.timer = setTimeout(function(){
+    hsState.timer = 0; hsState.hold = 0; hsSet(-1, false);
+  }, wait);
+}
+function hsClear(){
+  if (hsState.timer){ clearTimeout(hsState.timer); hsState.timer = 0; }
+  hsState.hold = 0;
+  hsSet(-1, false);
+}
+
 function buildRefButtons(){
   var box = $("#refBtns");
   box.innerHTML = "";
@@ -7129,6 +7396,7 @@ function init(){
   buildCapo();
   buildRefButtons();
   buildStringLock();
+  buildHeadstock();
   buildRoots();
   renderLibrary();
   setBpm(state.bpm, true);
